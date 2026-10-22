@@ -51,7 +51,7 @@ The requirements are written per ITU-T Y.3172 pipeline node, with IDs used in th
 | MLFO | Pipeline configuration: which models, which sources, which thresholds | Standards | ITU-T Y.3172 |
 | Sandbox | Fixed questions and error scenarios run before release (SB-1) | Sandbox Environments; dimension 9 | ITU-T Y.3172 |
 
-Where the mapping is a stretch, we say so. Y.3172's orchestrator places models across network levels, and its ML intent is written for networks; Dalil's pipeline configuration is an analogy for it, not an implementation. Y.3172's policy node fits Dalil's checker and human approval closely: it "enables the application of policies to the output of the model node", which is exactly what the checker does. *Check this quote against the Recommendation's text before submission.*
+Where the mapping is a stretch, we say so. Y.3172's orchestrator places models across network levels, and its ML intent is written for networks; Dalil's pipeline configuration is an analogy for it, not an implementation. Y.3172's policy node fits Dalil's checker and human approval closely: it "enables the application of policies to the output of the model node", which is exactly what the checker does.
 
 ## 5. Evaluation scenarios
 
@@ -74,14 +74,14 @@ The controversy case: a resident asks whether a government entity's handling of 
 ## 6. Policy and standards gaps
 
 1. **The PDPL does not apply to government entities.** Article 2(2) of Federal Decree-Law 45 of 2021 says it "shall not apply" to "Government Data" or to "Governmental entities which control or process Personal Data". A government answering agent that handles residents' personal data therefore has no statutory data protection duties. By comparison, the EU's GDPR applies to public authorities. Dalil redacts personal data anyway, but that is a design choice, not an obligation.
-2. **No rule found requiring a government AI service to tell residents they are dealing with AI.** The EU AI Act's transparency obligations are the obvious comparison. *To verify before submission.*
+2. **No rule found requiring a government AI service to tell residents they are dealing with AI.** The UAE Charter asks for transparency in general terms, but we found no rule specific to government AI services. The EU AI Act's Article 50 requires that people be told when they are interacting with an AI system. *Search the UAE AI Office's published guidance once more before submission.*
 3. **Government service content is not open for reuse.** The UAE government portal reserves all rights to its content, so an agent built to explain government services cannot republish the text it explains. Bayanat's open licence covers what Bayanat publishes, which is data, not service procedures.
 4. **Y.3172 has no node for provenance or citation, and no role for a human approver.** Dalil had to place both inside the policy node. A standard for trustworthy answering agents would make source attribution and human sign-off first-class parts of the pipeline.
-5. **No evaluation standard for Arabic government answering agents.** *Global example to add before submission.*
+5. **No evaluation set for Arabic government-service answers.** General Arabic benchmarks exist, such as BALSAM, hosted by Saudi Arabia's King Salman Global Academy for Arabic Language, and the Open Arabic LLM Leaderboard. We found none with a task for answering residents' questions from government documents. Dalil's own test set is English only, and its embedding model is multilingual, but nothing measures how well it answers in Arabic.
 
 ## Notes for the team before submission
 
 - Move this onto ITU's template and check it fits five pages.
-- Confirm gaps 2 and 5, and add the global example for gap 5.
+- Search the UAE AI Office's guidance once more for gap 2.
 - Rebuild the knowledge base after the 26 October review, so `kb_decisions` holds real decisions.
 - Ask at mentoring whether the knowledge base must be hosted in the AI for Good Lab, and whether passages built outside ITU's chunker are accepted.
