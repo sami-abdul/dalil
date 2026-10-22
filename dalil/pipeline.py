@@ -25,6 +25,12 @@ from dalil.store import Store
 from dalil.hmem import Guidance, guidance
 from dalil.verify import Verifier, load_passages, zetaris_lookup
 
+def cited_passages(check: dict[str, Any] | None) -> list[str]:
+    """Passage ids the kept sentences of a checked answer cite."""
+    return sorted({c["passage_id"] for s in (check or {}).get("sentences", []) if s.get("kept")
+                   for c in s.get("citations", []) if c.get("passage_id")})
+
+
 def document_titles() -> dict[str, str]:
     """doc_id -> title from the manifest, or nothing if it cannot be read."""
     from dalil.corpus import doc_id, load_manifest
@@ -146,6 +152,8 @@ class Pipeline:
             # Too few key words to know the subject: ask, rather than guess.
             self.store.event(qid, "retrieved", {"skipped": "vague_question", "hits": 0})
             draft = [refusal(safety.ASK_FOR_DETAIL)]
+            if screened.has_personal_data:
+                draft.append(caveat(safety.PERSONAL_DATA_CAVEAT))
         else:
             past = self.recall(qid, q)
             hits = self.search(q, past.avoid)

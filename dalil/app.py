@@ -29,7 +29,7 @@ from dalil.corpus import doc_id as manifest_doc_id
 from dalil.corpus import load_manifest, resolve_corpus_dir
 from dalil.draft import ExtractiveDrafter, FallbackDrafter, LLMDrafter
 from dalil.hmem import HMem
-from dalil.pipeline import Pipeline
+from dalil.pipeline import Pipeline, cited_passages
 from dalil.safety import redact
 from dalil.store import ReviewError
 
@@ -214,8 +214,7 @@ def create_app(
     def write_memory(memory: Any, qid: str, decision: str, reviewer: str, note: str) -> dict[str, Any] | None:
         rec = store.get(qid) or {}
         check = rec.get("check") or {}
-        cited = sorted({c["passage_id"] for s in check.get("sentences", []) if s.get("kept")
-                        for c in s.get("citations", []) if c.get("passage_id")})
+        cited = cited_passages(check)
         out = memory.remember(decision, qid, rec.get("question", ""), reviewer, cited,
                               answer=check.get("answer", ""), note=note)
         if not out or not isinstance(out.get("memory"), dict) or not out["memory"].get("id"):

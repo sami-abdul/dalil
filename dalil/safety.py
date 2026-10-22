@@ -18,6 +18,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+from dalil.retrieve import tokenize
+
 PERSONAL_DATA = "personal_data"
 RULE_EVASION = "rule_evasion"
 
@@ -61,9 +63,17 @@ REFUSAL_TEXT = "I can't help with getting around UAE rules, fines or penalties."
 REFUSAL_FOLLOW_UP = "For your real options, ask ICP or GDRFA through their official channels."
 VAGUE = "vague_question"
 ASK_FOR_DETAIL = "Please say which service or document you mean, so I can answer from the right official source."
-# A question needs at least this many key words, after stopwords, for Dalil to
-# know what it is about. "How long can I stay?" has two.
-MIN_KEY_WORDS = 3
+# Words that say what someone wants to know but not what it is about. A
+# question whose key words are all of this kind, such as "How long can I
+# stay?" or "What does it cost?", has no subject. Stems, as tokenize() makes.
+_GENERIC = frozenset("long much mani get need can take stay go work cost time day year do make use want "
+                     "allow possibl requir happen start finish valid".split())
+_PLACEHOLDER = re.compile(r"\[[A-Z ]+\]")
+
+
+def subject_words(text: str) -> set[str]:
+    """Key words that name a subject, without redaction placeholders."""
+    return {t for t in tokenize(_PLACEHOLDER.sub(" ", text)) if t not in _GENERIC}
 PERSONAL_DATA_CAVEAT = (
     "Don't share ID or passport numbers here; check your status on the official ICP or GDRFA channels."
 )
@@ -129,8 +139,7 @@ def find_personal_data(text: str) -> list[str]:
 def screen(question: str) -> ScreenResult:
     """Redact personal data and flag requests to get around the rules."""
     redacted, flags = redact(question.strip())
-    from dalil.retrieve import tokenize
-    if len(set(tokenize(redacted))) < MIN_KEY_WORDS:
+    if not subject_words(redacted):
         flags.append(VAGUE)
     if _EVASION.search(redacted):
         flags.append(RULE_EVASION)
