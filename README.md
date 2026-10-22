@@ -9,7 +9,7 @@ Built for the Open Agent Hackathon 2026, Track 02, "The Agent That Can Explain W
 1. You ask a question about a UAE government service.
 2. Dalil screens it. Emirates ID, passport, phone and email details are redacted before anything is stored, and requests to get around the rules get a refusal. Reviewers' names and notes are redacted the same way.
 3. It recalls past reviews from H-MEM, Meterless's memory engine. For a question that shares most of its key words with an earlier one, it leaves out the passages a reviewer rejected there, unless an approved answer to a similar question used them.
-4. It searches 1,024 passages from 45 official documents, and runs fixed open-data queries through Zetaris when the question needs numbers.
+4. It searches 1,024 passages from 45 official documents with BM25 fused with NVIDIA Nemotron-3-Embed-1B embeddings, and runs fixed open-data queries through Zetaris when the question needs numbers.
 5. NVIDIA Nemotron drafts an answer. The model sees the sources as numbered sentences and may only point at those ids or at the queries Dalil ran, enforced by a JSON schema; Dalil then writes each quote itself, so quotes are exact. If the model is unavailable, an extractive drafter quotes source sentences instead, and the audit trail records which one ran.
 6. A checker tests every citation. A quote must appear word for word in a passage the drafter was given. Every number in a sentence, in digits or words, must appear in its evidence, and values from open data must come from one row of a rerun query. Most of a claim's key words must be in its sources, and it may not add a negation they lack. Sentences that fail are cut, and an answer that loses too much is held. The checker cannot judge meaning, so the reviewer reads every answer.
 7. A reviewer sees the answer, the exact passage behind each citation highlighted on its page, the sentences that were cut and why, and the audit trail. Nothing goes out until they approve it.
@@ -55,7 +55,8 @@ uv run python scripts/build_passages.py          # passages with exact offsets -
 cp .env.example .env                             # then fill in the Zetaris settings
 uv run python scripts/load_zetaris.py            # documents, pages, passages and open data into Zetaris
 uv run python scripts/check_zetaris.py           # counts, and a citation query rerun inside Zetaris
-LLAMA_SERVER=... MODEL=... scripts/serve_nemotron.sh   # Nemotron 3 Nano 4B on 127.0.0.1:8790
+LLAMA_SERVER=... MODEL=... scripts/serve_nemotron.sh         # Nemotron 3 Nano 4B on 127.0.0.1:8790
+LLAMA_SERVER=... MODEL=... scripts/serve_nemotron_embed.sh   # Nemotron-3-Embed-1B on 127.0.0.1:8791
 uv run python scripts/serve.py                   # app on http://127.0.0.1:8787, H-MEM bridge on 8788
 ```
 
@@ -76,12 +77,11 @@ uv run python scripts/run_eval.py                # every test question and error
 |---|---|
 | Zetaris | Federated SQL over the documents, pages, passages and four Bayanat open datasets, all in one Lightning database. Citations to open data are Zetaris queries that the checker reruns |
 | Meterless | H-MEM, vendored unchanged from Meterless's reference implementation, keeps approved answers and reviewers' rejections with their provenance in its append-only trust ledger |
-| NVIDIA | NVIDIA Nemotron 3 Nano 4B drafts the answers, running locally through llama.cpp from NVIDIA's own GGUF, under the NVIDIA Nemotron Open Model License. The drafter speaks the OpenAI-compatible API, so NVIDIA's hosted endpoint can replace the local server by setting `DALIL_LLM_URL`, `DALIL_LLM_KEY` and `DALIL_LLM_MODEL`; that path has not been tried yet |
+| NVIDIA | NVIDIA Nemotron-3-Embed-1B embeds the passages for dense retrieval, fused with BM25: it lifts recall at top 3 on the ten test questions from 9 to 10. NVIDIA Nemotron 3 Nano 4B drafts the answers, running locally through llama.cpp from NVIDIA's own GGUF, under the NVIDIA Nemotron Open Model License. The drafter speaks the OpenAI-compatible API, so NVIDIA's hosted endpoint can replace the local server by setting `DALIL_LLM_URL`, `DALIL_LLM_KEY` and `DALIL_LLM_MODEL`; that path has not been tried yet |
 | Claude Code | Wrote the code; see [docs/tool-log.md](docs/tool-log.md) |
 
 ## Not done yet
 
-- **Dense retrieval.** Search is BM25 for now. `dalil/retrieve.py` has the hook for Nemotron embeddings.
 - **Speed.** On the build machine's CPU, Nemotron 3 Nano 4B takes about 40 to 55 seconds per answer: it reads the prompt at 65 to 80 tokens a second and writes at 6 to 8. A GPU would be far faster.
 - **Model size.** A 4B model sometimes picks a correct but off-topic sentence, or mixes the rules of two related services. Every quote and number is still checked, and the reviewer catches the rest.
 

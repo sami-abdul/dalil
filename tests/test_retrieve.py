@@ -124,7 +124,10 @@ def test_hybrid_with_embedder_fuses_rankings():
     assert hits[0].passage_id == "gratuity:p1:1"  # first in both rankings
     # Passages BM25 cannot see still come back through the dense ranking.
     assert len(hits) == len(PASSAGES)
-    assert all(0 < h.score <= 2 / 61 for h in hits)
+    # Scores stay BM25, so thresholds keep their meaning; dense-only hits score 0.
+    bm25 = r.Retriever(PASSAGES).scores("gratuity")
+    assert hits[0].score == pytest.approx(max(bm25.values()))
+    assert any(h.score == 0.0 for h in hits)
     calls = emb.calls
     hyb.search("visa", k=2)
     assert emb.calls == calls + 1  # passage vectors are computed once
@@ -140,3 +143,24 @@ def test_hybrid_rejects_wrong_vector_counts():
 
     with pytest.raises(ValueError):
         r.HybridRetriever(r.Retriever(PASSAGES), Short()).search("visa")
+
+
+
+class PrefixEmbedder(LetterEmbedder):
+    def __init__(self):
+        super().__init__()
+        self.queries, self.passages = [], []
+
+    def embed_query(self, text):
+        self.queries.append(text)
+        return self.embed([text])[0]
+
+    def embed_passages(self, texts):
+        self.passages.extend(texts)
+        return self.embed(texts)
+
+
+def test_hybrid_uses_query_and_passage_methods_when_present():
+    emb = PrefixEmbedder()
+    r.HybridRetriever(r.Retriever(PASSAGES), emb, batch_size=2).search("gratuity", k=2)
+    assert emb.queries == ["gratuity"] and len(emb.passages) == len(PASSAGES)

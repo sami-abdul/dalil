@@ -373,7 +373,7 @@ class LLMDrafter:
         has_data = any(d.rows for d in data)
         # Same rule as the extractive drafter: weak retrieval means the sources
         # do not cover the question, so refuse rather than ask the model.
-        if not has_data and (not numbered or not hits or hits[0].score < WEAK_SCORE):
+        if not has_data and (not numbered or not hits or max(h.score for h in hits) < WEAK_SCORE):
             return [refusal()]
         raw = self.complete(self.messages(question, hits, data, notes, numbered), self.schema(numbered, data))
         try:

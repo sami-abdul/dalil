@@ -91,6 +91,15 @@ def main() -> int:
         print(f"refusing to bind {args.host}: Dalil serves private text, use 127.0.0.1", file=sys.stderr)
         return 2
     bridge = None if args.no_memory else start_memory()
+    # Dense retrieval: use the embedding server if one answers. The retriever
+    # reads DALIL_EMBED_URL; without it, search is BM25 alone.
+    from dalil.embed import HTTPEmbedder
+    embedder = HTTPEmbedder()
+    if os.environ.get("DALIL_EMBED_URL") or embedder.available():
+        os.environ.setdefault("DALIL_EMBED_URL", embedder.url)
+        print(f"dense retrieval on, embeddings from {os.environ['DALIL_EMBED_URL']}")
+    else:
+        print("no embedding server answers: search is BM25 alone")
     try:
         uvicorn.run(create_default_app(), host=args.host, port=args.port, log_level="info")
     finally:

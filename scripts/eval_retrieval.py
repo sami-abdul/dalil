@@ -31,12 +31,21 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--questions", type=Path, default=QUESTIONS)
     ap.add_argument("--k", type=int, default=8)
     ap.add_argument("--no-stem", action="store_true", help="index whole words, without stemming")
+    ap.add_argument("--dense", action="store_true",
+                    help="fuse BM25 with dense embeddings from DALIL_EMBED_URL (default 127.0.0.1:8791)")
     args = ap.parse_args(argv)
     if not args.passages.is_file():
         print(f"error: {args.passages} not found; run scripts/build_passages.py first", file=sys.stderr)
         return 1
 
-    searcher = HybridRetriever(Retriever.from_jsonl(args.passages, stem=not args.no_stem))
+    embedder = None
+    if args.dense:
+        from dalil.embed import HTTPEmbedder
+        embedder = HTTPEmbedder()
+        if not embedder.available():
+            print("error: no embedding endpoint answers at " + embedder.url, file=sys.stderr)
+            return 1
+    searcher = HybridRetriever(Retriever.from_jsonl(args.passages, stem=not args.no_stem), embedder)
     questions = read_jsonl(args.questions)
     at3 = at8 = scored = 0
     misses3, misses8 = [], []
@@ -67,7 +76,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"summary: questions={scored} recall@3={at3}/{scored} ({at3 / scored:.0%}) "
               f"recall@8={at8}/{scored} ({at8 / scored:.0%}) "
               f"misses@3={','.join(misses3) or 'none'} misses@8={','.join(misses8) or 'none'} "
-              f"stem={'off' if args.no_stem else 'on'}")
+              f"dense={args.dense} stem={'off' if args.no_stem else 'on'}")
     return 0
 
 

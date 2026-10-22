@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import heapq
 import math
+import os
 import re
 import unicodedata
 from collections import Counter, defaultdict
@@ -208,6 +209,10 @@ class Embedder(Protocol):
 
     def embed(self, texts: Sequence[str]) -> list[list[float]]: ...
 
+# An embedder may also define embed_query(text) and embed_passages(texts), for
+# models that want different prefixes for queries and documents. The hybrid
+# retriever uses them when they exist.
+
 
 def _cosine(a: Sequence[float], b: Sequence[float]) -> float:
     dot = sum(x * y for x, y in zip(a, b))
@@ -223,7 +228,9 @@ class HybridRetriever:
     passage vectors are computed once on first search (or passed in as
     `passage_vectors`, for a precomputed index), each ranking keeps its top
     `pool`, and a passage scores sum(1 / (rrf_k + rank)) over the rankings it
-    appears in. Hit.score is then the fused score.
+    appears in. Hits come back in fused order, but Hit.score stays the BM25
+    score (0 for a passage only the dense side found), so thresholds on it,
+    such as the drafters' weak-retrieval refusal, keep their meaning.
     """
 
     def __init__(self, lexical: Retriever, embedder: Embedder | None = None, *,
@@ -241,8 +248,9 @@ class HybridRetriever:
             assert self.embedder is not None
             texts = [Retriever.index_text(p) for p in self.lexical.passages]
             vectors: list[Sequence[float]] = []
+            embed = getattr(self.embedder, "embed_passages", None) or self.embedder.embed
             for i in range(0, len(texts), self.batch_size):
-                vectors.extend(self.embedder.embed(texts[i : i + self.batch_size]))
+                vectors.extend(embed(texts[i : i + self.batch_size]))
             if len(vectors) != len(texts):
                 raise ValueError("embedder returned the wrong number of vectors")
             self._vectors = vectors
@@ -251,14 +259,16 @@ class HybridRetriever:
     def search(self, query: str, k: int = 8) -> list[Hit]:
         if self.embedder is None:
             return self.lexical.search(query, k)
-        lexical = _top(self.lexical.scores(query).items(), self.pool)
-        qvec = self.embedder.embed([query])[0]
+        bm25 = self.lexical.scores(query)
+        lexical = _top(bm25.items(), self.pool)
+        embed_query = getattr(self.embedder, "embed_query", None)
+        qvec = embed_query(query) if embed_query else self.embedder.embed([query])[0]
         dense = _top(((i, _cosine(qvec, v)) for i, v in enumerate(self._passage_vectors())), self.pool)
         fused: dict[int, float] = defaultdict(float)
         for ranking in (lexical, dense):
             for rank, (i, _) in enumerate(ranking, start=1):
                 fused[i] += 1.0 / (self.rrf_k + rank)
-        return [self.lexical.hit(i, s) for i, s in _top(fused.items(), k)]
+        return [self.lexical.hit(i, bm25.get(i, 0.0)) for i, _ in _top(fused.items(), k)]
 
 
 def make_retriever(path: Path | str, embedder: Embedder | None = None) -> Searcher:
@@ -269,4 +279,8 @@ def make_retriever(path: Path | str, embedder: Embedder | None = None) -> Search
     an Embedder for it and pass it here (or build it here from configuration);
     callers keep calling ``.search(query, k)`` unchanged.
     """
+    if embedder is None and os.environ.get("DALIL_EMBED_URL"):
+        from dalil.embed import HTTPEmbedder
+        candidate = HTTPEmbedder()
+        embedder = candidate if candidate.available() else None
     return HybridRetriever(Retriever.from_jsonl(path), embedder)
