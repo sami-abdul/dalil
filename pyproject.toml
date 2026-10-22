@@ -1,0 +1,18 @@
+[project]
+name = "dalil"
+version = "0.1.0"
+description = "Answers about UAE government services, tied sentence by sentence to the official text, with a person approving each answer."
+readme = "README.md"
+requires-python = ">=3.13"
+license = "Apache-2.0"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

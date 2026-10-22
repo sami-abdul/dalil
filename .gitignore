@@ -1,0 +1,17 @@
+# Secrets and local settings
+.env
+.env.*
+!.env.example
+
+# The document corpus. Most UAE government publishers forbid republishing,
+# so documents and any text derived from them stay local. See data/README.md.
+corpus/
+build/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
