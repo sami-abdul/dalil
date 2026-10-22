@@ -212,9 +212,35 @@ def test_default_open_tables_reads_committed_map(tmp_path):
 
 def test_committed_open_tables_point_at_real_files():
     mod = _load_script("load_zetaris")
-    specs = mod.default_open_tables()
-    assert len(specs) == 4
-    for spec in specs:
-        table, _, path = spec.partition("=")
-        z.check_name(table)
-        assert Path(path).is_file()
+    import csv as _csv
+    with mod.OPEN_TABLES.open(newline="", encoding="utf-8") as fh:
+        rows = list(_csv.DictReader(fh))
+    specs = mod.open_table_specs([], include_defaults=True)
+    assert len(specs) == len(rows) > 0
+    assert all(path.is_file() for _, path, _ in specs)
+
+
+def test_open_table_specs_adds_cli_to_defaults_and_can_skip_them(tmp_path):
+    mod = _load_script("load_zetaris")
+    f = tmp_path / "rates.csv"
+    f.write_text("a,b\n1,2\n", encoding="utf-8")
+    both = mod.open_table_specs([f"rates={f}"], include_defaults=True)
+    assert both[-1][0] == "rates" and len(both) == len(mod.default_open_tables()) + 1
+    only = mod.open_table_specs([f"rates={f}"], include_defaults=False)
+    assert [t for t, _, _ in only] == ["rates"]
+
+
+def test_open_table_specs_rejects_collisions_and_bad_paths(tmp_path):
+    mod = _load_script("load_zetaris")
+    f = tmp_path / "x.csv"
+    f.write_text("a\n1\n", encoding="utf-8")
+    for bad in ([f"pages={f}"], [f"x={f}", f"X={f}"], [f"x={tmp_path / 'missing.csv'}"], ["nosep"]):
+        with pytest.raises(z.ZetarisError):
+            mod.open_table_specs(bad, include_defaults=False)
+
+
+def test_csv_record_count_counts_multiline_records(tmp_path):
+    mod = _load_script("load_zetaris")
+    f = tmp_path / "m.csv"
+    f.write_text('name,address\nA,"line one\nline two"\nB,plain\n', encoding="utf-8")
+    assert mod.csv_record_count(f) == 2

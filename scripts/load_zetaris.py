@@ -2,12 +2,16 @@
 
     uv run python scripts/load_zetaris.py                 # build/documents.jsonl
     uv run python scripts/load_zetaris.py --dry-run       # show the plan, send nothing
-    uv run python scripts/load_zetaris.py --csv rates=data/open/rates.csv
+    uv run python scripts/load_zetaris.py --no-open       # documents and pages only
+    uv run python scripts/load_zetaris.py --csv rates=data/open/rates.csv   # one more CSV
 
 Creates the Lightning database `dalil` (if missing) with two tables:
 
     dalil.documents  one row per document: manifest metadata plus page_count
     dalil.pages      one row per page: doc_id, page, text, char_count
+
+plus one table per row of data/open/tables.csv, the committed open data.
+`--csv` adds tables to those; `--no-open` skips the committed ones.
 
 Mechanism, and why: each table is a Lightning FILESTORE table over a file
 staged inside the driver's `customer-data` volume, which is the bundle's own
@@ -17,13 +21,14 @@ The alternatives were worse here. A Postgres datasource would mean either
 writing into Zetaris's own metastore database or running a second database.
 The file is a JSON array, which keeps the loader on the standard library and
 carries long multi-line Arabic and English text without CSV quoting trouble.
-Open-data CSV or Parquet files register the same way (`--csv`, or
-`register_file_table(..., fmt="PARQUET")`).
+Open-data CSV or Parquet files register the same way (data/open/tables.csv,
+`--csv`, or `register_file_table(..., fmt="PARQUET")`).
 
 Re-running replaces the staged files. A table whose columns still match is
 kept and its cache cleared; one whose columns changed is dropped and
 recreated, because Lightning fixes a file table's schema at registration.
-Every table's row count is checked against what was written.
+Every table's row count is checked against what was written: the JSON rows
+for documents and pages, and the CSV records parsed locally for open data.
 
 Document text is private: it stays under build/ (git-ignored) and inside the
 local Zetaris volume. If build/documents.jsonl does not exist yet, a stand-in
@@ -159,6 +164,9 @@ def register_file_table(client: z.Client, container: str, database: str, table: 
 
 
 OPEN_TABLES = ROOT / "data" / "open" / "tables.csv"
+CORPUS_TABLES = ("documents", "pages")
+# Used by both the dry-run plan and the live registration, so they cannot drift.
+CSV_OPTIONS = {"header": "true", "inferSchema": "true", "multiLine": "true"}
 
 
 def default_open_tables(path: Path = OPEN_TABLES) -> list[str]:
@@ -167,6 +175,34 @@ def default_open_tables(path: Path = OPEN_TABLES) -> list[str]:
         return []
     with path.open(newline="", encoding="utf-8") as fh:
         return [f"{row['table']}={path.parent / row['file']}" for row in csv.DictReader(fh)]
+
+
+def csv_record_count(path: Path) -> int:
+    """Records in a CSV with a header row, counted the way a CSV reader sees them."""
+    with path.open(newline="", encoding="utf-8") as fh:
+        return sum(1 for _ in csv.DictReader(fh))
+
+
+def open_table_specs(cli_specs: list[str], include_defaults: bool,
+                     defaults_path: Path = OPEN_TABLES) -> list[tuple[str, Path, str]]:
+    """(table, path, origin) for every open-data table to register.
+
+    Committed defaults come first, then --csv specs. Names are checked, must be
+    unique and must not collide with the corpus tables.
+    """
+    specs = [(spec, str(defaults_path)) for spec in (default_open_tables(defaults_path) if include_defaults else [])]
+    specs += [(spec, "--csv") for spec in cli_specs]
+    out, seen = [], set(CORPUS_TABLES)
+    for spec, origin in specs:
+        table, sep, path = spec.partition("=")
+        if not sep or not Path(path).is_file():
+            raise z.ZetarisError(f"{origin}: wants TABLE=PATH to an existing file, got {spec!r}")
+        table = z.check_name(table)
+        if table.lower() in seen:
+            raise z.ZetarisError(f"{origin}: table name {table!r} is already used")
+        seen.add(table.lower())
+        out.append((table, Path(path), origin))
+    return out
 
 
 def count(client: z.Client, database: str, table: str) -> int:
@@ -180,7 +216,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--database", default=DATABASE)
     ap.add_argument("--env-file", help="Zetaris credentials file (default: DALIL_ZETARIS_ENV or ~/.config/lfg/credentials/zetaris-local.env)")
     ap.add_argument("--csv", action="append", default=[], metavar="TABLE=PATH",
-                    help="register an open-data CSV with a header row (repeatable); default: every row of data/open/tables.csv")
+                    help="register one more open-data CSV with a header row, added to data/open/tables.csv (repeatable)")
+    ap.add_argument("--no-open", action="store_true", help="skip the committed open-data tables in data/open/tables.csv")
     ap.add_argument("--dry-run", action="store_true", help="build the files and print the plan; send nothing")
     args = ap.parse_args(argv)
 
@@ -194,13 +231,7 @@ def main(argv: list[str] | None = None) -> int:
             docs, source = standin_documents(args.manifest), STANDIN
         loaded = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         documents, pages = build_rows(docs, source, loaded)
-        extra = []
-        specs = args.csv or default_open_tables()
-        for spec in specs:
-            table, sep, path = spec.partition("=")
-            if not sep or not Path(path).is_file():
-                raise z.ZetarisError(f"--csv wants TABLE=PATH to an existing file, got {spec!r}")
-            extra.append((z.check_name(table), Path(path)))
+        extra = open_table_specs(args.csv, include_defaults=not args.no_open)
 
         OUT_DIR.mkdir(parents=True, exist_ok=True)
         payloads = {"documents": z.json_array_bytes(documents), "pages": z.json_array_bytes(pages)}
@@ -212,8 +243,8 @@ def main(argv: list[str] | None = None) -> int:
             print(z.create_database_sql(args.database, DESCRIPTION) + "   (if missing)")
             for name in payloads:
                 print(z.filestore_table_sql(args.database, name, f"file://{z.DRIVER_STAGE_ROOT / f'{name}.json'}", "JSON"))
-            for table, path in extra:
-                print(z.filestore_table_sql(args.database, table, f"file://{z.DRIVER_STAGE_ROOT / f'{table}.csv'}", "CSV", {"header": "true"}))
+            for table, path, _ in extra:
+                print(z.filestore_table_sql(args.database, table, f"file://{z.DRIVER_STAGE_ROOT / f'{table}.csv'}", "CSV", CSV_OPTIONS))
             print("dry run: nothing sent")
             return 0
 
@@ -229,11 +260,21 @@ def main(argv: list[str] | None = None) -> int:
             print(f"table {args.database}.{name}: {action}, rows={got}")
             if got != expected[name]:
                 raise z.ZetarisError(f"{args.database}.{name} has {got} rows, expected {expected[name]}")
-        for table, path in extra:
-            action = register_file_table(client, container, args.database, table, path.read_bytes(), "CSV", None,
-                                         {"header": "true", "inferSchema": "true", "multiLine": "true"},
-                                         file_name=f"{table}.csv")
-            print(f"table {args.database}.{table}: {action}, rows={count(client, args.database, table)}")
+        failed = []
+        for table, path, _ in extra:
+            try:
+                action = register_file_table(client, container, args.database, table, path.read_bytes(), "CSV", None,
+                                             CSV_OPTIONS, file_name=f"{table}.csv")
+                got, want = count(client, args.database, table), csv_record_count(path)
+                print(f"table {args.database}.{table}: {action}, rows={got}")
+                if got != want:
+                    raise z.ZetarisError(f"{args.database}.{table} has {got} rows, expected {want} from {path.name}")
+            except (z.ZetarisError, OSError) as e:
+                print(f"error: {e}", file=sys.stderr)
+                failed.append(table)
+        if failed:
+            print(f"error: open-data tables failed: {', '.join(failed)}; documents and pages are loaded", file=sys.stderr)
+            return 1
     except (z.ZetarisError, OSError) as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
