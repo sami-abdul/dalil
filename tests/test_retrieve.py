@@ -164,3 +164,14 @@ def test_hybrid_uses_query_and_passage_methods_when_present():
     emb = PrefixEmbedder()
     r.HybridRetriever(r.Retriever(PASSAGES), emb, batch_size=2).search("gratuity", k=2)
     assert emb.queries == ["gratuity"] and len(emb.passages) == len(PASSAGES)
+
+
+def test_hybrid_falls_back_to_bm25_when_the_embedder_is_unreachable():
+    class Down(LetterEmbedder):
+        def embed(self, texts):
+            raise ConnectionRefusedError("embedding server down")
+
+    hyb = r.HybridRetriever(r.Retriever(PASSAGES), Down())
+    hits = hyb.search("gratuity", k=2)
+    assert [h.passage_id for h in hits] == [h.passage_id for h in r.Retriever(PASSAGES).search("gratuity", 2)]
+    assert hyb.dense_failures == 1

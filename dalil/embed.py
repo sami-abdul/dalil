@@ -15,6 +15,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 from typing import Sequence
 from urllib.request import Request, urlopen
@@ -31,7 +32,8 @@ class HTTPEmbedder:
         self.model = model or os.environ.get("DALIL_EMBED_MODEL") or "nemotron-embed"
         self.timeout = timeout
         self.query_prefix, self.passage_prefix = query_prefix, passage_prefix
-        self.cache_file = None if cache_dir is None else Path(cache_dir) / f"{self.model}.json"
+        safe = re.sub(r"[^A-Za-z0-9._-]+", "_", self.model)
+        self.cache_file = None if cache_dir is None else Path(cache_dir) / f"{safe}.json"
         self._cache: dict[str, list[float]] | None = None
 
     def _post(self, texts: Sequence[str]) -> list[list[float]]:
@@ -58,7 +60,8 @@ class HTTPEmbedder:
 
     def embed_passages(self, texts: Sequence[str], batch_size: int = 16) -> list[list[float]]:
         cache = self._load()
-        keys = [hashlib.sha256(t.encode("utf-8")).hexdigest() for t in texts]
+        # The prefix is part of what was embedded, so it is part of the key.
+        keys = [hashlib.sha256((self.passage_prefix + t).encode("utf-8")).hexdigest() for t in texts]
         missing = [i for i, k in enumerate(keys) if k not in cache]
         for start in range(0, len(missing), batch_size):
             batch = missing[start:start + batch_size]

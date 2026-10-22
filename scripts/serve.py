@@ -95,11 +95,12 @@ def main() -> int:
     # reads DALIL_EMBED_URL; without it, search is BM25 alone.
     from dalil.embed import HTTPEmbedder
     embedder = HTTPEmbedder()
-    if os.environ.get("DALIL_EMBED_URL") or embedder.available():
-        os.environ.setdefault("DALIL_EMBED_URL", embedder.url)
-        print(f"dense retrieval on, embeddings from {os.environ['DALIL_EMBED_URL']}")
+    if embedder.available():
+        os.environ["DALIL_EMBED_URL"] = embedder.url
+        print(f"dense retrieval on, embeddings from {embedder.url}")
     else:
-        print("no embedding server answers: search is BM25 alone")
+        os.environ.pop("DALIL_EMBED_URL", None)
+        print(f"no embedding server answers at {embedder.url}: search is BM25 alone")
     try:
         uvicorn.run(create_default_app(), host=args.host, port=args.port, log_level="info")
     finally:

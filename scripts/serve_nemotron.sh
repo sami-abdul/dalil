@@ -11,5 +11,5 @@ set -euo pipefail
 : "${LLAMA_SERVER:?set LLAMA_SERVER to a llama.cpp llama-server binary}"
 : "${MODEL:?set MODEL to the Nemotron GGUF file}"
 PORT="${DALIL_LLM_PORT:-8790}"
-THREADS="${DALIL_LLM_THREADS:-$(( $(nproc) * 4 / 5 ))}"
+THREADS="${DALIL_LLM_THREADS:-$(( $(nproc) * 7 / 10 ))}"  # leaves room for the embedding server
 exec "$LLAMA_SERVER" -m "$MODEL" --host 127.0.0.1 --port "$PORT" -t "$THREADS" -c 16384 --jinja --alias nemotron

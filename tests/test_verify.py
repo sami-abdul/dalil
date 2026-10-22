@@ -227,3 +227,12 @@ def test_document_title_backs_a_law_number():
     assert not Verifier(passages).check_sentence(claim(text, cit)).kept
     titled = Verifier(passages, titles={"pdpl": "Federal Decree by Law No. (45) of 2021 on Personal Data"})
     assert titled.check_sentence(claim(text, cit)).kept
+
+
+def test_title_numbers_only_back_a_named_law():
+    passages = {"p1": {"passage_id": "p1", "doc_id": "pdpl", "page": 1, "start": 0, "heading": None,
+                       "text": "The data subject may request the correction of personal data."}}
+    v = Verifier(passages, titles={"pdpl": "Federal Decree by Law No. (45) of 2021 on Personal Data"})
+    cit = {"passage_id": "p1", "quote": "data subject may request the correction of personal data"}
+    s = v.check_sentence(claim("The data subject may request correction of personal data within 45 days.", cit))
+    assert not s.kept and "45" in s.reasons[0]

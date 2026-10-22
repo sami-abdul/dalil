@@ -11,6 +11,8 @@ through the store (or the HTTP app).
 
 from __future__ import annotations
 
+import sys
+
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Callable
@@ -28,7 +30,8 @@ def document_titles() -> dict[str, str]:
     from dalil.corpus import doc_id, load_manifest
     try:
         return {doc_id(r["file"]): r.get("title", "") for r in load_manifest()}
-    except Exception:
+    except Exception as e:
+        print(f"warning: no document titles for the checker ({type(e).__name__})", file=sys.stderr)
         return {}
 
 

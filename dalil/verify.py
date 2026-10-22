@@ -109,6 +109,15 @@ def numbers(text: str) -> set[str]:
     return found
 
 
+_LAW_NUMBER = re.compile(
+    r"\b(?:No\.?|Number|Law|Decree)\s*\(?(\d+)\)?|\b(?:of|in)\s+((?:19|20)\d\d)\b", re.IGNORECASE)
+
+
+def law_numbers(text: str) -> set[str]:
+    """Numbers a claim uses to name a law: "No. 45", "Law 33", "of 2021"."""
+    return {a or b for a, b in _LAW_NUMBER.findall(text)}
+
+
 # Words that flip a claim's meaning. A claim may only use one its evidence uses.
 _NEGATIONS = frozenset("not no never cannot can't don't doesn't isn't aren't won't wasn't weren't "
                        "shouldn't mustn't without nor none neither unable".split())
@@ -147,6 +156,9 @@ class CitationCheck:
     # For a passage quote: the text just before it in the passage, such as the
     # lead-in of a list item. Used for the wording and negation checks only.
     context: str = ""
+    # For a passage quote: its document's title, which may back only a law's own
+    # number and year when the claim names them, as in "Decree-Law No. 45 of 2021".
+    title: str = ""
 
 
 @dataclass
@@ -265,10 +277,10 @@ class Verifier:
         end = passage["start"] + index[at + len(folded_quote) - 1] + 1
         # The heading counts as evidence for numbers, so "Under Article 51" is
         # backed by a quote from the body of Article (51).
-        evidence = f"{quote} {passage.get('heading') or ''} {self.titles.get(passage['doc_id'], '')}"
+        evidence = f"{quote} {passage.get('heading') or ''}"
         before = passage["text"][max(0, index[at] - CONTEXT_CHARS):index[at]]
         return CitationCheck(True, "quote found", cit, passage["doc_id"], passage["page"], start, end,
-                             evidence=evidence, context=before)
+                             evidence=evidence, context=before, title=self.titles.get(passage["doc_id"], ""))
 
     def check_data(self, citation: Mapping[str, Any]) -> CitationCheck:
         cit = dict(citation)
@@ -318,7 +330,8 @@ class Verifier:
                 result.reasons.append(check.reason)
         if result.kept:
             backed = set().union(*(numbers(c.evidence) for c in result.citations))
-            missing = sorted(numbers(text) - backed, key=lambda n: (len(n), n))
+            titled = set().union(*(numbers(c.title) for c in result.citations)) & law_numbers(text)
+            missing = sorted(numbers(text) - backed - titled, key=lambda n: (len(n), n))
             if missing:
                 result.kept = False
                 result.reasons.append("numbers not in any cited source: " + ", ".join(missing))
@@ -342,7 +355,8 @@ class Verifier:
                 result.kept = False
                 result.reasons.append(f"claim is not supported by its sources (key words found: {share:.0%})")
             # Negations count as one class: "cannot" is backed by a source's "will not".
-            added = sorted(_words(text) & _NEGATIONS)
+            # "No." in "Law No. 45" is a law reference, not a negation.
+            added = sorted(_words(_LAW_NUMBER.sub(" ", text)) & _NEGATIONS)
             if result.kept and added and not (_words(evidence) & _NEGATIONS):
                 result.kept = False
                 result.reasons.append("claim adds a negation its sources do not have: " + ", ".join(added))

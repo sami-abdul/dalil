@@ -214,6 +214,11 @@ class Embedder(Protocol):
 # retriever uses them when they exist.
 
 
+def _unit(v: Sequence[float]) -> list[float]:
+    n = math.sqrt(sum(x * x for x in v))
+    return [x / n for x in v] if n else list(v)
+
+
 def _cosine(a: Sequence[float], b: Sequence[float]) -> float:
     dot = sum(x * y for x, y in zip(a, b))
     na = math.sqrt(sum(x * x for x in a))
@@ -241,19 +246,23 @@ class HybridRetriever:
         self.pool, self.rrf_k, self.batch_size = pool, rrf_k, batch_size
         if passage_vectors is not None and len(passage_vectors) != len(lexical):
             raise ValueError("passage_vectors must hold one vector per passage")
-        self._vectors = list(passage_vectors) if passage_vectors is not None else None
+        self._vectors = [_unit(v) for v in passage_vectors] if passage_vectors is not None else None
+        self.dense_failures = 0
 
     def _passage_vectors(self) -> list[Sequence[float]]:
         if self._vectors is None:
             assert self.embedder is not None
             texts = [Retriever.index_text(p) for p in self.lexical.passages]
             vectors: list[Sequence[float]] = []
-            embed = getattr(self.embedder, "embed_passages", None) or self.embedder.embed
-            for i in range(0, len(texts), self.batch_size):
-                vectors.extend(embed(texts[i : i + self.batch_size]))
+            embed_passages = getattr(self.embedder, "embed_passages", None)
+            if embed_passages is not None:
+                vectors = list(embed_passages(texts))  # batches and caches itself
+            else:
+                for i in range(0, len(texts), self.batch_size):
+                    vectors.extend(self.embedder.embed(texts[i : i + self.batch_size]))
             if len(vectors) != len(texts):
                 raise ValueError("embedder returned the wrong number of vectors")
-            self._vectors = vectors
+            self._vectors = [_unit(v) for v in vectors]
         return self._vectors
 
     def search(self, query: str, k: int = 8) -> list[Hit]:
@@ -262,8 +271,15 @@ class HybridRetriever:
         bm25 = self.lexical.scores(query)
         lexical = _top(bm25.items(), self.pool)
         embed_query = getattr(self.embedder, "embed_query", None)
-        qvec = embed_query(query) if embed_query else self.embedder.embed([query])[0]
-        dense = _top(((i, _cosine(qvec, v)) for i, v in enumerate(self._passage_vectors())), self.pool)
+        try:
+            qvec = _unit(embed_query(query) if embed_query else self.embedder.embed([query])[0])
+            vectors = self._passage_vectors()
+        except OSError:
+            # The embedding server went away or timed out: answer with BM25
+            # alone rather than fail. A wrong reply still raises.
+            self.dense_failures += 1
+            return [self.lexical.hit(i, s) for i, s in _top(bm25.items(), k)]
+        dense = _top(((i, sum(a * b for a, b in zip(qvec, v))) for i, v in enumerate(vectors)), self.pool)
         fused: dict[int, float] = defaultdict(float)
         for ranking in (lexical, dense):
             for rank, (i, _) in enumerate(ranking, start=1):

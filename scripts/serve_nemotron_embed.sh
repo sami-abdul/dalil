@@ -12,6 +12,6 @@ set -euo pipefail
 : "${LLAMA_SERVER:?set LLAMA_SERVER to a llama.cpp llama-server binary}"
 : "${MODEL:?set MODEL to the embedding GGUF file}"
 PORT="${DALIL_EMBED_PORT:-8791}"
-THREADS="${DALIL_EMBED_THREADS:-8}"
+THREADS="${DALIL_EMBED_THREADS:-4}"  # queries are short; the corpus is embedded once and cached
 exec "$LLAMA_SERVER" -m "$MODEL" --host 127.0.0.1 --port "$PORT" -t "$THREADS" -c 8192 -b 8192 -ub 8192 \
     --embeddings --pooling mean --alias nemotron-embed
