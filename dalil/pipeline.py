@@ -56,7 +56,8 @@ def default_zetaris() -> Any:
 class Pipeline:
     def __init__(self, store: Store, retriever: Searcher, passages: dict[str, dict[str, Any]],
                  drafter: Drafter | None = None,
-                 zetaris_factory: Callable[[], Any] | None = default_zetaris, k: int = K):
+                 zetaris_factory: Callable[[], Any] | None = default_zetaris, k: int = K,
+                 memory: Any = None):
         self.store = store
         self.retriever = retriever
         self.passages = passages
@@ -64,6 +65,8 @@ class Pipeline:
         self.zetaris_factory = zetaris_factory
         self.k = k
         self._zetaris: Any = None
+        # Review memory (dalil.hmem.HMem or a stand-in with recall()); None turns it off.
+        self.memory = memory
 
     @classmethod
     def from_build(cls, store: Store | None = None, passages_path: Path | str = DEFAULT_PASSAGES,
@@ -83,6 +86,24 @@ class Pipeline:
             return None, f"Zetaris unreachable; lookup skipped ({type(e).__name__}: {str(e)[:160]})"
         self._zetaris = client
         return client, ""
+
+    def apply_memory(self, qid: str, question: str, hits: list[Hit]) -> list[Hit]:
+        """Leave out passages that reviewers rejected for similar questions."""
+        if self.memory is None:
+            return hits
+        recalled = self.memory.recall(question)
+        if recalled is None:
+            self.store.event(qid, "recalled", {"available": False})
+            return hits
+        avoid = set(recalled.get("avoid_passage_ids") or [])
+        kept = [h for h in hits if h.passage_id not in avoid]
+        self.store.event(qid, "recalled", {
+            "available": True,
+            "memories": [m.get("id") for m in recalled.get("memories") or []],
+            "rejections": len(recalled.get("reviewer_notes") or []),
+            "passages_left_out": [h.passage_id for h in hits if h.passage_id in avoid],
+        })
+        return kept
 
     def answer(self, question: str) -> Record:
         screened = safety.screen(question)
@@ -107,6 +128,7 @@ class Pipeline:
             draft = [refusal(safety.REFUSAL_TEXT), refusal(safety.REFUSAL_FOLLOW_UP)]
         else:
             hits = self.retriever.search(q, self.k)
+            hits = self.apply_memory(qid, q, hits)
             self.store.event(qid, "retrieved", {
                 "k": self.k, "hits": len(hits),
                 "top": [{"passage_id": h.passage_id, "score": round(h.score, 3)} for h in hits[:3]],

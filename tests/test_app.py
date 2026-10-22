@@ -118,7 +118,8 @@ def test_pages_and_files(client):
 
 
 def test_health(client):
-    assert client.get("/api/health").json() == {"ok": True, "zetaris": True, "passages": len(PASSAGES)}
+    assert client.get("/api/health").json() == {"ok": True, "zetaris": True, "passages": len(PASSAGES),
+                                                "memory": False, "memories": 0}
 
 
 def test_empty_question_rejected(client):
@@ -151,3 +152,54 @@ def test_original_files_are_sandboxed(client):
     f = client.get("/api/documents/doc-a/file")
     assert f.headers["content-security-policy"] == "sandbox"
     assert f.headers["x-content-type-options"] == "nosniff"
+
+
+
+class FakeMemory:
+    def __init__(self, avoid=(), up=True):
+        self.avoid, self.up, self.written = list(avoid), up, []
+
+    def recall(self, question, top=5):
+        if not self.up:
+            return None
+        return {"memories": [{"id": "mem-1"}], "avoid_passage_ids": self.avoid, "reviewer_notes": ["wrong topic"]}
+
+    def remember(self, decision, qid, question, reviewer, passage_ids, answer="", note=""):
+        if not self.up:
+            return None
+        self.written.append((decision, qid, reviewer, passage_ids, note))
+        return {"memory": {"id": f"mem-{len(self.written) + 1}", "kind": "approved" if decision == "approve" else "rejected"}}
+
+    def health(self):
+        return {"ok": True, "memories": len(self.written)} if self.up else None
+
+
+def test_recalled_rejection_leaves_its_passages_out(client):
+    client.pipeline.memory = FakeMemory(avoid=[PASSAGES[0]["passage_id"]])
+    d = client.get(f"/api/questions/{ask(client)['id']}").json()
+    assert PASSAGES[0]["passage_id"] not in [h["passage_id"] for h in d["retrieval"]]
+    recalled = next(a for a in d["audit"] if a["kind"] == "recalled")
+    assert recalled["detail"]["passages_left_out"] == [PASSAGES[0]["passage_id"]]
+
+
+def test_review_is_written_to_memory_with_cited_passages(client):
+    mem = FakeMemory()
+    client.pipeline.memory = mem
+    qid = ask(client)["id"]
+    d = client.post(f"/api/questions/{qid}/review",
+                    json={"decision": "reject", "reviewer": "Sami", "note": "wrong topic"}).json()
+    decision, wqid, reviewer, passage_ids, note = mem.written[0]
+    assert (decision, wqid, reviewer, note) == ("reject", qid, "Sami", "wrong topic")
+    assert passage_ids
+    written = next(a for a in d["audit"] if a["kind"] == "memory_written")
+    assert written["detail"]["available"] is True and written["detail"]["kind"] == "rejected"
+
+
+def test_memory_down_is_logged_not_fatal(client):
+    client.pipeline.memory = FakeMemory(up=False)
+    qid = ask(client)["id"]
+    d = client.post(f"/api/questions/{qid}/review", json={"decision": "approve", "reviewer": "Sami", "note": ""}).json()
+    kinds = {a["kind"]: a["detail"] for a in d["audit"]}
+    assert kinds["recalled"] == {"available": False}
+    assert kinds["memory_written"] == {"available": False}
+    assert d["status"] == "approved"

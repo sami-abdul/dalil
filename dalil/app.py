@@ -25,6 +25,7 @@ from pydantic import BaseModel, Field
 
 from dalil.corpus import doc_id as manifest_doc_id
 from dalil.corpus import load_manifest, resolve_corpus_dir
+from dalil.hmem import HMem
 from dalil.pipeline import Pipeline
 from dalil.store import ReviewError
 
@@ -174,7 +175,25 @@ def create_app(
             raise HTTPException(404, "no such question") from None
         except ReviewError as e:
             raise HTTPException(409, str(e)) from None
+        remember_review(qid, body.decision, body.reviewer, body.note)
         return detail(qid)
+
+    def remember_review(qid: str, decision: str, reviewer: str, note: str) -> None:
+        """Write the decision to the review memory, and log the outcome either way."""
+        memory = pipeline.memory
+        if memory is None:
+            return
+        rec = store.get(qid) or {}
+        check = rec.get("check") or {}
+        cited = sorted({c["passage_id"] for s in check.get("sentences", []) if s.get("kept")
+                        for c in s.get("citations", []) if c.get("passage_id")})
+        out = memory.remember(decision, qid, rec.get("question", ""), reviewer, cited,
+                              answer=check.get("answer", ""), note=note)
+        if out is None:
+            store.event(qid, "memory_written", {"available": False})
+        else:
+            store.event(qid, "memory_written", {"available": True, "memory_id": out["memory"]["id"],
+                                                "kind": out["memory"]["kind"], "passages": len(cited)})
 
     @app.get("/api/documents/{did}/pages/{page}")
     def get_page(did: str, page: int) -> dict[str, Any]:
@@ -204,7 +223,9 @@ def create_app(
 
     @app.get("/api/health")
     def health() -> dict[str, Any]:
-        return {"ok": True, "zetaris": bool(zetaris_probe()), "passages": len(pipeline.passages)}
+        memory = pipeline.memory.health() if pipeline.memory is not None else None
+        return {"ok": True, "zetaris": bool(zetaris_probe()), "passages": len(pipeline.passages),
+                "memory": bool(memory), "memories": (memory or {}).get("memories", 0)}
 
     if web_dir is not None and Path(web_dir).is_dir():
         app.mount("/", StaticFiles(directory=str(web_dir), html=True), name="web")
@@ -218,4 +239,4 @@ def manifest_map(path: Path | str | None = None) -> dict[str, str]:
 
 def create_default_app() -> FastAPI:
     """The app over build/ and the private corpus in $DALIL_CORPUS_DIR or ./corpus."""
-    return create_app(Pipeline.from_build(), load_documents(), manifest_map(), resolve_corpus_dir())
+    return create_app(Pipeline.from_build(memory=HMem()), load_documents(), manifest_map(), resolve_corpus_dir())

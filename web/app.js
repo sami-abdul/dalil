@@ -68,13 +68,17 @@
 
   const AUDIT = {
     screened: "Question screened",
+    recalled: "Past reviews recalled from H-MEM",
     retrieved: "Sources searched",
+    data_looked_up: "Open data queried through Zetaris",
     drafted: "Answer drafted",
     verified: "Quotes checked",
     queued: "Sent for review",
     approved: "Approved",
     rejected: "Rejected",
     delivered: "Delivered to the resident",
+    memory_written: "Decision saved to H-MEM",
+    failed: "Something went wrong",
   };
 
   function flagInfo(flag) {
