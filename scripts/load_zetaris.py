@@ -10,6 +10,12 @@ Creates the Lightning database `dalil` (if missing) with two tables:
     dalil.documents  one row per document: manifest metadata plus page_count
     dalil.pages      one row per page: doc_id, page, text, char_count
 
+and, when build/passages.jsonl exists (scripts/build_passages.py), a third:
+
+    dalil.passages   one row per citable passage: passage_id, doc_id, page,
+                     start, end, heading, text, char_count, where text is
+                     exactly the page text from start to end
+
 plus one table per row of data/open/tables.csv, the committed open data.
 `--csv` adds tables to those; `--no-open` skips the committed ones.
 
@@ -28,7 +34,9 @@ Re-running replaces the staged files. A table whose columns still match is
 kept and its cache cleared; one whose columns changed is dropped and
 recreated, because Lightning fixes a file table's schema at registration.
 Every table's row count is checked against what was written: the JSON rows
-for documents and pages, and the CSV records parsed locally for open data.
+for documents, pages and passages, and the CSV records parsed locally for
+open data. Each passage is checked against the page text being loaded before
+anything is sent, so a passages file built from other documents is refused.
 
 Document text is private: it stays under build/ (git-ignored) and inside the
 local Zetaris volume. If build/documents.jsonl does not exist yet, a stand-in
@@ -55,6 +63,7 @@ from dalil.corpus import CorpusError, doc_id, doc_kind, load_manifest  # noqa: E
 DATABASE = "dalil"
 DESCRIPTION = "Dalil corpus - UAE government documents, metadata and page text"
 DOCUMENTS = ROOT / "build" / "documents.jsonl"
+PASSAGES = ROOT / "build" / "passages.jsonl"
 MANIFEST = ROOT / "data" / "MANIFEST.csv"
 OUT_DIR = ROOT / "build" / "zetaris"
 
@@ -63,6 +72,7 @@ DOC_FIELDS = [
     "sha256", "language", "topic", "kind",
 ]
 STANDIN = "standin-from-manifest"
+PASSAGE_COLUMNS = ["passage_id", "doc_id", "page", "start", "end", "heading", "text", "char_count"]
 
 
 def read_documents(path: Path) -> list[dict[str, Any]]:
@@ -134,6 +144,30 @@ def build_rows(docs: Iterable[Mapping[str, Any]], corpus_source: str, loaded_utc
     return documents, pages
 
 
+def build_passage_rows(passages: Iterable[Mapping[str, Any]], pages: Iterable[Mapping[str, Any]]
+                       ) -> list[dict[str, Any]]:
+    """Rows for dalil.passages. Each passage must slice exactly from a page
+    being loaded: page_text[start:end] == text."""
+    texts = {(p["doc_id"], int(p["page"])): p["text"] for p in pages}
+    rows, seen = [], set()
+    for p in passages:
+        pid = p.get("passage_id")
+        if not isinstance(pid, str) or not pid or pid in seen:
+            raise z.ZetarisError(f"Passage without a unique passage_id: {pid!r}")
+        seen.add(pid)
+        try:
+            key, start, end = (p["doc_id"], int(p["page"])), int(p["start"]), int(p["end"])
+        except (KeyError, TypeError, ValueError):
+            raise z.ZetarisError(f"{pid}: needs doc_id, page, start and end") from None
+        if key not in texts:
+            raise z.ZetarisError(f"{pid}: no such page in the documents; rerun scripts/build_passages.py")
+        if not 0 <= start < end or texts[key][start:end] != p.get("text"):
+            raise z.ZetarisError(f"{pid}: text is not page_text[start:end]; rerun scripts/build_passages.py")
+        rows.append({"passage_id": pid, "doc_id": key[0], "page": key[1], "start": start, "end": end,
+                     "heading": p.get("heading") or None, "text": p["text"], "char_count": end - start})
+    return rows
+
+
 def ensure_database(client: z.Client, database: str, description: str) -> str:
     if database.upper() in client.lightning_databases():
         return "exists"
@@ -166,7 +200,7 @@ def register_file_table(client: z.Client, container: str, database: str, table: 
 
 
 OPEN_TABLES = ROOT / "data" / "open" / "tables.csv"
-CORPUS_TABLES = ("documents", "pages")
+CORPUS_TABLES = ("documents", "pages", "passages")
 # Used by both the dry-run plan and the live registration, so they cannot drift.
 CSV_OPTIONS = {"header": "true", "inferSchema": "true", "multiLine": "true"}
 
@@ -215,6 +249,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--documents", type=Path, default=DOCUMENTS, help="documents.jsonl from the corpus builder")
     ap.add_argument("--manifest", type=Path, default=MANIFEST, help="used for a stand-in when --documents is missing")
+    ap.add_argument("--passages", type=Path, default=PASSAGES, help="passages.jsonl from scripts/build_passages.py, loaded when present")
     ap.add_argument("--database", default=DATABASE)
     ap.add_argument("--env-file", help="Zetaris credentials file (default: DALIL_ZETARIS_ENV or ~/.config/lfg/credentials/zetaris-local.env)")
     ap.add_argument("--csv", action="append", default=[], metavar="TABLE=PATH",
@@ -233,13 +268,21 @@ def main(argv: list[str] | None = None) -> int:
             docs, source = standin_documents(args.manifest), STANDIN
         loaded = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         documents, pages = build_rows(docs, source, loaded)
+        passages: list[dict[str, Any]] | None = None
+        if args.passages.is_file() and source != STANDIN:
+            passages = build_passage_rows(read_documents(args.passages), pages)
+        elif args.passages.is_file():
+            print(f"warning: skipping {args.passages}: the stand-in documents have no page text", file=sys.stderr)
         extra = open_table_specs(args.csv, include_defaults=not args.no_open)
 
         OUT_DIR.mkdir(parents=True, exist_ok=True)
         payloads = {"documents": z.json_array_bytes(documents), "pages": z.json_array_bytes(pages)}
+        if passages is not None:
+            payloads["passages"] = z.json_array_bytes(passages)
         for name, data in payloads.items():
             (OUT_DIR / f"{name}.json").write_bytes(data)  # local copy under git-ignored build/
-        print(f"source={source} documents={len(documents)} pages={len(pages)} files={OUT_DIR.relative_to(ROOT)}/")
+        print(f"source={source} documents={len(documents)} pages={len(pages)} "
+              f"passages={'none' if passages is None else len(passages)} files={OUT_DIR.relative_to(ROOT)}/")
 
         if args.dry_run:
             print(z.create_database_sql(args.database, DESCRIPTION) + "   (if missing)")
@@ -253,8 +296,9 @@ def main(argv: list[str] | None = None) -> int:
         client = z.Client(z.load_config(args.env_file))
         container = z.find_driver_container()
         print(f"database {args.database.upper()}: {ensure_database(client, args.database, DESCRIPTION)}")
-        expected = {"documents": len(documents), "pages": len(pages)}
-        columns = {"documents": set(documents[0]), "pages": {"doc_id", "page", "text", "char_count"}}
+        expected = {"documents": len(documents), "pages": len(pages), "passages": len(passages or [])}
+        columns = {"documents": set(documents[0]), "pages": {"doc_id", "page", "text", "char_count"},
+                   "passages": set(PASSAGE_COLUMNS)}
         for name, data in payloads.items():
             action = register_file_table(client, container, args.database, name, data, "JSON", columns[name],
                                          file_name=f"{name}.json")
@@ -275,7 +319,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"error: {e}", file=sys.stderr)
                 failed.append(table)
         if failed:
-            print(f"error: open-data tables failed: {', '.join(failed)}; documents and pages are loaded", file=sys.stderr)
+            print(f"error: open-data tables failed: {', '.join(failed)}; the corpus tables are loaded", file=sys.stderr)
             return 1
     except (z.ZetarisError, OSError) as e:
         print(f"error: {e}", file=sys.stderr)
