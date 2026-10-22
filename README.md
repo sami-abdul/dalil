@@ -17,6 +17,32 @@ Built for the Open Agent Hackathon 2026, Track 02, "The Agent That Can Explain W
 
 ![Reviewer screen](docs/reviewer-screen.png)
 
+## How it fits together
+
+```mermaid
+flowchart LR
+    Q[Resident question] --> S[Screen: redact personal data,<br/>refuse rule-dodging]
+    S --> R[Recall similar reviews<br/>Meterless H-MEM]
+    R --> F[Search 1,024 passages<br/>BM25]
+    S --> Z[Fixed open-data queries<br/>Zetaris]
+    F --> D[Draft: every sentence cites<br/>a passage or a Zetaris query]
+    Z --> D
+    R -. reviewer notes .-> D
+    D --> C[Checker: quotes word for word,<br/>numbers in evidence, queries rerun]
+    C --> P[Reviewer screen:<br/>approve or reject]
+    P -->|approve| O[Answer sent]
+    P -->|decision and cited passages| L[(H-MEM trust ledger)]
+    L --> R
+    subgraph ZDB["Zetaris Lightning database: dalil"]
+        T1[documents, pages, passages]
+        T2[four Bayanat open datasets]
+    end
+    F -. same passages .- T1
+    Z --- T2
+    C -. reruns .- T2
+```
+
+
 ## Run it
 
 You need Python 3.13 with [uv](https://docs.astral.sh/uv/), Node 22.7 or later for the H-MEM bridge, and a Zetaris instance. This was built against Zetaris's free local version, 2.4.3.1.
