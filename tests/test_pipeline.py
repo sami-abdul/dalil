@@ -82,10 +82,9 @@ def test_data_claim_cites_every_value():
     assert sorted(c["value"] for c in data[0]["citations"]) == ["2025", "4242"]
 
 
-def test_llm_drafter_is_a_placeholder():
-    with pytest.raises(NotImplementedError):
-        LLMDrafter().draft("q", [], [])
-    assert any("verbatim" in r for r in LLMDrafter.PROMPT_RULES)
+def test_llm_drafter_prompt_rules_cover_the_checker():
+    assert any("sentence by its id" in r for r in LLMDrafter.PROMPT_RULES)
+    assert any("caveats" in r for r in LLMDrafter.PROMPT_RULES)
 
 
 def test_rules_are_fixed_safe_selects():

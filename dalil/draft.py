@@ -15,16 +15,20 @@ prompt carries; it raises NotImplementedError until it is wired to a model.
 
 from __future__ import annotations
 
-import math
 import functools
+import json
+import math
+import os
 import re
 import string
 from collections import Counter
 from collections.abc import Sequence
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Mapping, Protocol, runtime_checkable
+from urllib.request import Request, urlopen
 
 from dalil.opendata import DataResult
 from dalil.retrieve import Hit, tokenize
+from dalil.verify import MIN_QUOTE_WORDS
 
 # Below this BM25 score for the best passage, retrieval is treated as weak and
 # the drafter refuses. Picked on eval/questions.jsonl: answerable questions
@@ -223,31 +227,24 @@ class ExtractiveDrafter:
 
 
 class LLMDrafter:
-    """Placeholder for a model-backed drafter. Not wired to any model yet.
+    """Drafts with a chat model through an OpenAI-compatible endpoint.
 
-    The model receives the question (already redacted), the top passages as
-    {passage_id, title, heading, text}, the open-data results as {table, sql,
-    rows}, and `rejection_notes`: what reviewers said when they rejected
-    earlier drafts. It must return JSON only, in this schema:
+    Works against a local llama-server running an open Nemotron model, or
+    against NVIDIA's hosted API: both speak /v1/chat/completions. The model gets
+    the redacted question, the passages, the open-data results and reviewers'
+    notes, and must return JSON in a schema that only allows the passage ids and
+    queries it was given. The verifier then checks every citation as usual.
 
-        {"sentences": [
-            {"text": str,
-             "kind": "claim" | "caveat" | "refusal",
-             "citations": [
-                 {"passage_id": str, "quote": str}            # passage citation
-               | {"table": str, "sql": str, "value": str}     # data citation
-             ]}
-        ]}
-
-    PROMPT_RULES is the rule block the prompt carries. The verifier enforces
-    the first three regardless of what the model does.
+    Settings come from the environment:
+        DALIL_LLM_URL    default http://127.0.0.1:8790/v1 (local llama-server)
+        DALIL_LLM_MODEL  default "nemotron"
+        DALIL_LLM_KEY    API key, for a hosted endpoint only
     """
 
     PROMPT_RULES = (
-        "Every claim cites at least one passage or data row.",
-        "Quote the passage verbatim, at least 4 words, copied exactly: same words, spelling and punctuation, "
-        "starting and ending on whole words.",
-        "Every number in a sentence must appear in one of its quotes or data values. Never compute or round.",
+        "Every claim cites at least one source sentence by its id, or a data row.",
+        "Each claim must say only what its cited sentences say. Do not add facts.",
+        "Every number in a claim must appear in one of its cited sentences or data values. Never compute or round.",
         "Data citations reuse the SQL you were given unchanged, and name the column and the value it returns.",
         "Write claims only. Dalil adds its own fixed caveats and refusals; any you write are cut.",
         "If the sources do not cover the question, return no claims.",
@@ -256,12 +253,158 @@ class LLMDrafter:
         "Reviewers rejected earlier answers to similar questions with the notes given. Do not repeat those mistakes.",
     )
 
-    def __init__(self, api_key: str | None = None, model: str | None = None,
-                 rejection_notes: Sequence[str] = ()):
-        self.api_key = api_key
-        self.model = model
-        self.rejection_notes = list(rejection_notes)
+    def __init__(self, url: str | None = None, model: str | None = None, api_key: str | None = None,
+                 timeout: float = 180.0, max_tokens: int = 700, max_passage_chars: int = 1200):
+        self.url = (url or os.environ.get("DALIL_LLM_URL") or "http://127.0.0.1:8790/v1").rstrip("/")
+        self.model = model or os.environ.get("DALIL_LLM_MODEL") or "nemotron"
+        self.api_key = api_key if api_key is not None else os.environ.get("DALIL_LLM_KEY")
+        self.timeout = timeout
+        self.max_tokens = max_tokens
+        self.max_passage_chars = max_passage_chars
+        self.last_usage: dict[str, Any] = {}
+
+    @staticmethod
+    def numbered(hits: Sequence[Hit]) -> dict[str, tuple[str, str]]:
+        """Sentence id -> (passage_id, exact sentence), for the sentences a claim may cite.
+
+        The model points at sentence ids and Dalil writes the quote itself, so a
+        quote is exact by construction and the model writes far fewer tokens.
+        Sentences under MIN_QUOTE_WORDS words cannot back a claim and are left out.
+        """
+        out: dict[str, tuple[str, str]] = {}
+        for h in hits:
+            for sentence in _sentences(h.text):
+                if len(sentence.split()) >= MIN_QUOTE_WORDS:
+                    out[f"S{len(out) + 1}"] = (h.passage_id, sentence)
+        return out
+
+    def messages(self, question: str, hits: Sequence[Hit], data: Sequence[DataResult],
+                 notes: Sequence[str] = (), numbered: Mapping[str, tuple[str, str]] | None = None
+                 ) -> list[dict[str, str]]:
+        numbered = self.numbered(hits) if numbered is None else numbered
+        rules = "\n".join(f"- {r}" for r in self.PROMPT_RULES)
+        system = ("You answer questions from UAE residents about government services, using only the "
+                  "numbered source sentences given. Reply with JSON only, matching the schema.\nRules:\n" + rules)
+        parts = [f"Question: {question}", "", "Source sentences, grouped by passage:"]
+        by_passage: dict[str, list[str]] = {}
+        for sid, (pid, sentence) in numbered.items():
+            by_passage.setdefault(pid, []).append(f"[{sid}] {sentence}")
+        for h in hits:
+            if h.passage_id in by_passage:
+                head = f" | {h.heading}" if h.heading else ""
+                parts.append(f"Passage {h.passage_id}{head}")
+                parts += by_passage[h.passage_id]
+        if data:
+            parts += ["", "Open data (cite with table, sql, column and value):"]
+            for d in data:
+                if d.rows:
+                    parts.append(json.dumps({"table": d.table, "sql": d.sql, "rows": d.rows[:5]}, ensure_ascii=False))
+        if notes:
+            parts += ["", "Reviewer notes on rejected answers to similar questions:"]
+            parts += [f"- {n}" for n in notes]
+        return [{"role": "system", "content": system}, {"role": "user", "content": "\n".join(parts)}]
+
+    @staticmethod
+    def schema(numbered: Mapping[str, tuple[str, str]], data: Sequence[DataResult]) -> dict[str, Any]:
+        """JSON schema that only admits the given sentence ids and queries."""
+        passage = {"type": "object", "additionalProperties": False, "required": ["sentence"],
+                   "properties": {"sentence": {"enum": list(numbered)}}}
+        options: list[dict[str, Any]] = [passage]
+        sqls = [d.sql for d in data if d.rows]
+        if sqls:
+            options.append({"type": "object", "additionalProperties": False,
+                            "required": ["table", "sql", "column", "value"],
+                            "properties": {"table": {"enum": sorted({d.table for d in data if d.rows})},
+                                           "sql": {"enum": sqls}, "column": {"type": "string"},
+                                           "value": {"type": "string"}}})
+        cite = options[0] if len(options) == 1 else {"anyOf": options}
+        return {"type": "object", "additionalProperties": False, "required": ["sentences"],
+                "properties": {"sentences": {"type": "array", "maxItems": 5, "items": {
+                    "type": "object", "additionalProperties": False, "required": ["text", "citations"],
+                    "properties": {"text": {"type": "string", "minLength": 3},
+                                   "citations": {"type": "array", "minItems": 1, "maxItems": 3, "items": cite}}}}}}
+
+    def complete(self, messages: list[dict[str, str]], schema: dict[str, Any]) -> str:
+        body = {
+            "model": self.model, "messages": messages, "temperature": 0.1, "max_tokens": self.max_tokens,
+            "response_format": {"type": "json_schema", "json_schema": {"name": "answer", "schema": schema}},
+            # Nemotron 3 Nano reasons before answering unless told not to; the
+            # schema already constrains the output, so skip it for speed.
+            "chat_template_kwargs": {"enable_thinking": False},
+        }
+        headers = {"content-type": "application/json"}
+        if self.api_key:
+            headers["authorization"] = f"Bearer {self.api_key}"
+        req = Request(f"{self.url}/chat/completions", data=json.dumps(body).encode("utf-8"), headers=headers)
+        with urlopen(req, timeout=self.timeout) as r:
+            out = json.loads(r.read().decode("utf-8"))
+        self.last_usage = {**(out.get("usage") or {}), **(out.get("timings") or {})}
+        return out["choices"][0]["message"]["content"] or ""
 
     def draft(self, question: str, hits: list[Hit], data: list[DataResult],
               notes: Sequence[str] = ()) -> list[dict[str, Any]]:
-        raise NotImplementedError("LLMDrafter needs a model key; use ExtractiveDrafter until one exists")
+        numbered = self.numbered(hits)
+        if not numbered and not any(d.rows for d in data):
+            return [refusal()]
+        raw = self.complete(self.messages(question, hits, data, notes, numbered), self.schema(numbered, data))
+        try:
+            parsed = json.loads(raw)
+        except ValueError as e:
+            raise DraftError("model reply was not JSON") from e
+        out: list[dict[str, Any]] = []
+        for s in (parsed.get("sentences") or [])[:5]:
+            text = str(s.get("text") or "").strip()
+            cits = []
+            for c in s.get("citations") or []:
+                if not isinstance(c, dict):
+                    continue
+                if "sentence" in c:
+                    pid_quote = numbered.get(str(c["sentence"]))
+                    # An unknown id stays as a citation the checker will reject.
+                    cits.append({"passage_id": pid_quote[0], "quote": pid_quote[1]} if pid_quote
+                                else {"passage_id": f"unknown:{c['sentence']}", "quote": ""})
+                else:
+                    cits.append(c)
+            if text:
+                out.append({"text": text, "kind": "claim", "citations": cits})
+        if not out:
+            return [refusal()]
+        if _FEE_QUESTION.search(question) and not any(_MONEY.search(s["text"]) for s in out):
+            out.append(caveat(FEE_CAVEAT))
+        cited = {c.get("passage_id") for s in out for c in s["citations"]}
+        if cited & amendment_docs_passages(hits):
+            out.append(caveat(LAW_CAVEAT))
+        return out
+
+
+class DraftError(RuntimeError):
+    """The model answered, but not with usable JSON."""
+
+
+def amendment_docs_passages(hits: Sequence[Hit]) -> set[str]:
+    """Passage ids, among `hits`, from documents that may lack later amendments."""
+    docs = amendment_docs()
+    return {h.passage_id for h in hits if h.doc_id in docs}
+
+
+class FallbackDrafter:
+    """Try the model; if it is down or answers badly, use the extractive drafter.
+
+    `last_used` names the drafter that produced the latest draft, so the audit
+    trail and the tool log can say honestly which one ran.
+    """
+
+    def __init__(self, primary: Drafter, fallback: Drafter):
+        self.primary, self.fallback = primary, fallback
+        self.last_used = ""
+        self.last_error = ""
+
+    def draft(self, question: str, hits: list[Hit], data: list[DataResult],
+              notes: Sequence[str] = ()) -> list[dict[str, Any]]:
+        try:
+            out = self.primary.draft(question, hits, data, notes=notes)
+            self.last_used, self.last_error = type(self.primary).__name__, ""
+            return out
+        except Exception as e:  # network, timeout, bad JSON: fall back, and say so
+            self.last_used, self.last_error = type(self.fallback).__name__, type(e).__name__
+            return self.fallback.draft(question, hits, data, notes=notes)

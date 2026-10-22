@@ -150,7 +150,9 @@ class Pipeline:
             if screened.has_personal_data:
                 draft = [*draft, caveat(safety.PERSONAL_DATA_CAVEAT)]
         self.store.event(qid, "drafted", {
-            "drafter": type(self.drafter).__name__, "sentences": len(draft),
+            "drafter": getattr(self.drafter, "last_used", "") or type(self.drafter).__name__,
+            **({"fallback_reason": self.drafter.last_error} if getattr(self.drafter, "last_error", "") else {}),
+            "sentences": len(draft),
             "kinds": [s.get("kind", "claim") for s in draft],
         })
         if client is None and any("sql" in c for s in draft for c in s.get("citations") or []):

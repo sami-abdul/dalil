@@ -23,6 +23,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from dalil import safety  # noqa: E402
+from dalil.draft import ExtractiveDrafter, FallbackDrafter, LLMDrafter  # noqa: E402
 from dalil.pipeline import Pipeline, Record  # noqa: E402
 from dalil.store import Store  # noqa: E402
 
@@ -59,12 +60,15 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--db", default=str(ROOT / "build" / "dalil-eval.db"))
     ap.add_argument("--keep", action="store_true", help="add to an existing db instead of starting fresh")
+    ap.add_argument("--llm", action="store_true",
+                    help="draft with the model at DALIL_LLM_URL, falling back to the extractive drafter")
     args = ap.parse_args()
     db = Path(args.db)
     if db.resolve() != (ROOT / "build" / "dalil.db").resolve() and not args.keep and db.exists():
         db.unlink()
     store = Store(db)
-    pipeline = Pipeline.from_build(store)
+    drafter = FallbackDrafter(LLMDrafter(), ExtractiveDrafter()) if args.llm else None
+    pipeline = Pipeline.from_build(store, drafter=drafter)
     rows = [json.loads(line) for line in QUESTIONS.read_text(encoding="utf-8").splitlines() if line.strip()]
     failures = 0
     print(f"{'id':4} {'status':16} {'verifier':15} kept cut  notes")

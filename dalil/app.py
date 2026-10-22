@@ -27,6 +27,7 @@ from pydantic import BaseModel, Field
 
 from dalil.corpus import doc_id as manifest_doc_id
 from dalil.corpus import load_manifest, resolve_corpus_dir
+from dalil.draft import ExtractiveDrafter, FallbackDrafter, LLMDrafter
 from dalil.hmem import HMem
 from dalil.pipeline import Pipeline
 from dalil.safety import redact
@@ -265,4 +266,8 @@ def manifest_map(path: Path | str | None = None) -> dict[str, str]:
 
 def create_default_app() -> FastAPI:
     """The app over build/ and the private corpus in $DALIL_CORPUS_DIR or ./corpus."""
-    return create_app(Pipeline.from_build(memory=HMem()), load_documents(), manifest_map(), resolve_corpus_dir())
+    # The model drafts when it answers; otherwise the extractive drafter does,
+    # and the audit trail records which one ran and why.
+    drafter = FallbackDrafter(LLMDrafter(), ExtractiveDrafter())
+    return create_app(Pipeline.from_build(memory=HMem(), drafter=drafter), load_documents(), manifest_map(),
+                      resolve_corpus_dir())
