@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any, Callable, Literal, Mapping
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -32,6 +33,7 @@ DEFAULT_DOCUMENTS = REPO_ROOT / "build" / "documents.jsonl"
 DEFAULT_WEB = REPO_ROOT / "web"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8787
+ALLOWED_HOSTS = ("127.0.0.1", "localhost")
 MAX_QUESTION_CHARS = 2000
 
 
@@ -113,6 +115,10 @@ def create_app(
     manifest = dict(manifest or {})
     corpus = Path(corpus_dir).expanduser().resolve() if corpus_dir else None
     app = FastAPI(title="Dalil", docs_url=None, redoc_url=None, openapi_url=None)
+    # Binding to loopback is not enough on its own: a page that rebinds its own
+    # hostname to 127.0.0.1 could read the private page text. Only accept
+    # requests addressed to this machine by name.
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(ALLOWED_HOSTS))
 
     def doc_meta(did: str | None) -> Mapping[str, Any]:
         return documents.get(did or "", {})
@@ -189,7 +195,12 @@ def create_app(
         media = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
         if media == "text/html":
             media = "text/html; charset=utf-8"
-        return FileResponse(path, media_type=media)
+        # The originals are scraped pages with their own scripts. Sandbox them so
+        # nothing in them can call this API from this origin.
+        return FileResponse(path, media_type=media, headers={
+            "Content-Security-Policy": "sandbox",
+            "X-Content-Type-Options": "nosniff",
+        })
 
     @app.get("/api/health")
     def health() -> dict[str, Any]:

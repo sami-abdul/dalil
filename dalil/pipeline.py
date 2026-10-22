@@ -16,11 +16,17 @@ from pathlib import Path
 from typing import Any, Callable
 
 from dalil import safety
-from dalil.draft import Drafter, ExtractiveDrafter, caveat, refusal
+from dalil.draft import FEE_CAVEAT, LAW_CAVEAT, WEAK_REFUSAL, Drafter, ExtractiveDrafter, caveat, refusal
 from dalil.opendata import DataResult, match_rules, run_rules
 from dalil.retrieve import Hit, Searcher, make_retriever
 from dalil.store import Store
 from dalil.verify import Verifier, load_passages, zetaris_lookup
+
+# The only caveat and refusal sentences that may go out without a citation.
+FIXED_UNCITED = frozenset({
+    WEAK_REFUSAL, FEE_CAVEAT, LAW_CAVEAT,
+    safety.REFUSAL_TEXT, safety.REFUSAL_FOLLOW_UP, safety.PERSONAL_DATA_CAVEAT,
+})
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_PASSAGES = REPO_ROOT / "build" / "passages.jsonl"
@@ -124,7 +130,8 @@ class Pipeline:
         })
         if client is None and any("sql" in c for s in draft for c in s.get("citations") or []):
             client, _ = self.zetaris()
-        verifier = Verifier(self.passages, zetaris_lookup(client) if client else None)
+        verifier = Verifier(self.passages, zetaris_lookup(client) if client else None,
+                            allowed_sql=[d.sql for d in data], allowed_uncited=FIXED_UNCITED)
         check = verifier.check_answer(draft).to_dict()
         kept = sum(s["kept"] for s in check["sentences"])
         self.store.event(qid, "verified", {"status": check["status"], "kept": kept,

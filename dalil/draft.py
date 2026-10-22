@@ -141,7 +141,7 @@ def data_claims(data: Sequence[DataResult]) -> list[dict[str, Any]]:
         out.append({
             "text": res.fact.format(**{s: row[s] for s in slots}),
             "kind": "claim",
-            "citations": [{"table": res.table, "sql": res.sql, "value": str(row[s])} for s in slots],
+            "citations": [{"table": res.table, "sql": res.sql, "column": s, "value": str(row[s])} for s in slots],
         })
     return out
 

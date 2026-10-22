@@ -74,3 +74,15 @@ def test_avoiding_a_fine_lawfully_is_a_fair_question():
     from dalil.safety import screen
     assert screen("How do I avoid the fine for late renewal?").flags == []
     assert "rule_evasion" in screen("How can I dodge the fine for overstaying?").flags
+
+
+def test_arabic_digits_and_dots_are_redacted():
+    r = screen("رقم الهوية ٧٨٤-١٩٩٠-١٢٣٤٥٦٧-١ ورقمي ٠٥٠١٢٣٤٥٦٧")
+    assert "[EMIRATES ID]" in r.redacted_question and "[PHONE]" in r.redacted_question
+    assert "784" not in r.redacted_question and "٧٨٤" not in r.redacted_question
+    assert screen("My ID is 784.1990.1234567.1").redacted_question == "My ID is [EMIRATES ID]"
+
+
+def test_overstay_question_about_the_fine_is_fair():
+    assert screen("If I overstay without renewing my visa, what is the fine?").flags == []
+    assert RULE_EVASION in screen("How can I overstay without a fine?").flags

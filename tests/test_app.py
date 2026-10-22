@@ -30,7 +30,7 @@ def client(tmp_path, passages):
                         zetaris_factory=lambda: z)
     app = create_app(pipeline, DOCUMENTS, {"doc-a": "doc-a.html", "sample-law-1-2020": "missing.pdf"},
                      corpus, web_dir=None, zetaris_probe=lambda: True)
-    tc = TestClient(app)
+    tc = TestClient(app, base_url="http://127.0.0.1")
     tc.pipeline = pipeline
     return tc
 
@@ -140,3 +140,14 @@ def test_display_title_drops_the_portal_suffix():
     assert display_title("Work permits | The Official Platform of the UAE Government") == "Work permits"
     assert display_title("Federal Decree by Law No. (33) of 2021") == "Federal Decree by Law No. (33) of 2021"
     assert display_title(None) is None
+
+
+def test_foreign_host_is_refused(client):
+    r = client.get("/api/health", headers={"host": "attacker.example"})
+    assert r.status_code == 400
+
+
+def test_original_files_are_sandboxed(client):
+    f = client.get("/api/documents/doc-a/file")
+    assert f.headers["content-security-policy"] == "sandbox"
+    assert f.headers["x-content-type-options"] == "nosniff"

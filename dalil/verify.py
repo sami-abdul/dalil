@@ -10,8 +10,11 @@ A sentence is kept only if all of these hold:
 
 1. It has at least one citation.
 2. Every passage citation's quote is found word for word in that passage,
-   and is at least MIN_QUOTE_WORDS words long, so "the" cannot prop up a claim.
-3. Every data citation's SQL, rerun through `data_lookup`, returns its value.
+   is at least MIN_QUOTE_WORDS words long, so "the" cannot prop up a claim,
+   and does not start or end partway through a word or a number.
+3. Every data citation names a query the pipeline ran, the table it reads and
+   a column, and rerunning it through `data_lookup` returns the value in
+   that column.
 4. Every number in the sentence appears in one of its verified quotes, the
    heading of a cited passage, or a data value. A model that writes "AED 1,500" over a quote saying
    "AED 1,000" loses the sentence.
@@ -141,6 +144,25 @@ class AnswerCheck:
         }
 
 
+def _find_whole(text: str, quote: str) -> int:
+    """Index of `quote` in `text` where it neither starts nor ends inside a word
+    or a number, or -1. "AED 1" is not found in "AED 1,000"."""
+    start = 0
+    while (at := text.find(quote, start)) >= 0:
+        end = at + len(quote)
+        before = text[at - 1] if at else ""
+        after = text[end] if end < len(text) else ""
+        after2 = text[end + 1] if end + 1 < len(text) else ""
+        breaks_word = (before.isalnum() and quote[:1].isalnum()) or (after.isalnum() and quote[-1:].isalnum())
+        # A number continues through a grouping comma or decimal point: 1,000 and 2.5.
+        breaks_number = (quote[-1:].isdigit() and after in ",." and after2.isdigit()) or \
+                        (quote[:1].isdigit() and before in ",." and at >= 2 and text[at - 2].isdigit())
+        if not (breaks_word or breaks_number):
+            return at
+        start = at + 1
+    return -1
+
+
 def load_passages(path: Path | str) -> dict[str, dict[str, Any]]:
     """passage_id -> passage record, from build/passages.jsonl."""
     out: dict[str, dict[str, Any]] = {}
@@ -156,9 +178,18 @@ DataLookup = Callable[[str], Iterable[Mapping[str, Any]]]
 
 
 class Verifier:
-    def __init__(self, passages: Mapping[str, Mapping[str, Any]], data_lookup: DataLookup | None = None):
+    def __init__(self, passages: Mapping[str, Mapping[str, Any]], data_lookup: DataLookup | None = None,
+                 allowed_sql: Iterable[str] | None = None, allowed_uncited: Iterable[str] | None = None):
+        """`allowed_sql`: the queries the pipeline itself ran. A data citation must
+        name one of them exactly, so a drafter cannot write its own SQL, such as
+        `SELECT 1500 AS fee`, to back a number. `allowed_uncited`: the fixed
+        caveat and refusal texts the pipeline adds. A drafter cannot label its own
+        claim a caveat to skip the check. None leaves either rule off, for tests
+        and the self-test only."""
         self.passages = passages
         self.data_lookup = data_lookup
+        self.allowed_sql = None if allowed_sql is None else {fold(q)[0] for q in allowed_sql}
+        self.allowed_uncited = None if allowed_uncited is None else {fold(t)[0] for t in allowed_uncited}
 
     def check_quote(self, citation: Mapping[str, Any]) -> CitationCheck:
         cit = dict(citation)
@@ -170,7 +201,7 @@ class Verifier:
         if len(folded_quote.split()) < MIN_QUOTE_WORDS:
             return CitationCheck(False, f"quote shorter than {MIN_QUOTE_WORDS} words", cit)
         folded_text, index = fold(passage["text"])
-        at = folded_text.find(folded_quote)
+        at = _find_whole(folded_text, folded_quote)
         if at < 0:
             return CitationCheck(False, "quote not found word for word in the passage", cit)
         start = passage["start"] + index[at]
@@ -183,9 +214,14 @@ class Verifier:
 
     def check_data(self, citation: Mapping[str, Any]) -> CitationCheck:
         cit = dict(citation)
-        sql, value = cit.get("sql"), cit.get("value")
-        if not sql or value in (None, ""):
-            return CitationCheck(False, "data citation needs sql and value", cit)
+        sql, value, column, table = cit.get("sql"), cit.get("value"), cit.get("column"), cit.get("table")
+        if not sql or not column or value in (None, ""):
+            return CitationCheck(False, "data citation needs sql, column and value", cit)
+        if self.allowed_sql is not None and fold(sql)[0] not in self.allowed_sql:
+            return CitationCheck(False, "query is not one Dalil ran", cit)
+        read = {t.lower() for t in _TABLE_REF.findall(sql)}
+        if not table or table.lower() not in read:
+            return CitationCheck(False, "cited table is not the table the query reads", cit)
         if self.data_lookup is None:
             return CitationCheck(False, "no data source to rerun the query", cit)
         try:
@@ -193,9 +229,9 @@ class Verifier:
         except Exception as e:  # the reviewer sees why the rerun failed
             return CitationCheck(False, f"query failed: {type(e).__name__}", cit)
         want = fold(str(value))[0]
-        if any(want == fold(str(v))[0] for row in rows for v in row.values() if v is not None):
+        if any(row.get(column) is not None and want == fold(str(row[column]))[0] for row in rows):
             return CitationCheck(True, "value returned by the query", cit, evidence=str(value))
-        return CitationCheck(False, "query did not return the cited value", cit)
+        return CitationCheck(False, f"query did not return the cited value in column {column!r}", cit)
 
     def check_sentence(self, sentence: Mapping[str, Any]) -> SentenceCheck:
         text = (sentence.get("text") or "").strip()
@@ -203,7 +239,10 @@ class Verifier:
         result = SentenceCheck(text, kind, kept=True)
         citations = sentence.get("citations") or []
         if kind in UNCITED_KINDS:
-            if numbers(text):
+            if self.allowed_uncited is not None and fold(text)[0] not in self.allowed_uncited:
+                result.kept = False
+                result.reasons.append(f"not one of Dalil's fixed {kind} sentences, so it needs a citation")
+            elif numbers(text):
                 result.kept = False
                 result.reasons.append(f"a {kind} may not state numbers")
             return result
@@ -226,11 +265,23 @@ class Verifier:
         return result
 
     def check_answer(self, sentences: Iterable[Mapping[str, Any]]) -> AnswerCheck:
+        """Status from the claims. Caveats and refusals the pipeline adds do not
+        count toward what was kept, so they cannot carry an answer whose claims
+        were all cut. An answer that is only refusals, and all of them kept,
+        passes: refusing is the right answer then."""
         checks = [self.check_sentence(s) for s in sentences]
-        cut = sum(not s.kept for s in checks)
-        if checks and cut == 0:
+        claims = [s for s in checks if s.kind not in UNCITED_KINDS]
+        cut_claims = sum(not s.kept for s in claims)
+        cut_other = sum(not s.kept for s in checks if s.kind in UNCITED_KINDS)
+        if not checks:
+            status = "held"
+        elif not claims:
+            status = "pass" if cut_other == 0 else "held"
+        elif cut_claims == len(claims):
+            status = "held"
+        elif cut_claims == 0 and cut_other == 0:
             status = "pass"
-        elif checks and cut < len(checks) and cut / len(checks) <= MAX_CUT_SHARE:
+        elif cut_claims / len(claims) <= MAX_CUT_SHARE:
             status = "pass_with_cuts"
         else:
             status = "held"
@@ -242,6 +293,7 @@ class Verifier:
 _WRITE_WORDS = re.compile(
     r"\b(insert|update|delete|merge|drop|create|alter|truncate|grant|revoke|cache|uncache|"
     r"refresh|msck|load|set|use|call|exec|execute|describe|show)\b", re.IGNORECASE)
+_CALL = re.compile(r"\b(?:java_method|reflect|input_file_name|current_user|session_user|user)\s*\(", re.IGNORECASE)
 _TABLE_REF = re.compile(r"\b(?:from|join)\s+([A-Za-z_][\w.]*)", re.IGNORECASE)
 
 
@@ -252,12 +304,20 @@ def safe_select(sql: str, allowed_schema: str = "dalil") -> str:
     checker refuses anything else before it reaches Zetaris.
     """
     s = sql.strip().rstrip(";").strip()
+    if any(ch in s for ch in "`\""):
+        raise ValueError("no quoted identifiers in a citation query")
     if not re.match(r"(?is)^(select|with)\b", s):
         raise ValueError("only SELECT queries can back a citation")
     if ";" in s or "--" in s or "/*" in s:
         raise ValueError("one statement, no comments")
     if _WRITE_WORDS.search(s):
         raise ValueError("query uses a word that is not allowed in a citation")
+    # A comma join, FROM a, b, would hide the second table from the check below.
+    for clause in re.findall(r"(?is)\bfrom\b(.*?)(?=\bwhere\b|\bgroup\b|\border\b|\blimit\b|\bjoin\b|\bon\b|$)", s):
+        if "," in clause:
+            raise ValueError("no comma joins in a citation query")
+    if _CALL.search(s):
+        raise ValueError("query calls a function that is not allowed in a citation")
     tables = _TABLE_REF.findall(s)
     if not tables or any(t.split(".")[0].lower() != allowed_schema for t in tables):
         raise ValueError(f"queries may read only {allowed_schema}.* tables")

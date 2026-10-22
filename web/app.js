@@ -87,7 +87,7 @@
     }
     if (/evasion|evade|circumvent|loophole/.test(c)) {
       return { cls: "flag-evasion", title: "Asks how to get around a rule",
-        body: detail || "Dalil will not help anyone avoid a law or a government process. This answer is held and can only be rejected." };
+        body: detail || "Dalil will not help anyone avoid a law or a government process. The answer below is a refusal: approve to send it, or reject." };
     }
     return { cls: "flag-other", title: "Flagged at screening", body: detail || String(code).replace(/_/g, " ") };
   }

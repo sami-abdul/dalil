@@ -91,21 +91,57 @@ def test_refusal_needs_no_citation_but_may_not_state_numbers(v):
     assert not s.kept
 
 
-def test_data_citation_is_rerun():
-    rows = {"SELECT n": [{"year": "2025", "transactions": "5856085"}]}
-    v = Verifier({}, data_lookup=lambda sql: rows[sql])
-    ok = v.check_sentence(claim("ICP renewed 5,856,085 ID cards in 2025.",
-                                {"table": "t", "sql": "SELECT n", "value": "5856085"},
-                                {"table": "t", "sql": "SELECT n", "value": "2025"}))
+SQL = "SELECT year, transactions FROM dalil.t WHERE year = 2025"
+
+
+def data_cit(value, column="transactions", sql=SQL, table="dalil.t"):
+    return {"table": table, "sql": sql, "column": column, "value": value}
+
+
+def test_data_citation_is_rerun_and_read_from_its_column():
+    rows = {SQL: [{"year": "2025", "transactions": "5856085"}]}
+    v = Verifier({}, data_lookup=lambda sql: rows[sql], allowed_sql=[SQL])
+    ok = v.check_sentence(claim("ICP renewed 5,856,085 ID cards in 2025.", data_cit("5856085"), data_cit("2025", "year")))
     assert ok.kept, ok.reasons
-    bad = v.check_sentence(claim("ICP renewed 6,000,000 ID cards.",
-                                 {"table": "t", "sql": "SELECT n", "value": "6000000"}))
+    bad = v.check_sentence(claim("ICP renewed 6,000,000 ID cards.", data_cit("6000000")))
     assert not bad.kept and "did not return" in bad.reasons[0]
+    # The year 2025 is in the row, but not in the transactions column.
+    wrong_col = v.check_sentence(claim("ICP renewed 2,025 ID cards.", data_cit("2025")))
+    assert not wrong_col.kept
+
+
+def test_data_citation_must_use_a_query_dalil_ran():
+    literal = "SELECT 1500 AS fee FROM dalil.t"
+    v = Verifier({}, data_lookup=lambda sql: [{"fee": "1500"}], allowed_sql=[SQL])
+    s = v.check_sentence(claim("Renewal costs AED 1500.", data_cit("1500", "fee", sql=literal)))
+    assert not s.kept and "not one Dalil ran" in s.reasons[0]
+
+
+def test_data_citation_table_must_be_the_one_queried():
+    v = Verifier({}, data_lookup=lambda sql: [{"transactions": "5"}], allowed_sql=[SQL])
+    s = v.check_sentence(claim("There were 5.", data_cit("5", table="dalil.other")))
+    assert not s.kept and "table" in s.reasons[0]
 
 
 def test_data_citation_without_a_lookup_fails():
-    s = Verifier({}).check_sentence(claim("x", {"table": "t", "sql": "SELECT 1", "value": "1"}))
+    s = Verifier({}).check_sentence(claim("x", data_cit("1")))
     assert not s.kept and "no data source" in s.reasons[0]
+
+
+def test_quote_may_not_stop_inside_a_number_or_word(v):
+    s = v.check_sentence(claim("Late renewal costs up to AED 1.", q("a day, up to AED 1")))
+    assert not s.kept and "word for word" in s.reasons[0]
+    s = v.check_sentence(claim("It is a gratuity.", q("worker is entitled to an end of serv")))
+    assert not s.kept
+    assert v.check_sentence(claim("Late renewal costs up to AED 1,000.", q("a day, up to AED 1,000"))).kept
+
+
+def test_model_written_caveat_is_not_trusted():
+    fixed = "The sources I have don't state this fee."
+    v = Verifier({}, allowed_uncited=[fixed])
+    assert v.check_sentence({"text": fixed, "kind": "caveat"}).kept
+    s = v.check_sentence({"text": "Renewal is free for retirees.", "kind": "caveat"})
+    assert not s.kept and "needs a citation" in s.reasons[0]
 
 
 def test_answer_status(v):
@@ -118,6 +154,10 @@ def test_answer_status(v):
     assert v.check_answer([good, bad, bad]).status == "held"
     assert v.check_answer([]).status == "held"
     assert v.check_answer([{"text": "The sources don't cover this.", "kind": "refusal"}]).status == "pass"
+    # A kept caveat cannot carry an answer whose only claim was cut.
+    note = {"text": "Don't share ID numbers here.", "kind": "caveat"}
+    assert v.check_answer([bad, note]).status == "held"
+    assert v.check_answer([good, bad, note]).status == "pass_with_cuts"
 
 
 @pytest.mark.parametrize("sql", [
@@ -136,6 +176,9 @@ def test_safe_select_allows_read_only_dalil_queries(sql):
     "SELECT * FROM dalil.pages -- sneaky",
     "SELECT * FROM dalil.pages WHERE 1=1 UNION SELECT * FROM other.secrets",
     "SELECT 1",
+    "SELECT * FROM dalil.open_icp_transactions, secret.users",
+    "SELECT java_method('java.lang.System','getenv','HOME') FROM dalil.open_icp_transactions",
+    "SELECT * FROM `other`.`t`",
     "WITH x AS (SELECT year FROM dalil.open_icp_transactions) SELECT * FROM x",
 ])
 def test_safe_select_refuses_everything_else(sql):
