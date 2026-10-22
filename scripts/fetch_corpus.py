@@ -4,8 +4,11 @@
 
 Each source_url is saved as corpus/<file>. A file already present whose
 SHA-256 matches the manifest is skipped. Pages change, so a download whose
-hash differs is kept and reported, not treated as a failure. Failed
-downloads are reported too. The script exits 0 unless the manifest cannot
+hash differs is kept and reported, not treated as a failure. The one
+exception is --force over a file that already matches the manifest: that
+file is never replaced by bytes that do not match. The new bytes go beside
+it as <file>.new and the run reports a mismatch. Failed downloads are
+reported too. The script exits 0 unless the manifest cannot
 be read, so one dead link does not stop the rest.
 
 The files are saved as bytes and never opened, rendered or run here.
@@ -15,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import http.client
 import sys
 import time
 import urllib.error
@@ -95,12 +99,23 @@ def main(argv: list[str] | None = None) -> int:
         if not first:
             time.sleep(args.delay)
         first = False
+        # A present file that matches the manifest is only replaced by bytes
+        # that match too, so a forced refetch of a changed page cannot lose it.
+        keep_good = dest.is_file() and sha256_file(dest) == expected
+        target = dest.with_name(dest.name + ".new") if keep_good else dest
         try:
-            actual = download(row["source_url"], dest)
-        except (urllib.error.URLError, OSError, ValueError) as exc:
+            actual = download(row["source_url"], target)
+        except (urllib.error.URLError, http.client.HTTPException, OSError, ValueError) as exc:
             failed.append(row["file"])
-            print(f"FAILED   {row['file']}: {exc}")
+            print(f"FAILED   {row['file']}: {type(exc).__name__}: {exc}")
             continue
+        if keep_good:
+            if actual != expected:
+                mismatched.append(row["file"])
+                print(f"MISMATCH {row['file']}: sha256 {actual[:12]}..., manifest {expected[:12]}... "
+                      f"(kept the matching file; new bytes saved as {target.name})")
+                continue
+            target.replace(dest)
         fetched.append(row["file"])
         if actual == expected:
             print(f"fetched  {row['file']}")

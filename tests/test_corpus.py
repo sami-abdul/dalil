@@ -204,6 +204,20 @@ def test_normalise_text_expands_ligatures_and_arabic_presentation_forms():
     assert normalise_text("\ufefb") == "\u0644\u0627"
 
 
+def test_normalise_text_arabic_mark_forms_stay_on_their_letter():
+    # U+FE76 (isolated fatha) is NFKC space + fatha; U+FE77 (medial fatha) is
+    # tatweel + fatha. Either way the mark joins the letter, with no space.
+    assert normalise_text("\u0643\ufe76\u062a") == "\u0643\u064e\u062a"
+    assert normalise_text("\u0643\ufe77\u062a") == "\u0643\u064e\u062a"
+
+
+def test_normalise_text_runs_nfkc_before_dropping_tatweel():
+    # Every medial mark form decomposes with a tatweel, which must not survive.
+    for code in range(0xFE71, 0xFE80, 2):
+        out = normalise_text("\u0628" + chr(code) + "\u0628")
+        assert "\u0640" not in out and " " not in out, hex(code)
+
+
 def test_repair_glyphs_only_for_listed_document():
     text = "\ufffde rule and di\ufffderent"
     fixed = corpus.repair_glyphs("ai-gov-uae-charter-development-use-of-ai-2024-en", text)
@@ -240,6 +254,51 @@ def test_html_generic_main_fallback_and_h1_title():
       <footer>FOOTER-TEXT</footer></body></html>"""
     text = extract_html_text(html)
     assert text == "Site title\nSection\nBody text."
+
+
+def test_html_keeps_header_and_footer_inside_content():
+    html = b"""<html><body>
+      <header class="site"><nav>NAV-TEXT</nav><p>SITE-BANNER</p></header>
+      <main><article>
+        <header><h1>Decree 7 of 2026</h1><p>Issued 1 January 2026</p></header>
+        <p>Article 1 text.</p>
+        <footer><p>Signed by the Ruler</p></footer>
+      </article></main>
+      <footer>FOOTER-TEXT</footer></body></html>"""
+    assert extract_html_text(html) == (
+        "Decree 7 of 2026\nIssued 1 January 2026\nArticle 1 text.\nSigned by the Ruler"
+    )
+
+
+def test_html_body_fallback_drops_page_header_keeps_article_header():
+    html = b"""<html><body><header>SITE-BANNER</header>
+      <div><article><header><h2>Law title</h2></header><p>Text.</p></article></div>
+      <footer>FOOTER-TEXT</footer></body></html>"""
+    assert extract_html_text(html) == "Law title\nText."
+
+
+def test_html_chrome_tokens_match_whole_names_only():
+    html = b"""<html><body><main>
+      <div class="cookie-policy-content"><p>We use cookies for sign-in.</p></div>
+      <div class="share-price-table"><p>Share capital rules.</p></div>
+      <div class="nav-pills-custom-note"><p>Kept note.</p></div>
+      <div id="cookie-alert"><p>COOKIE-TEXT</p></div>
+      <div class="Feedback"><p>FEEDBACK-TEXT</p></div>
+      <ol class="breadcrumb"><li>CRUMB-TEXT</li></ol>
+    </main></body></html>"""
+    assert extract_html_text(html) == "We use cookies for sign-in.\nShare capital rules.\nKept note."
+
+
+def test_html_content_root_inside_form_is_kept():
+    # The Dubai Legislation Portal wraps its content root in an ASP.NET form.
+    html = b"""<html><body><form id="aspnetForm"><div class="ms-hide">HIDDEN</div>
+      <div id="DeltaPlaceHolderMain"><h1>Terms</h1><p>Body text.</p></div></form></body></html>"""
+    assert extract_html_text(html) == "Terms\nBody text."
+
+
+def test_html_pre_keeps_line_breaks():
+    html = b"<html><body><main><p>Intro   text.</p><pre>line one   \n  line two\n\nline three</pre></main></body></html>"
+    assert extract_html_text(html) == "Intro text.\nline one\nline two\nline three"
 
 
 def test_html_body_fallback_without_main():
@@ -372,6 +431,56 @@ def test_fetch_corpus_skips_matching_and_reports_mismatch(tmp_path, monkeypatch,
     assert (corpus_dir / "changed.html").read_bytes() == changed
     printed = capsys.readouterr().out
     assert "present: 1, fetched: 1, hash mismatches: 1, failed: 1" in printed
+
+
+def test_fetch_corpus_force_never_replaces_a_matching_file(tmp_path, monkeypatch, capsys):
+    import fetch_corpus
+
+    good, changed = b"<p>good</p>", b"<p>changed</p>"
+    corpus_dir = tmp_path / "corpus"
+    corpus_dir.mkdir()
+    (corpus_dir / "kept.html").write_bytes(good)
+    (corpus_dir / "same.html").write_bytes(good)
+    manifest = write_manifest(tmp_path / "m.csv", [manifest_row("kept.html", good), manifest_row("same.html", good)])
+
+    def fake_download(url: str, dest: Path) -> str:
+        data = changed if "kept" in url else good
+        dest.write_bytes(data)
+        return hashlib.sha256(data).hexdigest()
+
+    monkeypatch.setattr(fetch_corpus, "download", fake_download)
+    args = ["--manifest", str(manifest), "--corpus-dir", str(corpus_dir), "--delay", "0", "--force"]
+    assert fetch_corpus.main(args) == 0
+    assert (corpus_dir / "kept.html").read_bytes() == good
+    assert (corpus_dir / "kept.html.new").read_bytes() == changed
+    assert (corpus_dir / "same.html").read_bytes() == good
+    assert not (corpus_dir / "same.html.new").exists()
+    printed = capsys.readouterr().out
+    assert "MISMATCH kept.html" in printed
+    assert "present: 0, fetched: 1, hash mismatches: 1, failed: 0" in printed
+
+
+def test_fetch_corpus_survives_incomplete_read(tmp_path, monkeypatch, capsys):
+    import http.client
+
+    import fetch_corpus
+
+    data = b"<p>fine</p>"
+    corpus_dir = tmp_path / "corpus"
+    manifest = write_manifest(tmp_path / "m.csv", [manifest_row("cut.html", data), manifest_row("fine.html", data)])
+
+    def fake_download(url: str, dest: Path) -> str:
+        if "cut" in url:
+            raise http.client.IncompleteRead(b"<p>fi")
+        dest.write_bytes(data)
+        return hashlib.sha256(data).hexdigest()
+
+    monkeypatch.setattr(fetch_corpus, "download", fake_download)
+    assert fetch_corpus.main(["--manifest", str(manifest), "--corpus-dir", str(corpus_dir), "--delay", "0"]) == 0
+    printed = capsys.readouterr().out
+    assert "FAILED   cut.html: IncompleteRead" in printed
+    assert "present: 0, fetched: 1, hash mismatches: 0, failed: 1" in printed
+    assert (corpus_dir / "fine.html").read_bytes() == data
 
 
 def test_fetch_corpus_rejects_non_http_urls(tmp_path):

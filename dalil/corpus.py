@@ -152,7 +152,19 @@ _INVISIBLE = dict.fromkeys(
 # Latin ligatures (U+FB00-FB06) and Arabic presentation forms are glyph
 # artefacts of PDF extraction; NFKC maps them back to the plain letters.
 _COMPAT_RE = re.compile("[\ufb00-\ufb06\ufb50-\ufdff\ufe70-\ufefe]")
+# The isolated and medial forms of the Arabic marks (U+FE70-FE7F) decompose to
+# a space or a tatweel followed by the combining mark. The space or tatweel is
+# only a carrier for the glyph, so it is dropped and the mark stays on its letter.
+_MARK_FORMS_RE = re.compile("[\ufe70-\ufe7f]")
 _HSPACE_RE = re.compile(r"[^\S\n]+")
+
+
+def _compat(match: re.Match[str]) -> str:
+    char = match.group()
+    plain = unicodedata.normalize("NFKC", char)
+    if _MARK_FORMS_RE.match(char):
+        plain = plain.lstrip(" \u0640")
+    return plain
 
 
 def normalise_text(text: str) -> str:
@@ -164,8 +176,10 @@ def normalise_text(text: str) -> str:
     """
     text = text.replace("\r\n", "\n").replace("\r", "\n")
     text = text.replace("\u2028", "\n").replace("\u2029", "\n").replace("\x0c", "\n")
+    # Compatibility forms first, so a tatweel or invisible character that NFKC
+    # produces is removed by the step after it.
+    text = _COMPAT_RE.sub(_compat, text)
     text = text.translate(_INVISIBLE)
-    text = _COMPAT_RE.sub(lambda m: unicodedata.normalize("NFKC", m.group()), text)
     lines = (_HSPACE_RE.sub(" ", line).strip() for line in text.split("\n"))
     return "\n".join(line for line in lines if line)
 
@@ -179,19 +193,44 @@ _DROP_TAGS = (
     "embed", "link", "meta", "canvas", "img", "picture", "video", "audio", "source",
     "map", "head",
 )
-# Elements removed inside the chosen content: page chrome and form controls.
-_CHROME_TAGS = (
-    "nav", "header", "footer", "form", "select", "option", "button", "input",
-    "textarea", "label", "dialog",
+# Elements removed inside the chosen content: navigation and form controls.
+_CHROME_TAGS = frozenset(
+    ("nav", "form", "select", "option", "button", "input", "textarea", "label", "dialog")
 )
-# A class or id token naming chrome. Matched against whole tokens.
-_CHROME_TOKEN_RE = re.compile(
-    r"^(breadcrumbs?|breadcrumb-.*|.*cookie.*|.*consent.*|.*gdpr.*|feedback.*|"
-    r".*-feedback|happindexform|modal|modal-.*|aegov-modal.*|share|share-.*|.*-share|"
-    r"social|social-.*|no-print|skip-link|skip-to-content|sticky-wrapper|"
-    r"select-container|topic-navigation|read-more|sr-only|visually-hidden|"
-    r"pagination|navbar|navbar-.*|nav|nav-.*|field__label|ms-hide|s4-notdlg|ms-dialoghidden)$",
-    re.IGNORECASE,
+# <header> and <footer> are page chrome only at page level. Inside a selected
+# content root, or inside sectioning content, they hold the document's own
+# title, number, date or signature, so they are kept.
+_LANDMARK_TAGS = frozenset(("header", "footer"))
+_SECTIONING_TAGS = frozenset(("article", "aside", "main", "section"))
+# Class or id tokens naming chrome, compared whole and case-insensitively.
+# Each is a container seen in this corpus's templates: u.ae and Bayanat,
+# the Dubai Legislation Portal (SharePoint), ICP (aegov) and GDRFA (Drupal),
+# plus the usual accessibility helpers. A token that merely contains one of
+# these words, such as "cookie-policy-content", is not chrome.
+_CHROME_TOKENS = frozenset(
+    t.lower()
+    for t in (
+        # breadcrumbs
+        "breadcrumb", "breadcrumbs", "breadcrumb-area",
+        # cookie banners (ICP)
+        "cookie-alert",
+        # feedback and rating widgets (u.ae, ICP)
+        "feedback", "feedback-container", "feedback-section", "feedback-modal",
+        "feedBack-Container", "FeedbackMsg", "happIndexForm",
+        # modal dialogs (ICP aegov, GDRFA bootstrap)
+        "modal", "aegov-modal", "aegov-modal-wrapper",
+        # share and social links (ICP, GDRFA)
+        "social-sharing", "Social-platforms-container",
+        # navigation bars and menus
+        "nav", "navbar", "nav-bar", "nav-container", "nav-links", "nav-menu",
+        "topic-navigation", "pagination",
+        # u.ae tab picker and hero links
+        "sticky-wrapper", "select-container", "read-more",
+        # skip links, screen-reader-only text, print-hidden widgets
+        "skip-link", "skip-to-content", "sr-only", "visually-hidden", "no-print",
+        # GDRFA field labels, SharePoint hidden ribbons and dialog chrome
+        "field__label", "ms-hide", "s4-notdlg", "ms-dialoghidden",
+    )
 )
 _ROLE_CHROME = {"navigation", "banner", "contentinfo", "search", "dialog", "alertdialog"}
 
@@ -224,33 +263,53 @@ _CELL_SEP = " | "
 _NEWLINE = "\n"
 
 
-def _is_chrome(tag: Tag) -> bool:
-    if tag.name in _CHROME_TAGS:
-        return True
-    if (tag.get("role") or "").lower() in _ROLE_CHROME:
-        return True
+def _tokens(tag: Tag) -> list[str]:
     tokens = list(tag.get("class") or [])
     if tag.get("id"):
         tokens.append(tag["id"])
-    return any(_CHROME_TOKEN_RE.match(t) for t in tokens)
+    return [t.lower() for t in tokens]
 
 
-def _strip_chrome(root: Tag) -> None:
+def _is_chrome(tag: Tag, page_level: bool) -> bool:
+    """True when tag is site chrome. page_level is True when the tag is not
+    inside a selected content root, so a bare <header> or <footer> is the
+    page's banner or footer rather than part of the document."""
+    if tag.name in _CHROME_TAGS:
+        return True
+    if (
+        page_level
+        and tag.name in _LANDMARK_TAGS
+        and not any(p.name in _SECTIONING_TAGS for p in tag.parents)
+    ):
+        return True
+    if (tag.get("role") or "").lower() in _ROLE_CHROME:
+        return True
+    return any(t in _CHROME_TOKENS for t in _tokens(tag))
+
+
+def _strip_chrome(root: Tag, page_level: bool = False) -> None:
+    """Remove chrome below root. Only descendants are visited, so root itself
+    and its ancestors stay even when their class or tag looks like chrome
+    (the Dubai Legislation Portal's content sits inside an ASP.NET <form>)."""
     for tag in list(root.find_all(True)):
         if tag.decomposed:
             continue
-        if _is_chrome(tag):
+        if _is_chrome(tag, page_level):
             tag.decompose()
 
 
-def _render(node: Tag, out: list[str]) -> None:
-    """Append the visible text of node to out, with '\\n' at block edges."""
+def _render(node: Tag, out: list[str], pre: bool = False) -> None:
+    """Append the visible text of node to out, with '\\n' at block edges.
+
+    Inside <pre> the source line breaks are kept; elsewhere HTML collapses
+    source whitespace, so this does the same.
+    """
     for child in node.children:
         if isinstance(child, (Comment, Declaration, Doctype, ProcessingInstruction)):
             continue
         if isinstance(child, NavigableString):
-            # HTML collapses source whitespace, so do the same.
-            out.append(re.sub(r"\s+", " ", str(child)))
+            text = str(child)
+            out.append(text if pre else re.sub(r"\s+", " ", text))
             continue
         if not isinstance(child, Tag):
             continue
@@ -263,19 +322,19 @@ def _render(node: Tag, out: list[str]) -> None:
                 texts = []
                 for cell in cells:
                     parts: list[str] = []
-                    _render(cell, parts)
+                    _render(cell, parts, pre)
                     texts.append(" ".join("".join(parts).split()))
                 out.append(_NEWLINE + _CELL_SEP.join(t for t in texts if t) + _NEWLINE)
             else:
                 out.append(_NEWLINE)
-                _render(child, out)
+                _render(child, out, pre)
                 out.append(_NEWLINE)
         elif name in _BLOCK_TAGS:
             out.append(_NEWLINE)
-            _render(child, out)
+            _render(child, out, pre or name == "pre")
             out.append(_NEWLINE)
         else:
-            _render(child, out)
+            _render(child, out, pre)
 
 
 def _node_text(node: Tag) -> str:
@@ -328,7 +387,7 @@ def extract_html_text(raw: bytes) -> str:
             break
     if not body_text:
         root = soup.body or soup
-        _strip_chrome(root)
+        _strip_chrome(root, page_level=True)
         body_text = _node_text(root)
     if not blocks:
         # Some templates keep the page title in an <h1> above the content.

@@ -50,6 +50,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from dalil import zetaris as z  # noqa: E402
+from dalil.corpus import CorpusError, doc_id, doc_kind, load_manifest  # noqa: E402
 
 DATABASE = "dalil"
 DESCRIPTION = "Dalil corpus - UAE government documents, metadata and page text"
@@ -77,17 +78,18 @@ def read_documents(path: Path) -> list[dict[str, Any]]:
 
 
 def standin_documents(manifest: Path) -> list[dict[str, Any]]:
-    """Metadata-only documents from MANIFEST.csv. doc_id is the file name
-    without its extension (inferred to match the corpus builder; the real
-    documents.jsonl decides)."""
-    docs = []
-    with manifest.open(encoding="utf-8", newline="") as fh:
-        for row in csv.DictReader(fh):
-            stem, _, ext = row["file"].rpartition(".")
+    """Metadata-only documents from MANIFEST.csv. doc_id and kind come from
+    dalil.corpus, so they are the ids the corpus builder writes."""
+    try:
+        rows = load_manifest(manifest)
+        docs = []
+        for row in rows:
             doc = {k: row.get(k) for k in DOC_FIELDS if k in row}
-            doc.update(doc_id=stem or row["file"], kind=ext.lower() or None)
-            doc["pages"] = [{"page": 1, "text": f"[stand-in page, no extracted text] {row.get('title', '')}"}]
+            doc.update(doc_id=doc_id(row["file"]), kind=doc_kind(row["file"]))
+            doc["pages"] = [{"page": 1, "text": f"[stand-in page, no extracted text] {row['title']}"}]
             docs.append(doc)
+    except CorpusError as e:
+        raise z.ZetarisError(str(e)) from None
     return docs
 
 

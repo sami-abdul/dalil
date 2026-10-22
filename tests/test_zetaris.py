@@ -75,6 +75,57 @@ def test_bad_ui_url(url):
         z.Config(ui_url=url, email="a", password=FAKE)
 
 
+def test_ui_url_with_userinfo_is_rejected_without_echoing_it():
+    secret = "s3cret-" + FAKE
+    for url in (f"http://admin:{secret}@127.0.0.1:13000", f"http://{secret}@host"):
+        with pytest.raises(z.ZetarisError) as info:
+            z.Config(ui_url=url, email="a", password=FAKE)
+        assert "user name or password" in str(info.value)
+        assert secret not in str(info.value)
+
+
+class _FakeResponse:
+    def __init__(self, body: bytes, status: int = 200):
+        self._body, self.status = body, status
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def read(self) -> bytes:
+        return self._body
+
+
+def test_non_json_200_raises_zetaris_error(monkeypatch):
+    monkeypatch.setattr(z, "urlopen", lambda req, timeout: _FakeResponse(b"<!doctype html><html>app</html>"))
+    client = z.Client(z.Config(api_key=FAKE, org_id="1"))
+    with pytest.raises(z.ZetarisError, match="HTML page; check ZETARIS_UI_URL") as info:
+        client.sql("SELECT 1")
+    assert info.value.status == 200
+    monkeypatch.setattr(z, "urlopen", lambda req, timeout: _FakeResponse(b"\xff\xfe not json"))
+    with pytest.raises(z.ZetarisError, match="not JSON; check ZETARIS_UI_URL"):
+        client.sql("SELECT 1")
+
+
+def test_http_error_detail_never_echoes_credentials(monkeypatch):
+    import io
+    from urllib.error import HTTPError
+
+    secret = "pw-" + FAKE
+
+    def fail(req, timeout):
+        body = json.dumps({"msg": f"bad request for password {secret}"}).encode()
+        raise HTTPError(req.full_url, 500, "boom", {}, io.BytesIO(body))
+
+    monkeypatch.setattr(z, "urlopen", fail)
+    client = z.Client(z.Config(email="a@example.invalid", password=secret))
+    with pytest.raises(z.ZetarisError) as info:
+        client.login()
+    assert secret not in str(info.value) and "[redacted]" in str(info.value)
+
+
 # --- SQL text --------------------------------------------------------------------
 
 
@@ -244,3 +295,21 @@ def test_csv_record_count_counts_multiline_records(tmp_path):
     f = tmp_path / "m.csv"
     f.write_text('name,address\nA,"line one\nline two"\nB,plain\n', encoding="utf-8")
     assert mod.csv_record_count(f) == 2
+
+
+def test_standin_ids_match_the_corpus_builder(tmp_path):
+    from dalil.corpus import doc_id
+
+    loader = _load_script("load_zetaris")
+    manifest = tmp_path / "MANIFEST.csv"
+    manifest.write_text(
+        "file,title,publisher,source_url,retrieved_utc,sha256,language,topic,licence_note\n"
+        "UAE_Visa Rules.HTM,Visa,u.ae,https://u.ae/v,2026-10-19T00:00:00Z,ab,en,visas,reserved\n",
+        encoding="utf-8",
+    )
+    doc = loader.standin_documents(manifest)[0]
+    assert doc["doc_id"] == doc_id("UAE_Visa Rules.HTM") == "uae-visa-rules"
+    assert doc["kind"] == "html"
+    manifest.write_text(manifest.read_text().replace(".HTM,", ".txt,"), encoding="utf-8")
+    with pytest.raises(z.ZetarisError, match="unsupported file type"):
+        loader.standin_documents(manifest)

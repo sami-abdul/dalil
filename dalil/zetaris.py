@@ -60,7 +60,14 @@ class Config:
     source: str = "environment"
 
     def __post_init__(self) -> None:
-        if not re.fullmatch(r"https?://[^/\s]+", self.ui_url):
+        # Checked first, and the URL is never echoed, because user:password@
+        # in the URL would put a credential in an error message or a log line.
+        if "@" in self.ui_url:
+            raise ZetarisError(
+                "ZETARIS_UI_URL must not carry a user name or password (user@host); "
+                "set ZETARIS_ADMIN_EMAIL and ZETARIS_ADMIN_PASSWORD instead"
+            )
+        if not re.fullmatch(r"https?://[^/\s?#]+", self.ui_url):
             raise ZetarisError(
                 "ZETARIS_UI_URL must be an http(s) origin with no path, "
                 "for example http://127.0.0.1:13000"
@@ -210,9 +217,12 @@ def _error_detail(body: bytes) -> str:
             text = str(parsed.get("msg") or parsed.get("message") or parsed.get("error") or text)
     except ValueError:
         if "<html" in text.lower():
-            text = "the server returned an HTML page; check ZETARIS_UI_URL"
+            text = f"the server returned an HTML page; {_HTML_HINT}"
     text = " ".join(text.split())
     return text if len(text) <= 500 else text[:497] + "..."
+
+
+_HTML_HINT = "check ZETARIS_UI_URL points at the Zetaris web UI"
 
 
 class Client:
@@ -224,6 +234,13 @@ class Client:
         # An API key is used only with a known org ID; otherwise log in, which returns both.
         self._token: str | None = self.config.api_key if self.config.org_id else None
         self.org_id: str | None = self.config.org_id
+
+    def _redact(self, text: str) -> str:
+        """Blank out any credential a server might echo back in an error body."""
+        for secret in (self.config.password, self.config.api_key, self._token):
+            if secret and len(secret) >= 4:
+                text = text.replace(secret, "[redacted]")
+        return text
 
     # HTTP plumbing. The token only ever goes into a request header.
     def _post(self, path: str, body: Any, auth: bool = True) -> Any:
@@ -240,14 +257,22 @@ class Client:
         try:
             with urlopen(req, timeout=self.timeout) as resp:
                 raw = resp.read()
+                status = resp.status
         except HTTPError as e:
-            raise ZetarisError(f"HTTP {e.code} from {path}: {_error_detail(e.read())}", e.code) from None
+            detail = self._redact(_error_detail(e.read()))
+            raise ZetarisError(f"HTTP {e.code} from {path}: {detail}", e.code) from None
         except (URLError, OSError) as e:
+            reason = self._redact(str(getattr(e, "reason", e)))
             raise ZetarisError(
-                f"Cannot reach Zetaris at {self.config.ui_url}: {getattr(e, 'reason', e)}. "
+                f"Cannot reach Zetaris at {self.config.ui_url}: {reason}. "
                 "Is the stack up? (docker ps --filter name=zetaris)"
             ) from None
-        return json.loads(raw.decode("utf-8") or "null")
+        try:
+            return json.loads(raw.decode("utf-8") or "null")
+        except ValueError:  # includes UnicodeDecodeError
+            # The body is not echoed: it is not JSON, so it is not ours to quote.
+            kind = "an HTML page" if b"<html" in raw[:4096].lower() else "a response that is not JSON"
+            raise ZetarisError(f"HTTP {status} from {path} returned {kind}; {_HTML_HINT}", status) from None
 
     def login(self) -> None:
         if not (self.config.email and self.config.password):
