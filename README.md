@@ -73,6 +73,23 @@ uv run python scripts/run_eval.py                # every test question and error
 
 The measured results, and what they do not show, are in [docs/evaluation.md](docs/evaluation.md).
 
+## For the ITU AI for Good Lab, UAE
+
+The same agent is Dalil's entry to the ITU AI for Good Lab hackathon. `scripts/build_itu_kb.py` builds its knowledge base with ITU's reference code, vendored unchanged in `itu/reference/` under its MIT licence: ITU's `KnowledgeBase` class and ChromaDB collections, and ITU's own loader for its AI readiness framework.
+
+```bash
+uv run --extra itu python scripts/build_itu_kb.py   # needs the embedding server; writes outside the repo
+```
+
+| Collection | What it holds |
+|---|---|
+| `kb_main` | Dalil's 1,024 passages, each with its document, page, exact character span, source URL and ITU's `source_type`, `country` and `document_category` |
+| `kb_framework` | ITU's 13 readiness dimensions and 6 factors |
+| `kb_usecase` | [Dalil's use case](docs/itu/use-case.md): users, requirements by ITU-T Y.3172 node, error scenarios |
+| `kb_decisions` | Every review decision, with its note |
+
+Dalil's passages are stored instead of the output of ITU's chunker, because that chunker drops page numbers and Dalil's citations need exact spans on numbered pages. The build checks that every stored passage equals its page slice. The built knowledge base holds document text that most publishers do not allow to be republished, so it is not in this repo; it goes to the organisers privately.
+
 ## Built with
 
 | Part | What |

@@ -16,6 +16,13 @@ dependencies = [
     "uvicorn>=0.54.0",
 ]
 
+[project.optional-dependencies]
+itu = [
+    "chromadb>=1.5.9",
+    "ollama>=0.6.3",
+    "pydantic-settings>=2.16.1",
+]
+
 [dependency-groups]
 dev = [
     "httpx>=0.28.1",
