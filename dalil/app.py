@@ -17,9 +17,11 @@ import re
 from pathlib import Path
 from typing import Any, Callable, Literal, Mapping
 
-from fastapi import FastAPI, HTTPException
+from urllib.parse import urlsplit
+
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -27,6 +29,7 @@ from dalil.corpus import doc_id as manifest_doc_id
 from dalil.corpus import load_manifest, resolve_corpus_dir
 from dalil.hmem import HMem
 from dalil.pipeline import Pipeline
+from dalil.safety import redact
 from dalil.store import ReviewError
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -121,6 +124,15 @@ def create_app(
     # requests addressed to this machine by name.
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(ALLOWED_HOSTS))
 
+    @app.middleware("http")
+    async def same_origin_only(request: Request, call_next: Callable[..., Any]) -> Any:
+        """A browser sends Origin on cross-site requests. Only this app's own page
+        may call the API, so another site cannot approve answers or read text."""
+        origin = request.headers.get("origin")
+        if origin is not None and urlsplit(origin).netloc != request.headers.get("host", ""):
+            return JSONResponse({"detail": "cross-site requests are not accepted"}, status_code=403)
+        return await call_next(request)
+
     def doc_meta(did: str | None) -> Mapping[str, Any]:
         return documents.get(did or "", {})
 
@@ -169,13 +181,17 @@ def create_app(
 
     @app.post("/api/questions/{qid}/review")
     def review(qid: str, body: ReviewIn) -> dict[str, Any]:
+        # Reviewers type free text too. Redact it before it reaches the store or
+        # H-MEM's append-only ledger, which can never be scrubbed afterwards.
+        reviewer, _ = redact(body.reviewer)
+        note, _ = redact(body.note)
         try:
-            store.review(qid, body.decision, body.reviewer, body.note)
+            store.review(qid, body.decision, reviewer, note)
         except KeyError:
             raise HTTPException(404, "no such question") from None
         except ReviewError as e:
             raise HTTPException(409, str(e)) from None
-        remember_review(qid, body.decision, body.reviewer, body.note)
+        remember_review(qid, body.decision, reviewer, note)
         return detail(qid)
 
     def remember_review(qid: str, decision: str, reviewer: str, note: str) -> None:
@@ -183,17 +199,27 @@ def create_app(
         memory = pipeline.memory
         if memory is None:
             return
+        try:
+            out = write_memory(memory, qid, decision, reviewer, note)
+        except Exception as e:  # the review is saved; never turn it into an error here
+            store.event(qid, "memory_written", {"available": False, "error": type(e).__name__})
+            return
+        if out is None:
+            store.event(qid, "memory_written", {"available": False})
+        else:
+            store.event(qid, "memory_written", {"available": True, "memory_id": out["memory"]["id"],
+                                                "kind": out["memory"].get("kind"), "passages": out["passages"]})
+
+    def write_memory(memory: Any, qid: str, decision: str, reviewer: str, note: str) -> dict[str, Any] | None:
         rec = store.get(qid) or {}
         check = rec.get("check") or {}
         cited = sorted({c["passage_id"] for s in check.get("sentences", []) if s.get("kept")
                         for c in s.get("citations", []) if c.get("passage_id")})
         out = memory.remember(decision, qid, rec.get("question", ""), reviewer, cited,
                               answer=check.get("answer", ""), note=note)
-        if out is None:
-            store.event(qid, "memory_written", {"available": False})
-        else:
-            store.event(qid, "memory_written", {"available": True, "memory_id": out["memory"]["id"],
-                                                "kind": out["memory"]["kind"], "passages": len(cited)})
+        if not out or not isinstance(out.get("memory"), dict) or not out["memory"].get("id"):
+            return None
+        return {**out, "passages": len(cited)}
 
     @app.get("/api/documents/{did}/pages/{page}")
     def get_page(did: str, page: int) -> dict[str, Any]:

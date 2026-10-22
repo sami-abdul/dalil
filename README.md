@@ -7,13 +7,13 @@ Built for the Open Agent Hackathon 2026, Track 02, "The Agent That Can Explain W
 ## What it does
 
 1. You ask a question about a UAE government service.
-2. Dalil screens it. Emirates ID, passport, phone and email details are redacted before anything is stored, and requests to get around the rules get a refusal.
-3. It recalls past reviews from H-MEM, Meterless's memory engine, and leaves out passages that a reviewer rejected for a similar question.
+2. Dalil screens it. Emirates ID, passport, phone and email details are redacted before anything is stored, and requests to get around the rules get a refusal. Reviewers' names and notes are redacted the same way.
+3. It recalls past reviews from H-MEM, Meterless's memory engine. For a question that shares most of its key words with an earlier one, it leaves out the passages a reviewer rejected there, unless an approved answer to a similar question used them.
 4. It searches 1,024 passages from 45 official documents, and runs fixed open-data queries through Zetaris when the question needs numbers.
 5. It drafts an answer. Every sentence cites a passage, or a Zetaris query and the column its number comes from.
 6. A checker tests every citation. A quote must appear word for word in its passage, every number in a sentence must appear in its evidence, and a data citation is rerun. Sentences that fail are cut, and an answer that loses too much is held.
 7. A reviewer sees the answer, the exact passage behind each citation highlighted on its page, the sentences that were cut and why, and the audit trail. Nothing goes out until they approve it.
-8. The decision is saved to H-MEM's trust ledger. A rejection note shapes the next answer to a similar question.
+8. The decision is saved to H-MEM's trust ledger with the passages the answer cited. A rejection keeps those passages out of the next answer to a similar question, and its note is passed to the drafter. The extractive stand-in drafter cannot read notes; the Nemotron drafter will.
 
 ![Reviewer screen](docs/reviewer-screen.png)
 

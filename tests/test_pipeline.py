@@ -139,13 +139,13 @@ def test_rule_evasion_answers_with_refusal_only(store, passages):
 
 
 class Fabricator:
-    def draft(self, question, hits, data):
+    def draft(self, question, hits, data, notes=()):
         return [{"text": "The card costs AED 50.", "kind": "claim",
                  "citations": [{"passage_id": "doc-a:p1:1", "quote": "The card costs AED 50 to renew."}]}]
 
 
 class Inflator:
-    def draft(self, question, hits, data):
+    def draft(self, question, hits, data, notes=()):
         good = "The resident card can be renewed up to six months before it expires."
         return [
             {"text": good, "kind": "claim", "citations": [{"passage_id": "doc-a:p1:1", "quote": good}]},
@@ -157,7 +157,7 @@ class Inflator:
 
 
 class Broken:
-    def draft(self, question, hits, data):
+    def draft(self, question, hits, data, notes=()):
         raise RuntimeError("boom")
 
 
@@ -218,3 +218,16 @@ def test_amendment_caveat_comes_from_the_manifest():
     docs = amendment_docs()
     assert "dubai-tenancy-law-26-2007" in docs
     assert "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en" not in docs
+
+
+def test_search_fills_up_from_below_when_passages_are_left_out():
+    from dalil.pipeline import Pipeline
+
+    class Ranked:
+        def search(self, q, k):
+            return [hit({**PASSAGES[0], "passage_id": f"p{i}"}, 10.0 - i) for i in range(k)]
+
+    p = Pipeline.__new__(Pipeline)
+    p.retriever, p.k = Ranked(), 3
+    got = [h.passage_id for h in p.search("q", {"p0", "p1"})]
+    assert got == ["p2", "p3", "p4"]

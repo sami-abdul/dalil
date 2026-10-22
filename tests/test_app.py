@@ -93,7 +93,7 @@ def test_review_flow(client):
 
 def test_held_answer_can_only_be_rejected(client):
     class Fabricator:
-        def draft(self, question, hits, data):
+        def draft(self, question, hits, data, notes=()):
             return [{"text": "It costs AED 50.", "kind": "claim",
                      "citations": [{"passage_id": "doc-a:p1:1", "quote": "It costs AED 50 to renew."}]}]
 
@@ -156,13 +156,14 @@ def test_original_files_are_sandboxed(client):
 
 
 class FakeMemory:
-    def __init__(self, avoid=(), up=True):
-        self.avoid, self.up, self.written = list(avoid), up, []
+    def __init__(self, avoid=(), up=True, question="How early can I renew my Emirates ID card?"):
+        self.avoid, self.up, self.question, self.written = list(avoid), up, question, []
 
-    def recall(self, question, top=5):
+    def recall(self, question, top=50):
         if not self.up:
             return None
-        return {"memories": [{"id": "mem-1"}], "avoid_passage_ids": self.avoid, "reviewer_notes": ["wrong topic"]}
+        return {"memories": [{"id": "mem-1", "kind": "rejected", "question": self.question,
+                              "note": "wrong topic", "passage_ids": self.avoid}]}
 
     def remember(self, decision, qid, question, reviewer, passage_ids, answer="", note=""):
         if not self.up:
@@ -180,6 +181,45 @@ def test_recalled_rejection_leaves_its_passages_out(client):
     assert PASSAGES[0]["passage_id"] not in [h["passage_id"] for h in d["retrieval"]]
     recalled = next(a for a in d["audit"] if a["kind"] == "recalled")
     assert recalled["detail"]["passages_left_out"] == [PASSAGES[0]["passage_id"]]
+    assert recalled["detail"]["similar_reviews"] == ["mem-1"]
+
+
+def test_rejection_of_an_unrelated_question_changes_nothing(client):
+    client.pipeline.memory = FakeMemory(avoid=[PASSAGES[0]["passage_id"]],
+                                        question="What is the fine for overstaying a tourist visa?")
+    d = client.get(f"/api/questions/{ask(client)['id']}").json()
+    assert PASSAGES[0]["passage_id"] in [h["passage_id"] for h in d["retrieval"]]
+    recalled = next(a for a in d["audit"] if a["kind"] == "recalled")
+    assert recalled["detail"]["passages_left_out"] == [] and recalled["detail"]["similar_reviews"] == []
+
+
+def test_reviewer_note_is_redacted_before_storage_and_memory(client):
+    mem = FakeMemory()
+    client.pipeline.memory = mem
+    qid = ask(client)["id"]
+    d = client.post(f"/api/questions/{qid}/review", json={
+        "decision": "reject", "reviewer": "Sami", "note": "resident 784-1990-1234567-1 asked, wrong topic"}).json()
+    assert "784" not in d["review"]["note"] and "[EMIRATES ID]" in d["review"]["note"]
+    assert "784" not in mem.written[0][4]
+
+
+def test_cross_site_request_is_refused(client):
+    r = client.post("/api/questions", json={"question": "x"}, headers={"origin": "https://evil.example"})
+    assert r.status_code == 403
+    ok = client.get("/api/health", headers={"origin": "http://127.0.0.1"})
+    assert ok.status_code == 200
+
+
+def test_memory_that_raises_does_not_break_a_saved_review(client):
+    class Broken(FakeMemory):
+        def remember(self, *a, **k):
+            raise KeyError("memory")
+    client.pipeline.memory = Broken()
+    qid = ask(client)["id"]
+    r = client.post(f"/api/questions/{qid}/review", json={"decision": "approve", "reviewer": "Sami", "note": ""})
+    assert r.status_code == 200 and r.json()["status"] == "approved"
+    written = next(a for a in r.json()["audit"] if a["kind"] == "memory_written")
+    assert written["detail"]["available"] is False
 
 
 def test_review_is_written_to_memory_with_cited_passages(client):

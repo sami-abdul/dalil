@@ -115,7 +115,10 @@ def _usable(sentence: str) -> bool:
 
 @runtime_checkable
 class Drafter(Protocol):
-    def draft(self, question: str, hits: list[Hit], data: list[DataResult]) -> list[dict[str, Any]]: ...
+    def draft(self, question: str, hits: list[Hit], data: list[DataResult],
+              notes: Sequence[str] = ()) -> list[dict[str, Any]]:
+        """`notes`: reviewers' notes on rejected answers to similar questions."""
+        ...
 
 
 def refusal(text: str = WEAK_REFUSAL) -> dict[str, Any]:
@@ -200,7 +203,8 @@ class ExtractiveDrafter:
         chosen.sort(key=lambda c: (rank[c[0].passage_id], c[1]))
         return [(h, s) for h, _, s in chosen]
 
-    def draft(self, question: str, hits: list[Hit], data: list[DataResult]) -> list[dict[str, Any]]:
+    def draft(self, question: str, hits: list[Hit], data: list[DataResult],
+              notes: Sequence[str] = ()) -> list[dict[str, Any]]:
         if not hits or max(h.score for h in hits) < self.weak_score:
             return [refusal()]
         picked = self.pick(question, hits)
@@ -241,14 +245,15 @@ class LLMDrafter:
 
     PROMPT_RULES = (
         "Every claim cites at least one passage or data row.",
-        "Quote the passage verbatim, at least 4 words, copied exactly: same words, spelling and punctuation.",
+        "Quote the passage verbatim, at least 4 words, copied exactly: same words, spelling and punctuation, "
+        "starting and ending on whole words.",
         "Every number in a sentence must appear in one of its quotes or data values. Never compute or round.",
-        "Data citations reuse the SQL you were given unchanged and cite a value it returns.",
-        "If the sources do not cover the question, return one refusal sentence saying so, with no numbers.",
-        "Caveats and refusals carry no citations and no numbers.",
+        "Data citations reuse the SQL you were given unchanged, and name the column and the value it returns.",
+        "Write claims only. Dalil adds its own fixed caveats and refusals; any you write are cut.",
+        "If the sources do not cover the question, return no claims.",
         "Never repeat personal data, ID numbers, passport numbers, phone numbers or emails, even if redacted.",
         "Write at most four short claims in plain English.",
-        "Follow the reviewer notes in rejection_notes.",
+        "Reviewers rejected earlier answers to similar questions with the notes given. Do not repeat those mistakes.",
     )
 
     def __init__(self, api_key: str | None = None, model: str | None = None,
@@ -257,5 +262,6 @@ class LLMDrafter:
         self.model = model
         self.rejection_notes = list(rejection_notes)
 
-    def draft(self, question: str, hits: list[Hit], data: list[DataResult]) -> list[dict[str, Any]]:
+    def draft(self, question: str, hits: list[Hit], data: list[DataResult],
+              notes: Sequence[str] = ()) -> list[dict[str, Any]]:
         raise NotImplementedError("LLMDrafter needs a model key; use ExtractiveDrafter until one exists")

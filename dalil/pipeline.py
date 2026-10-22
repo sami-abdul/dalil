@@ -20,6 +20,7 @@ from dalil.draft import FEE_CAVEAT, LAW_CAVEAT, WEAK_REFUSAL, Drafter, Extractiv
 from dalil.opendata import DataResult, match_rules, run_rules
 from dalil.retrieve import Hit, Searcher, make_retriever
 from dalil.store import Store
+from dalil.hmem import Guidance, guidance
 from dalil.verify import Verifier, load_passages, zetaris_lookup
 
 # The only caveat and refusal sentences that may go out without a citation.
@@ -87,23 +88,25 @@ class Pipeline:
         self._zetaris = client
         return client, ""
 
-    def apply_memory(self, qid: str, question: str, hits: list[Hit]) -> list[Hit]:
-        """Leave out passages that reviewers rejected for similar questions."""
+    def recall(self, qid: str, question: str) -> Guidance:
+        """Reviews of similar questions, from the review memory, and log what was used."""
         if self.memory is None:
-            return hits
+            return Guidance()
         recalled = self.memory.recall(question)
         if recalled is None:
             self.store.event(qid, "recalled", {"available": False})
-            return hits
-        avoid = set(recalled.get("avoid_passage_ids") or [])
-        kept = [h for h in hits if h.passage_id not in avoid]
+            return Guidance()
+        g = guidance(question, recalled.get("memories") or [])
         self.store.event(qid, "recalled", {
-            "available": True,
-            "memories": [m.get("id") for m in recalled.get("memories") or []],
-            "rejections": len(recalled.get("reviewer_notes") or []),
-            "passages_left_out": [h.passage_id for h in hits if h.passage_id in avoid],
+            "available": True, "similar_reviews": g.similar,
+            "passages_left_out": sorted(g.avoid), "notes": len(g.notes),
         })
-        return kept
+        return g
+
+    def search(self, question: str, avoid: set[str]) -> list[Hit]:
+        """Top k hits, leaving out `avoid` and filling up from further down the ranking."""
+        hits = self.retriever.search(question, self.k + len(avoid))
+        return [h for h in hits if h.passage_id not in avoid][: self.k]
 
     def answer(self, question: str) -> Record:
         screened = safety.screen(question)
@@ -127,8 +130,8 @@ class Pipeline:
             self.store.event(qid, "retrieved", {"skipped": "rule_evasion", "hits": 0})
             draft = [refusal(safety.REFUSAL_TEXT), refusal(safety.REFUSAL_FOLLOW_UP)]
         else:
-            hits = self.retriever.search(q, self.k)
-            hits = self.apply_memory(qid, q, hits)
+            past = self.recall(qid, q)
+            hits = self.search(q, past.avoid)
             self.store.event(qid, "retrieved", {
                 "k": self.k, "hits": len(hits),
                 "top": [{"passage_id": h.passage_id, "score": round(h.score, 3)} for h in hits[:3]],
@@ -143,7 +146,7 @@ class Pipeline:
                     "rows": [len(d.rows) for d in data],
                     "notes": [d.note for d in data if d.note],
                 })
-            draft = self.drafter.draft(q, hits, data)
+            draft = self.drafter.draft(q, hits, data, notes=past.notes)
             if screened.has_personal_data:
                 draft = [*draft, caveat(safety.PERSONAL_DATA_CAVEAT)]
         self.store.event(qid, "drafted", {
