@@ -1,0 +1,741 @@
+{
+ "_note": "Synthetic sample data for the Dalil reviewer screen (?mock=1). Invented text, not from the real corpus.",
+ "health": {
+  "ok": true,
+  "zetaris": true,
+  "passages": 1284
+ },
+ "questions": [
+  {
+   "id": "q-0104",
+   "question": "I have worked in Dubai for 7 years on a basic salary of 9,000 dirhams. How much gratuity will I get when I leave?",
+   "flags": [],
+   "status": "awaiting_review",
+   "created_at": "2026-10-22T09:14:05+04:00",
+   "retrieval": [
+    {
+     "passage_id": "sample-eosb-guide:p4:3",
+     "doc_id": "sample-eosb-guide",
+     "title": "End of Service Benefit Guide (sample)",
+     "page": 4,
+     "score": 0.912,
+     "heading": "Section 3. Calculating the end of service benefit",
+     "text": "3.3 For the first five years of service, the benefit equals 21 days of basic wage for each year of service. For each year beyond five, the benefit equals 30 days of basic wage.",
+     "start": 354,
+     "end": 530
+    },
+    {
+     "passage_id": "sample-eosb-guide:p4:1",
+     "doc_id": "sample-eosb-guide",
+     "title": "End of Service Benefit Guide (sample)",
+     "page": 4,
+     "score": 0.874,
+     "heading": "Section 3. Calculating the end of service benefit",
+     "text": "3.1 A worker employed under a full-time contract who has completed at least one year of continuous service is entitled to an end of service benefit when the contract ends.",
+     "start": 51,
+     "end": 222
+    },
+    {
+     "passage_id": "sample-eosb-guide:p4:2",
+     "doc_id": "sample-eosb-guide",
+     "title": "End of Service Benefit Guide (sample)",
+     "page": 4,
+     "score": 0.851,
+     "heading": "Section 3. Calculating the end of service benefit",
+     "text": "3.2 The benefit is calculated on the basic wage most recently paid, excluding allowances for housing, transport and other items.",
+     "start": 224,
+     "end": 352
+    },
+    {
+     "passage_id": "sample-eosb-guide:p4:4",
+     "doc_id": "sample-eosb-guide",
+     "title": "End of Service Benefit Guide (sample)",
+     "page": 4,
+     "score": 0.803,
+     "heading": "Section 3. Calculating the end of service benefit",
+     "text": "3.4 The total benefit may not exceed the equivalent of two years of the worker's basic wage.",
+     "start": 532,
+     "end": 624
+    },
+    {
+     "passage_id": "sample-labour-regulation:p12:1",
+     "doc_id": "sample-labour-regulation",
+     "title": "Labour Relations Regulation, consolidated text (sample)",
+     "page": 12,
+     "score": 0.642,
+     "heading": "Article 51. Final settlement",
+     "text": "The employer shall pay the worker all wages and benefits due within fourteen days of the end of the contract.",
+     "start": 30,
+     "end": 139
+    },
+    {
+     "passage_id": "sample-eosb-guide:p2:1",
+     "doc_id": "sample-eosb-guide",
+     "title": "End of Service Benefit Guide (sample)",
+     "page": 2,
+     "score": 0.588,
+     "heading": "Introduction",
+     "text": "This sample guide explains how an end of service benefit is worked out for workers in the private sector.",
+     "start": 14,
+     "end": 119
+    }
+   ],
+   "data": [
+    {
+     "table": "dalil.sample_gratuity_rates",
+     "sql": "SELECT service_band, days_per_year\nFROM dalil.sample_gratuity_rates\nWHERE contract_type = 'full_time'\nORDER BY min_years",
+     "rows": [
+      {
+       "service_band": "1 to 5 years",
+       "days_per_year": 21
+      },
+      {
+       "service_band": "Over 5 years",
+       "days_per_year": 30
+      }
+     ],
+     "note": "Sample open-data table standing in for a Zetaris lookup"
+    }
+   ],
+   "check": {
+    "status": "pass_with_cuts",
+    "answer": "If you have completed at least one year of continuous service, you are entitled to an end of service benefit when your contract ends. The benefit is worked out on your basic wage only, without housing, transport or other allowances. You receive 21 days of basic wage for each of your first five years and 30 days for each year after that. The total cannot be more than two years of your basic wage, and unpaid leave does not count as service.",
+    "sentences": [
+     {
+      "text": "If you have completed at least one year of continuous service, you are entitled to an end of service benefit when your contract ends.",
+      "kind": "claim",
+      "kept": true,
+      "reasons": [],
+      "citations": [
+       {
+        "ok": true,
+        "reason": "",
+        "doc_id": "sample-eosb-guide",
+        "page": 4,
+        "page_start": 104,
+        "page_end": 221,
+        "passage_id": "sample-eosb-guide:p4:1",
+        "quote": "has completed at least one year of continuous service is entitled to an end of service benefit when the contract ends",
+        "title": "End of Service Benefit Guide (sample)",
+        "source_url": "https://example.com/sample/end-of-service-guide.pdf"
+       }
+      ]
+     },
+     {
+      "text": "The benefit is worked out on your basic wage only, without housing, transport or other allowances.",
+      "kind": "claim",
+      "kept": true,
+      "reasons": [],
+      "citations": [
+       {
+        "ok": true,
+        "reason": "",
+        "doc_id": "sample-eosb-guide",
+        "page": 4,
+        "page_start": 243,
+        "page_end": 351,
+        "passage_id": "sample-eosb-guide:p4:2",
+        "quote": "calculated on the basic wage most recently paid, excluding allowances for housing, transport and other items",
+        "title": "End of Service Benefit Guide (sample)",
+        "source_url": "https://example.com/sample/end-of-service-guide.pdf"
+       }
+      ]
+     },
+     {
+      "text": "You receive 21 days of basic wage for each of your first five years and 30 days for each year after that.",
+      "kind": "claim",
+      "kept": true,
+      "reasons": [],
+      "citations": [
+       {
+        "ok": true,
+        "reason": "",
+        "doc_id": "sample-eosb-guide",
+        "page": 4,
+        "page_start": 358,
+        "page_end": 530,
+        "passage_id": "sample-eosb-guide:p4:3",
+        "quote": "For the first five years of service, the benefit equals 21 days of basic wage for each year of service. For each year beyond five, the benefit equals 30 days of basic wage.",
+        "title": "End of Service Benefit Guide (sample)",
+        "source_url": "https://example.com/sample/end-of-service-guide.pdf"
+       },
+       {
+        "ok": true,
+        "reason": "",
+        "table": "dalil.sample_gratuity_rates",
+        "sql": "SELECT service_band, days_per_year\nFROM dalil.sample_gratuity_rates\nWHERE contract_type = 'full_time'\nORDER BY min_years",
+        "value": "30",
+        "title": "Gratuity rates by length of service (sample table)"
+       }
+      ]
+     },
+     {
+      "text": "On a basic salary of 9,000 dirhams, that comes to about 1500 dirhams for each year after the fifth.",
+      "kind": "claim",
+      "kept": false,
+      "reasons": [
+       "numbers not in any cited source: 1500"
+      ],
+      "citations": [
+       {
+        "ok": true,
+        "reason": "",
+        "doc_id": "sample-eosb-guide",
+        "page": 4,
+        "page_start": 462,
+        "page_end": 530,
+        "passage_id": "sample-eosb-guide:p4:3",
+        "quote": "For each year beyond five, the benefit equals 30 days of basic wage.",
+        "title": "End of Service Benefit Guide (sample)",
+        "source_url": "https://example.com/sample/end-of-service-guide.pdf"
+       }
+      ]
+     },
+     {
+      "text": "The total cannot be more than two years of your basic wage, and unpaid leave does not count as service.",
+      "kind": "caveat",
+      "kept": true,
+      "reasons": [],
+      "citations": [
+       {
+        "ok": true,
+        "reason": "",
+        "doc_id": "sample-eosb-guide",
+        "page": 4,
+        "page_start": 536,
+        "page_end": 624,
+        "passage_id": "sample-eosb-guide:p4:4",
+        "quote": "The total benefit may not exceed the equivalent of two years of the worker's basic wage.",
+        "title": "End of Service Benefit Guide (sample)",
+        "source_url": "https://example.com/sample/end-of-service-guide.pdf"
+       },
+       {
+        "ok": true,
+        "reason": "",
+        "doc_id": "sample-eosb-guide",
+        "page": 4,
+        "page_start": 630,
+        "page_end": 712,
+        "passage_id": "sample-eosb-guide:p4:5",
+        "quote": "Periods of unpaid absence are not counted as service when calculating the benefit.",
+        "title": "End of Service Benefit Guide (sample)",
+        "source_url": "https://example.com/sample/end-of-service-guide.pdf"
+       }
+      ]
+     }
+    ]
+   },
+   "review": null,
+   "audit": [
+    {
+     "at": "2026-10-22T09:14:05+04:00",
+     "kind": "screened",
+     "detail": "No personal data found. No request to get around a rule."
+    },
+    {
+     "at": "2026-10-22T09:14:06+04:00",
+     "kind": "retrieved",
+     "detail": {
+      "passages": 6,
+      "documents": 2,
+      "data_lookups": 1
+     }
+    },
+    {
+     "at": "2026-10-22T09:14:11+04:00",
+     "kind": "drafted",
+     "detail": "5 sentences, 6 citations"
+    },
+    {
+     "at": "2026-10-22T09:14:12+04:00",
+     "kind": "verified",
+     "detail": "4 kept, 1 cut (numbers not in any cited source: 1500)"
+    },
+    {
+     "at": "2026-10-22T09:14:12+04:00",
+     "kind": "queued",
+     "detail": "Waiting for a reviewer"
+    }
+   ]
+  },
+  {
+   "id": "q-0103",
+   "question": "My name is [name removed] and my Emirates ID is [ID number removed]. How do I renew my residence visa after it has expired?",
+   "flags": [
+    "personal_data_redacted"
+   ],
+   "status": "approved",
+   "created_at": "2026-10-22T08:41:30+04:00",
+   "retrieval": [
+    {
+     "passage_id": "sample-visa-renewal-card:p1:2",
+     "doc_id": "sample-visa-renewal-card",
+     "title": "Residence Visa Renewal: Service Card (sample)",
+     "page": 1,
+     "score": 0.901,
+     "heading": "Renew a residence visa",
+     "text": "How to apply: the sponsor submits the renewal request through the online portal or at a customer happiness centre, with a valid passport and a recent medical fitness result.",
+     "start": 129,
+     "end": 302
+    },
+    {
+     "passage_id": "sample-visa-renewal-card:p1:3",
+     "doc_id": "sample-visa-renewal-card",
+     "title": "Residence Visa Renewal: Service Card (sample)",
+     "page": 1,
+     "score": 0.866,
+     "heading": "Renew a residence visa",
+     "text": "After expiry: a resident who stays beyond the grace period without renewing pays a daily fine until the status is settled.",
+     "start": 304,
+     "end": 426
+    },
+    {
+     "passage_id": "sample-visa-renewal-card:p1:1",
+     "doc_id": "sample-visa-renewal-card",
+     "title": "Residence Visa Renewal: Service Card (sample)",
+     "page": 1,
+     "score": 0.842,
+     "heading": "Renew a residence visa",
+     "text": "Who can apply: residents whose visa is valid or expired within the grace period, through their sponsor.",
+     "start": 24,
+     "end": 127
+    }
+   ],
+   "data": [],
+   "check": {
+    "status": "pass",
+    "answer": "Your sponsor applies for the renewal through the online portal or at a customer happiness centre, with your passport and a recent medical fitness result. If you stay past the grace period without renewing, a daily fine applies until your status is settled. The sources do not give the current fine amount, so check it with the authority before you apply.",
+    "sentences": [
+     {
+      "text": "Your sponsor applies for the renewal through the online portal or at a customer happiness centre, with your passport and a recent medical fitness result.",
+      "kind": "claim",
+      "kept": true,
+      "reasons": [],
+      "citations": [
+       {
+        "ok": true,
+        "reason": "",
+        "doc_id": "sample-visa-renewal-card",
+        "page": 1,
+        "page_start": 143,
+        "page_end": 301,
+        "passage_id": "sample-visa-renewal-card:p1:2",
+        "quote": "the sponsor submits the renewal request through the online portal or at a customer happiness centre, with a valid passport and a recent medical fitness result",
+        "title": "Residence Visa Renewal: Service Card (sample)",
+        "source_url": "https://example.com/sample/residence-renewal.html"
+       }
+      ]
+     },
+     {
+      "text": "If you stay past the grace period without renewing, a daily fine applies until your status is settled.",
+      "kind": "claim",
+      "kept": true,
+      "reasons": [],
+      "citations": [
+       {
+        "ok": true,
+        "reason": "",
+        "doc_id": "sample-visa-renewal-card",
+        "page": 1,
+        "page_start": 318,
+        "page_end": 425,
+        "passage_id": "sample-visa-renewal-card:p1:3",
+        "quote": "a resident who stays beyond the grace period without renewing pays a daily fine until the status is settled",
+        "title": "Residence Visa Renewal: Service Card (sample)",
+        "source_url": "https://example.com/sample/residence-renewal.html"
+       }
+      ]
+     },
+     {
+      "text": "The sources do not give the current fine amount, so check it with the authority before you apply.",
+      "kind": "caveat",
+      "kept": true,
+      "reasons": [],
+      "citations": []
+     }
+    ]
+   },
+   "review": {
+    "decision": "approve",
+    "reviewer": "Mariam A.",
+    "note": "Matches the service card. Fine left out on purpose.",
+    "at": "2026-10-22T08:52:10+04:00"
+   },
+   "audit": [
+    {
+     "at": "2026-10-22T08:41:30+04:00",
+     "kind": "screened",
+     "detail": "Removed a name and an Emirates ID number before searching."
+    },
+    {
+     "at": "2026-10-22T08:41:31+04:00",
+     "kind": "retrieved",
+     "detail": {
+      "passages": 3,
+      "documents": 1,
+      "data_lookups": 0
+     }
+    },
+    {
+     "at": "2026-10-22T08:41:36+04:00",
+     "kind": "drafted",
+     "detail": "3 sentences, 2 citations"
+    },
+    {
+     "at": "2026-10-22T08:41:37+04:00",
+     "kind": "verified",
+     "detail": "All 3 sentences kept"
+    },
+    {
+     "at": "2026-10-22T08:41:37+04:00",
+     "kind": "queued",
+     "detail": "Waiting for a reviewer"
+    },
+    {
+     "at": "2026-10-22T08:52:10+04:00",
+     "kind": "approved",
+     "detail": "Mariam A.: Matches the service card. Fine left out on purpose."
+    },
+    {
+     "at": "2026-10-22T08:52:11+04:00",
+     "kind": "delivered",
+     "detail": "Answer sent to the resident"
+    }
+   ]
+  },
+  {
+   "id": "q-0102",
+   "question": "How can I keep working after my work permit is cancelled without the ministry finding out?",
+   "flags": [
+    "rule_evasion"
+   ],
+   "status": "held",
+   "created_at": "2026-10-22T08:20:02+04:00",
+   "retrieval": [
+    {
+     "passage_id": "sample-labour-regulation:p12:3",
+     "doc_id": "sample-labour-regulation",
+     "title": "Labour Relations Regulation, consolidated text (sample)",
+     "page": 12,
+     "score": 0.884,
+     "heading": "Article 52. Work permits",
+     "text": "Working without a valid work permit exposes both the worker and the employer to administrative fines.",
+     "start": 254,
+     "end": 355
+    },
+    {
+     "passage_id": "sample-labour-regulation:p12:4",
+     "doc_id": "sample-labour-regulation",
+     "title": "Labour Relations Regulation, consolidated text (sample)",
+     "page": 12,
+     "score": 0.861,
+     "heading": "Article 52. Work permits",
+     "text": "A worker whose permit has been cancelled may remain in the country during the grace period set out in the residence rules in order to find new work or leave.",
+     "start": 356,
+     "end": 513
+    }
+   ],
+   "data": [],
+   "check": {
+    "status": "held",
+    "answer": "Dalil cannot help with working without a valid permit or avoiding the ministry. Working without a valid work permit can lead to fines for both you and your employer. After a cancellation you may stay in the country during the grace period to find new work or leave.",
+    "sentences": [
+     {
+      "text": "Dalil cannot help with working without a valid permit or avoiding the ministry.",
+      "kind": "refusal",
+      "kept": true,
+      "reasons": [],
+      "citations": []
+     },
+     {
+      "text": "Working without a valid work permit can lead to fines for both you and your employer.",
+      "kind": "claim",
+      "kept": true,
+      "reasons": [],
+      "citations": [
+       {
+        "ok": true,
+        "reason": "",
+        "doc_id": "sample-labour-regulation",
+        "page": 12,
+        "page_start": 254,
+        "page_end": 355,
+        "passage_id": "sample-labour-regulation:p12:3",
+        "quote": "Working without a valid work permit exposes both the worker and the employer to administrative fines.",
+        "title": "Labour Relations Regulation, consolidated text (sample)",
+        "source_url": "https://example.com/sample/labour-relations-regulation.pdf"
+       }
+      ]
+     },
+     {
+      "text": "After a cancellation you may stay in the country during the grace period to find new work or leave.",
+      "kind": "caveat",
+      "kept": true,
+      "reasons": [],
+      "citations": [
+       {
+        "ok": true,
+        "reason": "",
+        "doc_id": "sample-labour-regulation",
+        "page": 12,
+        "page_start": 397,
+        "page_end": 512,
+        "passage_id": "sample-labour-regulation:p12:4",
+        "quote": "may remain in the country during the grace period set out in the residence rules in order to find new work or leave",
+        "title": "Labour Relations Regulation, consolidated text (sample)",
+        "source_url": "https://example.com/sample/labour-relations-regulation.pdf"
+       }
+      ]
+     }
+    ]
+   },
+   "review": null,
+   "audit": [
+    {
+     "at": "2026-10-22T08:20:02+04:00",
+     "kind": "screened",
+     "detail": "Asks how to get around a rule. Held for a person whatever the check says."
+    },
+    {
+     "at": "2026-10-22T08:20:03+04:00",
+     "kind": "retrieved",
+     "detail": {
+      "passages": 2,
+      "documents": 1,
+      "data_lookups": 0
+     }
+    },
+    {
+     "at": "2026-10-22T08:20:07+04:00",
+     "kind": "drafted",
+     "detail": "3 sentences, 2 citations"
+    },
+    {
+     "at": "2026-10-22T08:20:08+04:00",
+     "kind": "verified",
+     "detail": "All 3 sentences kept, held because of the screening flag"
+    },
+    {
+     "at": "2026-10-22T08:20:08+04:00",
+     "kind": "queued",
+     "detail": "Held. It can only be rejected."
+    }
+   ]
+  },
+  {
+   "id": "q-0101",
+   "question": "What documents do I need for a Golden Visa as an investor?",
+   "flags": [],
+   "status": "rejected",
+   "created_at": "2026-10-22T07:58:44+04:00",
+   "retrieval": [
+    {
+     "passage_id": "sample-golden-visa-2023:p1:2",
+     "doc_id": "sample-golden-visa-2023",
+     "title": "Long-term Residence for Investors, 2023 page (sample)",
+     "page": 1,
+     "score": 0.893,
+     "heading": "Long-term residence for investors",
+     "text": "Required documents: a valid passport, a recent photograph, proof of the investment, and health insurance valid in the country.",
+     "start": 170,
+     "end": 296
+    },
+    {
+     "passage_id": "sample-golden-visa-2023:p1:1",
+     "doc_id": "sample-golden-visa-2023",
+     "title": "Long-term Residence for Investors, 2023 page (sample)",
+     "page": 1,
+     "score": 0.857,
+     "heading": "Long-term residence for investors",
+     "text": "Investors may apply for a long-term residence visa by showing a qualifying investment in a company or fund registered in the country.",
+     "start": 35,
+     "end": 168
+    }
+   ],
+   "data": [],
+   "check": {
+    "status": "pass",
+    "answer": "You can apply as an investor by showing a qualifying investment in a company or fund registered in the country. You need a valid passport, a recent photograph, proof of the investment and local health insurance.",
+    "sentences": [
+     {
+      "text": "You can apply as an investor by showing a qualifying investment in a company or fund registered in the country.",
+      "kind": "claim",
+      "kept": true,
+      "reasons": [],
+      "citations": [
+       {
+        "ok": true,
+        "reason": "",
+        "doc_id": "sample-golden-visa-2023",
+        "page": 1,
+        "page_start": 86,
+        "page_end": 167,
+        "passage_id": "sample-golden-visa-2023:p1:1",
+        "quote": "by showing a qualifying investment in a company or fund registered in the country",
+        "title": "Long-term Residence for Investors, 2023 page (sample)",
+        "source_url": "https://example.com/sample/golden-visa-investors-2023.html"
+       }
+      ]
+     },
+     {
+      "text": "You need a valid passport, a recent photograph, proof of the investment and local health insurance.",
+      "kind": "claim",
+      "kept": true,
+      "reasons": [],
+      "citations": [
+       {
+        "ok": true,
+        "reason": "",
+        "doc_id": "sample-golden-visa-2023",
+        "page": 1,
+        "page_start": 190,
+        "page_end": 295,
+        "passage_id": "sample-golden-visa-2023:p1:2",
+        "quote": "a valid passport, a recent photograph, proof of the investment, and health insurance valid in the country",
+        "title": "Long-term Residence for Investors, 2023 page (sample)",
+        "source_url": "https://example.com/sample/golden-visa-investors-2023.html"
+       }
+      ]
+     }
+    ]
+   },
+   "review": {
+    "decision": "reject",
+    "reviewer": "Omar K.",
+    "note": "The only source is the 2023 page. Requirements changed since, so this needs the current service card.",
+    "at": "2026-10-22T08:05:19+04:00"
+   },
+   "audit": [
+    {
+     "at": "2026-10-22T07:58:44+04:00",
+     "kind": "screened",
+     "detail": "No personal data found. No request to get around a rule."
+    },
+    {
+     "at": "2026-10-22T07:58:45+04:00",
+     "kind": "retrieved",
+     "detail": {
+      "passages": 2,
+      "documents": 1,
+      "data_lookups": 0
+     }
+    },
+    {
+     "at": "2026-10-22T07:58:50+04:00",
+     "kind": "drafted",
+     "detail": "2 sentences, 2 citations"
+    },
+    {
+     "at": "2026-10-22T07:58:51+04:00",
+     "kind": "verified",
+     "detail": "All 2 sentences kept"
+    },
+    {
+     "at": "2026-10-22T07:58:51+04:00",
+     "kind": "queued",
+     "detail": "Waiting for a reviewer"
+    },
+    {
+     "at": "2026-10-22T08:05:19+04:00",
+     "kind": "rejected",
+     "detail": "Omar K.: The only source is the 2023 page."
+    }
+   ]
+  }
+ ],
+ "pages": {
+  "sample-eosb-guide/2": {
+   "doc_id": "sample-eosb-guide",
+   "title": "End of Service Benefit Guide (sample)",
+   "publisher": "Sample Ministry (synthetic test data)",
+   "source_url": "https://example.com/sample/end-of-service-guide.pdf",
+   "page": 2,
+   "text": "Introduction\n\nThis sample guide explains how an end of service benefit is worked out for workers in the private sector. It is synthetic text written to test the Dalil reviewer screen and is not an official publication.\n\nWho this guide is for\n\nWorkers on full-time contracts, their employers, and anyone helping a worker check a final settlement."
+  },
+  "sample-eosb-guide/4": {
+   "doc_id": "sample-eosb-guide",
+   "title": "End of Service Benefit Guide (sample)",
+   "publisher": "Sample Ministry (synthetic test data)",
+   "source_url": "https://example.com/sample/end-of-service-guide.pdf",
+   "page": 4,
+   "text": "Section 3. Calculating the end of service benefit\n\n3.1 A worker employed under a full-time contract who has completed at least one year of continuous service is entitled to an end of service benefit when the contract ends.\n\n3.2 The benefit is calculated on the basic wage most recently paid, excluding allowances for housing, transport and other items.\n\n3.3 For the first five years of service, the benefit equals 21 days of basic wage for each year of service. For each year beyond five, the benefit equals 30 days of basic wage.\n\n3.4 The total benefit may not exceed the equivalent of two years of the worker's basic wage.\n\n3.5 Periods of unpaid absence are not counted as service when calculating the benefit.\n\nملخص (نص تجريبي): يستحق العامل الذي أكمل سنة واحدة على الأقل من الخدمة المتواصلة مكافأة نهاية الخدمة عند انتهاء العقد، وتحسب على أساس الأجر الأساسي."
+  },
+  "sample-labour-regulation/12": {
+   "doc_id": "sample-labour-regulation",
+   "title": "Labour Relations Regulation, consolidated text (sample)",
+   "publisher": "Sample Ministry (synthetic test data)",
+   "source_url": "https://example.com/sample/labour-relations-regulation.pdf",
+   "page": 12,
+   "text": "Article 51. Final settlement\n\nThe employer shall pay the worker all wages and benefits due within fourteen days of the end of the contract. A worker may file a complaint with the ministry if the settlement is not paid on time.\n\nArticle 52. Work permits\n\nWorking without a valid work permit exposes both the worker and the employer to administrative fines. A worker whose permit has been cancelled may remain in the country during the grace period set out in the residence rules in order to find new work or leave."
+  },
+  "sample-visa-renewal-card/1": {
+   "doc_id": "sample-visa-renewal-card",
+   "title": "Residence Visa Renewal: Service Card (sample)",
+   "publisher": "Sample Federal Authority for Identity (synthetic test data)",
+   "source_url": "https://example.com/sample/residence-renewal.html",
+   "page": 1,
+   "text": "Renew a residence visa\n\nWho can apply: residents whose visa is valid or expired within the grace period, through their sponsor.\n\nHow to apply: the sponsor submits the renewal request through the online portal or at a customer happiness centre, with a valid passport and a recent medical fitness result.\n\nAfter expiry: a resident who stays beyond the grace period without renewing pays a daily fine until the status is settled.\n\nProcessing: the authority reviews complete applications and sends the decision by text message."
+  },
+  "sample-golden-visa-2023/1": {
+   "doc_id": "sample-golden-visa-2023",
+   "title": "Long-term Residence for Investors, 2023 page (sample)",
+   "publisher": "Sample Federal Authority for Identity (synthetic test data)",
+   "source_url": "https://example.com/sample/golden-visa-investors-2023.html",
+   "page": 1,
+   "text": "Long-term residence for investors\n\nInvestors may apply for a long-term residence visa by showing a qualifying investment in a company or fund registered in the country.\n\nRequired documents: a valid passport, a recent photograph, proof of the investment, and health insurance valid in the country."
+  }
+ },
+ "new_question_template": {
+  "flags": [],
+  "status": "held",
+  "retrieval": [],
+  "data": [],
+  "check": {
+   "status": "held",
+   "answer": "Dalil found no official source that answers this, so it has not drafted an answer.",
+   "sentences": [
+    {
+     "text": "Dalil found no official source that answers this, so it has not drafted an answer.",
+     "kind": "refusal",
+     "kept": true,
+     "reasons": [],
+     "citations": []
+    },
+    {
+     "text": "A reviewer can reject it with a note so the question goes back for another search.",
+     "kind": "caveat",
+     "kept": true,
+     "reasons": [],
+     "citations": []
+    }
+   ]
+  },
+  "review": null,
+  "audit": [
+   {
+    "kind": "screened",
+    "detail": "No personal data found. No request to get around a rule."
+   },
+   {
+    "kind": "retrieved",
+    "detail": {
+     "passages": 0,
+     "documents": 0,
+     "data_lookups": 0
+    }
+   },
+   {
+    "kind": "drafted",
+    "detail": "No source to draft from"
+   },
+   {
+    "kind": "verified",
+    "detail": "Nothing to check, held for a person"
+   },
+   {
+    "kind": "queued",
+    "detail": "Held. It can only be rejected."
+   }
+  ]
+ }
+}

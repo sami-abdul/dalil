@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dalil reviewer</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#answer-panel">Skip to the selected answer</a>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">د</span>
+      <div>
+        <h1 class="brand-name">Dalil</h1>
+        <p class="brand-sub">Answers checked against official sources, approved by a person</p>
+      </div>
+    </div>
+    <form id="ask-form" class="ask" autocomplete="off">
+      <label for="ask-input" class="ask-label">Ask about a UAE government service</label>
+      <div class="ask-row">
+        <input id="ask-input" name="question" type="text" dir="auto" required
+               placeholder="For example: How is end of service gratuity worked out?">
+        <button type="submit" class="btn btn-primary" id="ask-submit">Ask Dalil</button>
+      </div>
+    </form>
+    <div id="health" class="health" role="status" aria-live="polite"></div>
+  </header>
+
+  <div id="notice" class="notice" role="alert" hidden></div>
+
+  <main class="layout">
+    <nav class="queue" aria-labelledby="queue-heading">
+      <div class="queue-head">
+        <h2 id="queue-heading">Review queue</h2>
+        <span id="queue-count" class="queue-count"></span>
+      </div>
+      <ul id="queue-list" class="queue-list"></ul>
+    </nav>
+
+    <section id="answer-panel" class="answer-panel" aria-labelledby="answer-heading" tabindex="-1">
+      <div id="answer-empty" class="empty">
+        <h2 id="answer-heading">No question selected</h2>
+        <p>Pick a question from the review queue, or ask a new one above.</p>
+      </div>
+      <div id="answer-body" hidden>
+        <div class="question-head">
+          <p class="eyebrow">Question <span id="q-id"></span>, asked <time id="q-time"></time></p>
+          <h2 id="q-text" class="question-text" dir="auto"></h2>
+          <div id="q-meta" class="q-meta"></div>
+        </div>
+        <div id="flags"></div>
+
+        <div class="tabs" role="tablist" aria-label="Answer views">
+          <button role="tab" id="tab-answer" aria-controls="view-answer" aria-selected="true" class="tab">Answer</button>
+          <button role="tab" id="tab-audit" aria-controls="view-audit" aria-selected="false" tabindex="-1" class="tab">Audit trail</button>
+        </div>
+
+        <div id="view-answer" role="tabpanel" aria-labelledby="tab-answer" class="view">
+          <div id="working" class="working" hidden>
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Dalil is searching the sources and checking its draft.</span>
+          </div>
+          <section aria-labelledby="draft-heading">
+            <h3 id="draft-heading" class="section-title">Answer to send</h3>
+            <div id="draft" class="draft"></div>
+          </section>
+          <section id="cut-section" class="cut-section" aria-labelledby="cut-heading" hidden>
+            <h3 id="cut-heading" class="section-title">Cut by the checker</h3>
+            <p class="cut-intro">These sentences were in the draft, but they did not match their sources word for word, so they will not be sent.</p>
+            <ol id="cut-list" class="cut-list"></ol>
+          </section>
+        </div>
+
+        <div id="view-audit" role="tabpanel" aria-labelledby="tab-audit" class="view" hidden>
+          <ol id="audit-list" class="audit-list"></ol>
+        </div>
+      </div>
+
+      <form id="review-form" class="review-bar" hidden aria-labelledby="review-heading">
+        <h3 id="review-heading" class="visually-hidden">Review decision</h3>
+        <div id="review-done" class="review-done" hidden></div>
+        <div id="review-fields" class="review-fields">
+          <div class="field field-name">
+            <label for="reviewer">Your name</label>
+            <input id="reviewer" name="reviewer" type="text" autocomplete="name" required>
+          </div>
+          <div class="field field-note">
+            <label for="note">Note</label>
+            <input id="note" name="note" type="text" dir="auto" placeholder="Why you rejected it, or anything worth recording">
+          </div>
+        </div>
+        <div class="review-foot">
+          <p id="review-rule" class="review-rule"></p>
+          <div class="review-actions">
+            <button type="button" id="btn-reject" class="btn btn-reject" aria-describedby="review-rule">Reject</button>
+            <button type="button" id="btn-approve" class="btn btn-approve" aria-describedby="review-rule">Approve and send</button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <aside class="evidence" aria-labelledby="evidence-heading">
+      <h2 id="evidence-heading" class="visually-hidden">Evidence</h2>
+      <section id="source-view" class="source-view" aria-live="polite">
+        <div class="source-empty">
+          <h3 class="panel-title">Source</h3>
+          <p>Select a numbered citation in the answer to see the exact words it quotes.</p>
+        </div>
+      </section>
+      <section class="searched" aria-labelledby="searched-heading">
+        <h3 id="searched-heading" class="panel-title">What Dalil searched</h3>
+        <div id="searched"></div>
+      </section>
+    </aside>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
