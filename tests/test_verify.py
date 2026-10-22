@@ -217,3 +217,13 @@ def test_citations_are_limited_to_the_sources_given():
     v = Verifier(passages, allowed_passages=["p2"])
     s = v.check_sentence(claim("Late renewal costs AED 20 a day.", {"passage_id": "p1", "quote": "Late renewal costs AED 20 a day"}))
     assert not s.kept and "not among the sources" in s.reasons[0]
+
+
+def test_document_title_backs_a_law_number():
+    passages = {"p1": {"passage_id": "p1", "doc_id": "pdpl", "page": 1, "start": 0, "heading": None,
+                       "text": "The provisions of this law apply to the processing of personal data."}}
+    text = "Federal Decree by Law No. 45 of 2021 applies to the processing of personal data."
+    cit = {"passage_id": "p1", "quote": "this law apply to the processing of personal data"}
+    assert not Verifier(passages).check_sentence(claim(text, cit)).kept
+    titled = Verifier(passages, titles={"pdpl": "Federal Decree by Law No. (45) of 2021 on Personal Data"})
+    assert titled.check_sentence(claim(text, cit)).kept

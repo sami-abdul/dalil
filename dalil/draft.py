@@ -260,6 +260,9 @@ class LLMDrafter:
         "Write claims only. Dalil adds its own fixed caveats and refusals; any you write are cut.",
         "If the sources do not cover the question, return no claims.",
         "Never repeat personal data, ID numbers, passport numbers, phone numbers or emails, even if redacted.",
+        "Keep every condition and exception from the source, such as who it applies to or when. "
+        "Never state a rule more broadly than the source does.",
+        "Prefer sentences about exactly what was asked; leave out side details.",
         "Write at most four short claims in plain English.",
         "Reviewers rejected earlier answers to similar questions with the notes given. Do not repeat those mistakes.",
     )

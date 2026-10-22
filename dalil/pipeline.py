@@ -23,6 +23,15 @@ from dalil.store import Store
 from dalil.hmem import Guidance, guidance
 from dalil.verify import Verifier, load_passages, zetaris_lookup
 
+def document_titles() -> dict[str, str]:
+    """doc_id -> title from the manifest, or nothing if it cannot be read."""
+    from dalil.corpus import doc_id, load_manifest
+    try:
+        return {doc_id(r["file"]): r.get("title", "") for r in load_manifest()}
+    except Exception:
+        return {}
+
+
 # The only caveat and refusal sentences that may go out without a citation.
 FIXED_UNCITED = frozenset({
     WEAK_REFUSAL, FEE_CAVEAT, LAW_CAVEAT,
@@ -68,6 +77,7 @@ class Pipeline:
         self._zetaris: Any = None
         # Review memory (dalil.hmem.HMem or a stand-in with recall()); None turns it off.
         self.memory = memory
+        self.titles = document_titles()
 
     @classmethod
     def from_build(cls, store: Store | None = None, passages_path: Path | str = DEFAULT_PASSAGES,
@@ -161,7 +171,7 @@ class Pipeline:
             client, _ = self.zetaris()
         verifier = Verifier(self.passages, zetaris_lookup(client) if client else None,
                             allowed_sql=[d.sql for d in data], allowed_uncited=FIXED_UNCITED,
-                            allowed_passages=[h.passage_id for h in hits])
+                            allowed_passages=[h.passage_id for h in hits], titles=self.titles)
         check = verifier.check_answer(draft).to_dict()
         kept = sum(s["kept"] for s in check["sentences"])
         self.store.event(qid, "verified", {"status": check["status"], "kept": kept,

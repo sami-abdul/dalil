@@ -228,7 +228,7 @@ DataLookup = Callable[[str], Iterable[Mapping[str, Any]]]
 class Verifier:
     def __init__(self, passages: Mapping[str, Mapping[str, Any]], data_lookup: DataLookup | None = None,
                  allowed_sql: Iterable[str] | None = None, allowed_uncited: Iterable[str] | None = None,
-                 allowed_passages: Iterable[str] | None = None):
+                 allowed_passages: Iterable[str] | None = None, titles: Mapping[str, str] | None = None):
         """`allowed_sql`: the queries the pipeline itself ran. A data citation must
         name one of them exactly, so a drafter cannot write its own SQL, such as
         `SELECT 1500 AS fee`, to back a number. `allowed_uncited`: the fixed
@@ -242,6 +242,9 @@ class Verifier:
         self.allowed_sql = None if allowed_sql is None else {fold(q)[0] for q in allowed_sql}
         self.allowed_uncited = None if allowed_uncited is None else {fold(t)[0] for t in allowed_uncited}
         self.allowed_passages = None if allowed_passages is None else set(allowed_passages)
+        # doc_id -> document title. A title such as "Federal Decree by Law No.
+        # (45) of 2021" backs the law's own number and year in a claim.
+        self.titles = dict(titles or {})
 
     def check_quote(self, citation: Mapping[str, Any]) -> CitationCheck:
         cit = dict(citation)
@@ -262,7 +265,7 @@ class Verifier:
         end = passage["start"] + index[at + len(folded_quote) - 1] + 1
         # The heading counts as evidence for numbers, so "Under Article 51" is
         # backed by a quote from the body of Article (51).
-        evidence = f"{quote} {passage.get('heading') or ''}"
+        evidence = f"{quote} {passage.get('heading') or ''} {self.titles.get(passage['doc_id'], '')}"
         before = passage["text"][max(0, index[at] - CONTEXT_CHARS):index[at]]
         return CitationCheck(True, "quote found", cit, passage["doc_id"], passage["page"], start, end,
                              evidence=evidence, context=before)
