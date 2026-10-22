@@ -11,9 +11,9 @@ Built for the Open Agent Hackathon 2026, Track 02, "The Agent That Can Explain W
 3. It recalls past reviews from H-MEM, Meterless's memory engine. For a question that shares most of its key words with an earlier one, it leaves out the passages a reviewer rejected there, unless an approved answer to a similar question used them.
 4. It searches 1,024 passages from 45 official documents, and runs fixed open-data queries through Zetaris when the question needs numbers.
 5. NVIDIA Nemotron drafts an answer. The model sees the sources as numbered sentences and may only point at those ids or at the queries Dalil ran, enforced by a JSON schema; Dalil then writes each quote itself, so quotes are exact. If the model is unavailable, an extractive drafter quotes source sentences instead, and the audit trail records which one ran.
-6. A checker tests every citation. A quote must appear word for word in its passage, every number in a sentence must appear in its evidence, and a data citation is rerun. Sentences that fail are cut, and an answer that loses too much is held.
+6. A checker tests every citation. A quote must appear word for word in a passage the drafter was given. Every number in a sentence, in digits or words, must appear in its evidence, and values from open data must come from one row of a rerun query. Most of a claim's key words must be in its sources, and it may not add a negation they lack. Sentences that fail are cut, and an answer that loses too much is held. The checker cannot judge meaning, so the reviewer reads every answer.
 7. A reviewer sees the answer, the exact passage behind each citation highlighted on its page, the sentences that were cut and why, and the audit trail. Nothing goes out until they approve it.
-8. The decision is saved to H-MEM's trust ledger with the passages the answer cited. A rejection keeps those passages out of the next answer to a similar question, and its note is passed to the drafter. The extractive stand-in drafter cannot read notes; the Nemotron drafter will.
+8. The decision is saved to H-MEM's trust ledger with the passages the answer cited. A rejection keeps those passages out of the next answer to a similar question, and its note is passed to the Nemotron drafter.
 
 ![Reviewer screen](docs/reviewer-screen.png)
 
@@ -76,7 +76,7 @@ uv run python scripts/run_eval.py                # every test question and error
 |---|---|
 | Zetaris | Federated SQL over the documents, pages, passages and four Bayanat open datasets, all in one Lightning database. Citations to open data are Zetaris queries that the checker reruns |
 | Meterless | H-MEM, vendored unchanged from Meterless's reference implementation, keeps approved answers and reviewers' rejections with their provenance in its append-only trust ledger |
-| NVIDIA | NVIDIA Nemotron 3 Nano 4B drafts the answers, running locally through llama.cpp from NVIDIA's own GGUF, under the NVIDIA Nemotron Open Model License. NVIDIA's hosted API works through the same drafter by setting `DALIL_LLM_URL` and `DALIL_LLM_KEY` |
+| NVIDIA | NVIDIA Nemotron 3 Nano 4B drafts the answers, running locally through llama.cpp from NVIDIA's own GGUF, under the NVIDIA Nemotron Open Model License. The drafter speaks the OpenAI-compatible API, so NVIDIA's hosted endpoint can replace the local server by setting `DALIL_LLM_URL`, `DALIL_LLM_KEY` and `DALIL_LLM_MODEL`; that path has not been tried yet |
 | Claude Code | Wrote the code; see [docs/tool-log.md](docs/tool-log.md) |
 
 ## Not done yet

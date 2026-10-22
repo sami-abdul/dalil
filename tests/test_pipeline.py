@@ -151,7 +151,7 @@ class Inflator:
             {"text": "Late renewal costs AED 30 a day.", "kind": "claim",
              "citations": [{"passage_id": "doc-a:p1:1", "quote": "Late renewal costs AED 20 a day,"}]},
             {"text": "Renewal is made through the official website.", "kind": "claim",
-             "citations": [{"passage_id": "doc-a:p1:2", "quote": "official website of the authority"}]},
+             "citations": [{"passage_id": "doc-a:p1:2", "quote": "Renewal requests are made through the service centres or the official website"}]},
         ]
 
 

@@ -82,10 +82,54 @@ def fold(text: str) -> tuple[str, list[int]]:
     return "".join(out), index
 
 
+_UNITS = {w: i for i, w in enumerate(
+    "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen "
+    "sixteen seventeen eighteen nineteen".split())}
+_TENS = {w: 10 * i for i, w in enumerate("_ _ twenty thirty forty fifty sixty seventy eighty ninety".split()) if i >= 2}
+_SCALES = {"hundred": 100, "thousand": 1000, "million": 1_000_000}
+_NUMBER_WORD = re.compile(
+    rf"\b(?:({'|'.join(_TENS)})[\s-]+({'|'.join(list(_UNITS)[1:10])})|({'|'.join([*_UNITS, *_TENS, *_SCALES])}))\b",
+    re.IGNORECASE)
+
+
 def numbers(text: str) -> set[str]:
-    """Numbers in `text`, with grouping commas removed, so 1,000 matches 1000."""
+    """Numbers in `text`, with grouping commas removed, so 1,000 matches 1000.
+
+    Numbers written as words count too: "fifty" is 50 and "twenty-one" is 21,
+    so a model cannot get a number past the check by spelling it out.
+    """
     text = unicodedata.normalize("NFKC", text).translate(_ARABIC_DIGITS)
-    return {m.group(0).replace(",", "") for m in _NUMBER.finditer(text)}
+    found = {m.group(0).replace(",", "") for m in _NUMBER.finditer(text)}
+    for m in _NUMBER_WORD.finditer(text):
+        if m.group(1):
+            found.add(str(_TENS[m.group(1).lower()] + _UNITS[m.group(2).lower()]))
+        else:
+            w = m.group(3).lower()
+            found.add(str(_UNITS.get(w, _TENS.get(w, _SCALES.get(w)))))
+    return found
+
+
+# Words that flip a claim's meaning. A claim may only use one its evidence uses.
+_NEGATIONS = frozenset("not no never cannot can't don't doesn't isn't aren't won't wasn't weren't "
+                       "shouldn't mustn't without nor none neither unable".split())
+# Share of a claim's key words that must appear in its evidence.
+SUPPORT_MIN = 0.6
+# How much of the passage before a quote counts as its context, so a list item
+# such as "b. Governmental entities" keeps the lead-in that gives it meaning.
+CONTEXT_CHARS = 200
+
+
+def _words(text: str) -> set[str]:
+    return set(re.findall(r"[a-z']+", unicodedata.normalize("NFKC", text).lower().translate(_FOLD)))
+
+
+def support(claim: str, evidence: str) -> float:
+    """Share of the claim's key words, stemmed and without stopwords, found in the evidence."""
+    from dalil.retrieve import tokenize
+    words = {t for t in tokenize(claim) if not t.isdigit()}
+    if not words:
+        return 1.0
+    return len(words & set(tokenize(evidence))) / len(words)
 
 
 @dataclass
@@ -99,6 +143,10 @@ class CitationCheck:
     page_start: int | None = None
     page_end: int | None = None
     evidence: str = ""  # the verified quote or data value, used for the number check
+    rows: frozenset[int] = frozenset()  # for a data citation: the rerun rows that hold the value
+    # For a passage quote: the text just before it in the passage, such as the
+    # lead-in of a list item. Used for the wording and negation checks only.
+    context: str = ""
 
 
 @dataclass
@@ -179,17 +227,21 @@ DataLookup = Callable[[str], Iterable[Mapping[str, Any]]]
 
 class Verifier:
     def __init__(self, passages: Mapping[str, Mapping[str, Any]], data_lookup: DataLookup | None = None,
-                 allowed_sql: Iterable[str] | None = None, allowed_uncited: Iterable[str] | None = None):
+                 allowed_sql: Iterable[str] | None = None, allowed_uncited: Iterable[str] | None = None,
+                 allowed_passages: Iterable[str] | None = None):
         """`allowed_sql`: the queries the pipeline itself ran. A data citation must
         name one of them exactly, so a drafter cannot write its own SQL, such as
         `SELECT 1500 AS fee`, to back a number. `allowed_uncited`: the fixed
         caveat and refusal texts the pipeline adds. A drafter cannot label its own
-        claim a caveat to skip the check. None leaves either rule off, for tests
+        claim a caveat to skip the check. `allowed_passages`: the passages the
+        drafter was given, so a citation cannot reach anything else in the corpus,
+        such as a passage a reviewer rejected. None leaves a rule off, for tests
         and the self-test only."""
         self.passages = passages
         self.data_lookup = data_lookup
         self.allowed_sql = None if allowed_sql is None else {fold(q)[0] for q in allowed_sql}
         self.allowed_uncited = None if allowed_uncited is None else {fold(t)[0] for t in allowed_uncited}
+        self.allowed_passages = None if allowed_passages is None else set(allowed_passages)
 
     def check_quote(self, citation: Mapping[str, Any]) -> CitationCheck:
         cit = dict(citation)
@@ -197,6 +249,8 @@ class Verifier:
         passage = self.passages.get(pid) if pid else None
         if passage is None:
             return CitationCheck(False, f"unknown passage {pid!r}", cit)
+        if self.allowed_passages is not None and pid not in self.allowed_passages:
+            return CitationCheck(False, "passage was not among the sources the drafter was given", cit)
         folded_quote, _ = fold(quote)
         if len(folded_quote.split()) < MIN_QUOTE_WORDS:
             return CitationCheck(False, f"quote shorter than {MIN_QUOTE_WORDS} words", cit)
@@ -209,8 +263,9 @@ class Verifier:
         # The heading counts as evidence for numbers, so "Under Article 51" is
         # backed by a quote from the body of Article (51).
         evidence = f"{quote} {passage.get('heading') or ''}"
+        before = passage["text"][max(0, index[at] - CONTEXT_CHARS):index[at]]
         return CitationCheck(True, "quote found", cit, passage["doc_id"], passage["page"], start, end,
-                             evidence=evidence)
+                             evidence=evidence, context=before)
 
     def check_data(self, citation: Mapping[str, Any]) -> CitationCheck:
         cit = dict(citation)
@@ -229,8 +284,10 @@ class Verifier:
         except Exception as e:  # the reviewer sees why the rerun failed
             return CitationCheck(False, f"query failed: {type(e).__name__}", cit)
         want = fold(str(value))[0]
-        if any(row.get(column) is not None and want == fold(str(row[column]))[0] for row in rows):
-            return CitationCheck(True, "value returned by the query", cit, evidence=str(value))
+        matched = frozenset(i for i, row in enumerate(rows)
+                            if row.get(column) is not None and want == fold(str(row[column]))[0])
+        if matched:
+            return CitationCheck(True, "value returned by the query", cit, evidence=str(value), rows=matched)
         return CitationCheck(False, f"query did not return the cited value in column {column!r}", cit)
 
     def check_sentence(self, sentence: Mapping[str, Any]) -> SentenceCheck:
@@ -258,10 +315,34 @@ class Verifier:
                 result.reasons.append(check.reason)
         if result.kept:
             backed = set().union(*(numbers(c.evidence) for c in result.citations))
-            missing = sorted(numbers(text) - backed)
+            missing = sorted(numbers(text) - backed, key=lambda n: (len(n), n))
             if missing:
                 result.kept = False
                 result.reasons.append("numbers not in any cited source: " + ", ".join(missing))
+        if result.kept:
+            # Values cited from one query must come from one row: "4242 in 2025"
+            # cannot pair 2025 from one row with 4242 from another.
+            by_sql: dict[str, list[CitationCheck]] = {}
+            for c in result.citations:
+                if c.rows:
+                    by_sql.setdefault(fold(c.citation.get("sql", ""))[0], []).append(c)
+            if any(not frozenset.intersection(*(c.rows for c in group)) for group in by_sql.values()):
+                result.kept = False
+                result.reasons.append("data values come from different rows")
+        quotes = [c.evidence for c in result.citations if c.ok and c.doc_id]
+        if result.kept and quotes:
+            # A drafter may reword its sources. The claim's key words must mostly
+            # be in them, and it may not add a negation they lack.
+            evidence = " ".join(f"{c.context} {c.evidence}" for c in result.citations)
+            share = support(text, evidence)
+            if share < SUPPORT_MIN:
+                result.kept = False
+                result.reasons.append(f"claim is not supported by its sources (key words found: {share:.0%})")
+            # Negations count as one class: "cannot" is backed by a source's "will not".
+            added = sorted(_words(text) & _NEGATIONS)
+            if result.kept and added and not (_words(evidence) & _NEGATIONS):
+                result.kept = False
+                result.reasons.append("claim adds a negation its sources do not have: " + ", ".join(added))
         return result
 
     def check_answer(self, sentences: Iterable[Mapping[str, Any]]) -> AnswerCheck:

@@ -149,16 +149,19 @@ class Pipeline:
             draft = self.drafter.draft(q, hits, data, notes=past.notes)
             if screened.has_personal_data:
                 draft = [*draft, caveat(safety.PERSONAL_DATA_CAVEAT)]
+        ran = "fixed refusal" if screened.is_rule_evasion else (
+            getattr(self.drafter, "last_used", "") or type(self.drafter).__name__)
+        error = "" if screened.is_rule_evasion else getattr(self.drafter, "last_error", "")
         self.store.event(qid, "drafted", {
-            "drafter": getattr(self.drafter, "last_used", "") or type(self.drafter).__name__,
-            **({"fallback_reason": self.drafter.last_error} if getattr(self.drafter, "last_error", "") else {}),
+            "drafter": ran, **({"fallback_reason": error} if error else {}),
             "sentences": len(draft),
             "kinds": [s.get("kind", "claim") for s in draft],
         })
         if client is None and any("sql" in c for s in draft for c in s.get("citations") or []):
             client, _ = self.zetaris()
         verifier = Verifier(self.passages, zetaris_lookup(client) if client else None,
-                            allowed_sql=[d.sql for d in data], allowed_uncited=FIXED_UNCITED)
+                            allowed_sql=[d.sql for d in data], allowed_uncited=FIXED_UNCITED,
+                            allowed_passages=[h.passage_id for h in hits])
         check = verifier.check_answer(draft).to_dict()
         kept = sum(s["kept"] for s in check["sentences"])
         self.store.event(qid, "verified", {"status": check["status"], "kept": kept,

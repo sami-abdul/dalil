@@ -38,7 +38,7 @@ def main() -> int:
         tested += 1
         i = rng.randrange(0, len(words) - 8)
         quote = " ".join(words[i:i + 4]) + "  \n" + " ".join(words[i + 4:i + 8])
-        s = v.check_sentence({"text": "x", "citations": [{"passage_id": pid, "quote": quote}]})
+        s = v.check_sentence({"text": quote, "citations": [{"passage_id": pid, "quote": quote}]})
         if s.kept:
             found += 1
             c = s.citations[0]

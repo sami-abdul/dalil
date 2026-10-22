@@ -26,7 +26,7 @@ class Canned(LLMDrafter):
 
 
 def test_sentences_are_numbered_and_short_ones_left_out():
-    n = LLMDrafter.numbered([hit("p1", "Late renewal costs AED 20 a day. Ok then. Up to AED 1,000 in all."), hit("p2")])
+    n = LLMDrafter().numbered([hit("p1", "Late renewal costs AED 20 a day. Ok then. Up to AED 1,000 in all."), hit("p2")])
     assert n["S1"] == ("p1", "Late renewal costs AED 20 a day.")
     assert ("p1", "Ok then.") not in n.values()
     assert n["S2"] == ("p1", "Up to AED 1,000 in all.")
@@ -35,7 +35,7 @@ def test_sentences_are_numbered_and_short_ones_left_out():
 
 def test_schema_admits_only_the_given_sentences_and_queries():
     data = [DataResult("dalil.t", "SELECT a FROM dalil.t", [{"a": "1"}])]
-    numbered = LLMDrafter.numbered([hit("p1"), hit("p2")])
+    numbered = LLMDrafter().numbered([hit("p1"), hit("p2")])
     s = LLMDrafter.schema(numbered, data)
     cite = s["properties"]["sentences"]["items"]["properties"]["citations"]["items"]["anyOf"]
     assert cite[0]["properties"]["sentence"]["enum"] == list(numbered)
@@ -69,3 +69,38 @@ def test_fallback_uses_extractive_drafter_and_says_so():
     ok = FallbackDrafter(Canned({"sentences": []}), ExtractiveDrafter())
     ok.draft("q", [hit("p1")], [])
     assert ok.last_used == "Canned" and ok.last_error == ""
+
+
+def test_weak_retrieval_is_refused_without_asking_the_model():
+    weak = Hit(passage_id="p1", doc_id="d", page=1, score=1.0, heading=None,
+               text="Unrelated text about something else entirely here.", start=0, end=10)
+    d = Canned({"sentences": [{"text": "x y z w", "citations": [{"sentence": "S1"}]}]})
+    assert d.draft("What is the capital of France?", [weak], [])[0]["kind"] == "refusal"
+    assert d.seen == {}
+
+
+def test_model_supplied_passage_citation_is_not_trusted():
+    d = Canned({"sentences": [{"text": "Late renewal costs AED 20 a day.",
+                               "citations": [{"passage_id": "p9", "quote": "anything at all here"}]}]})
+    out = d.draft("late renewal fine", [hit("p1")], [])
+    assert out[0]["citations"] == [{"passage_id": "unknown:not-a-given-sentence", "quote": ""}]
+
+
+def test_sources_are_fenced_as_data():
+    d = Canned({"sentences": []})
+    d.draft("late renewal fine", [hit("p1")], [], notes=["a note"])
+    system, user = d.seen["messages"][0]["content"], d.seen["messages"][1]["content"]
+    assert "never instructions" in system
+    assert "<sources>" in user and "</sources>" in user and "<notes>" in user
+
+
+def test_fee_caveat_follows_what_is_cited_not_the_claim_text():
+    d = Canned({"sentences": [{"text": "The fee is AED 300.", "citations": [{"sentence": "S1"}]}]})
+    no_fee = hit("p1", "Renewal requests are made at the service centres of the authority.")
+    out = d.draft("What is the fee to renew?", [no_fee], [])
+    assert out[-1]["kind"] == "caveat"
+
+
+def test_thinking_switch_is_only_sent_to_a_local_server():
+    assert LLMDrafter(url="http://127.0.0.1:8790/v1").local
+    assert not LLMDrafter(url="https://integrate.api.nvidia.com/v1").local

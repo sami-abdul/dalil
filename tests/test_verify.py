@@ -53,7 +53,7 @@ def test_quote_across_a_line_break_is_found_and_mapped_to_the_page(v):
 
 
 def test_curly_quote_in_the_draft_still_matches(v):
-    assert v.check_sentence(claim("Gratuity is 21 days a year.", q("21 days’ basic wage for each"))).kept
+    assert v.check_sentence(claim("The gratuity is 21 days of basic wage for each year.", q("gratuity of 21 days’ basic wage for each year"))).kept
 
 
 def test_changed_word_fails(v):
@@ -75,7 +75,7 @@ def test_number_not_in_the_quote_cuts_the_sentence(v):
 
 
 def test_article_number_is_backed_by_the_heading(v):
-    s = v.check_sentence(claim("Under Article 51, gratuity is 21 days a year.",
+    s = v.check_sentence(claim("Under Article 51, the gratuity is 21 days of basic wage for each year.",
                                q("21 days' basic wage for each year")))
     assert s.kept, s.reasons
 
@@ -133,7 +133,7 @@ def test_quote_may_not_stop_inside_a_number_or_word(v):
     assert not s.kept and "word for word" in s.reasons[0]
     s = v.check_sentence(claim("It is a gratuity.", q("worker is entitled to an end of serv")))
     assert not s.kept
-    assert v.check_sentence(claim("Late renewal costs up to AED 1,000.", q("a day, up to AED 1,000"))).kept
+    assert v.check_sentence(claim("Late renewal costs AED 20 a day, up to AED 1,000.", q("Late renewal costs AED 20 a day, up to AED 1,000"))).kept
 
 
 def test_model_written_caveat_is_not_trusted():
@@ -145,12 +145,12 @@ def test_model_written_caveat_is_not_trusted():
 
 
 def test_answer_status(v):
-    good = claim("Gratuity is 21 days a year.", q("21 days' basic wage for each year"))
+    good = claim("The gratuity is 21 days of basic wage for each year.", q("gratuity of 21 days' basic wage for each year"))
     bad = claim("Gratuity is 30 days a year.", q("30 days' basic wage for each year"))
     assert v.check_answer([good, good]).status == "pass"
     mixed = v.check_answer([good, bad])
     assert mixed.status == "pass_with_cuts"
-    assert mixed.answer_text() == "Gratuity is 21 days a year."
+    assert mixed.answer_text() == "The gratuity is 21 days of basic wage for each year."
     assert v.check_answer([good, bad, bad]).status == "held"
     assert v.check_answer([]).status == "held"
     assert v.check_answer([{"text": "The sources don't cover this.", "kind": "refusal"}]).status == "pass"
@@ -185,3 +185,35 @@ def test_safe_select_refuses_everything_else(sql):
     from dalil.verify import safe_select
     with pytest.raises(ValueError):
         safe_select(sql)
+
+
+def test_spelled_out_numbers_are_checked(v):
+    s = v.check_sentence(claim("Late renewal costs fifty dirhams a day.", q("Late renewal costs AED 20 a day")))
+    assert not s.kept and "50" in s.reasons[0]
+    assert v.check_sentence(claim("Late renewal costs twenty dirhams a day.", q("Late renewal costs AED 20 a day"))).kept
+
+
+def test_claim_must_be_supported_by_its_quote(v):
+    s = v.check_sentence(claim("Retirees renew for free at any police station.", q("Late renewal costs AED 20 a day")))
+    assert not s.kept and "not supported" in s.reasons[0]
+
+
+def test_claim_may_not_add_a_negation(v):
+    s = v.check_sentence(claim("Late renewal does not cost AED 20 a day.", q("Late renewal costs AED 20 a day")))
+    assert not s.kept and "negation" in s.reasons[0]
+
+
+def test_data_values_must_share_a_row():
+    rows = [{"year": "2024", "transactions": "4242"}, {"year": "2025", "transactions": "3100"}]
+    v = Verifier({}, data_lookup=lambda sql: rows, allowed_sql=[SQL])
+    s = v.check_sentence(claim("In 2025 there were 4242 transactions.", data_cit("4242"), data_cit("2025", "year")))
+    assert not s.kept and "different rows" in s.reasons[0]
+    assert v.check_sentence(claim("In 2025 there were 3100 transactions.", data_cit("3100"), data_cit("2025", "year"))).kept
+
+
+def test_citations_are_limited_to_the_sources_given():
+    passages = {"p1": {"passage_id": "p1", "doc_id": "d", "page": 1, "start": 0, "heading": None,
+                       "text": "Late renewal costs AED 20 a day, up to AED 1,000."}}
+    v = Verifier(passages, allowed_passages=["p2"])
+    s = v.check_sentence(claim("Late renewal costs AED 20 a day.", {"passage_id": "p1", "quote": "Late renewal costs AED 20 a day"}))
+    assert not s.kept and "not among the sources" in s.reasons[0]
