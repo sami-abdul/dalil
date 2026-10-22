@@ -93,6 +93,10 @@
       return { cls: "flag-evasion", title: "Asks how to get around a rule",
         body: detail || "Dalil will not help anyone avoid a law or a government process. The answer below is a refusal: approve to send it, or reject." };
     }
+    if (/vague/.test(c)) {
+      return { cls: "flag-other", title: "Question too vague to answer",
+        body: detail || "The question does not say which service it is about, so Dalil asks for that instead of guessing. Approve to send the request for detail." };
+    }
     return { cls: "flag-other", title: "Flagged at screening", body: detail || String(code).replace(/_/g, " ") };
   }
 

@@ -38,7 +38,7 @@ def document_titles() -> dict[str, str]:
 # The only caveat and refusal sentences that may go out without a citation.
 FIXED_UNCITED = frozenset({
     WEAK_REFUSAL, FEE_CAVEAT, LAW_CAVEAT,
-    safety.REFUSAL_TEXT, safety.REFUSAL_FOLLOW_UP, safety.PERSONAL_DATA_CAVEAT,
+    safety.REFUSAL_TEXT, safety.REFUSAL_FOLLOW_UP, safety.PERSONAL_DATA_CAVEAT, safety.ASK_FOR_DETAIL,
 })
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -142,6 +142,10 @@ class Pipeline:
         if screened.is_rule_evasion:
             self.store.event(qid, "retrieved", {"skipped": "rule_evasion", "hits": 0})
             draft = [refusal(safety.REFUSAL_TEXT), refusal(safety.REFUSAL_FOLLOW_UP)]
+        elif screened.is_vague:
+            # Too few key words to know the subject: ask, rather than guess.
+            self.store.event(qid, "retrieved", {"skipped": "vague_question", "hits": 0})
+            draft = [refusal(safety.ASK_FOR_DETAIL)]
         else:
             past = self.recall(qid, q)
             hits = self.search(q, past.avoid)
@@ -162,9 +166,9 @@ class Pipeline:
             draft = self.drafter.draft(q, hits, data, notes=past.notes)
             if screened.has_personal_data:
                 draft = [*draft, caveat(safety.PERSONAL_DATA_CAVEAT)]
-        ran = "fixed refusal" if screened.is_rule_evasion else (
+        ran = "fixed refusal" if (screened.is_rule_evasion or screened.is_vague) else (
             getattr(self.drafter, "last_used", "") or type(self.drafter).__name__)
-        error = "" if screened.is_rule_evasion else getattr(self.drafter, "last_error", "")
+        error = "" if (screened.is_rule_evasion or screened.is_vague) else getattr(self.drafter, "last_error", "")
         self.store.event(qid, "drafted", {
             "drafter": ran, **({"fallback_reason": error} if error else {}),
             "sentences": len(draft),

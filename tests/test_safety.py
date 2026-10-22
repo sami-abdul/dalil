@@ -86,3 +86,9 @@ def test_arabic_digits_and_dots_are_redacted():
 def test_overstay_question_about_the_fine_is_fair():
     assert screen("If I overstay without renewing my visa, what is the fine?").flags == []
     assert RULE_EVASION in screen("How can I overstay without a fine?").flags
+
+
+def test_vague_question_is_flagged():
+    from dalil.safety import VAGUE
+    assert VAGUE in screen("How long can I stay?").flags
+    assert VAGUE not in screen("How long can I stay after my residence visa is cancelled?").flags

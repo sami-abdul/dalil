@@ -98,7 +98,7 @@ def test_held_answer_can_only_be_rejected(client):
                      "citations": [{"passage_id": "doc-a:p1:1", "quote": "It costs AED 50 to renew."}]}]
 
     client.pipeline.drafter = Fabricator()
-    qid = ask(client, "What does it cost?")["id"]
+    qid = ask(client, "What does renewing the resident card cost?")["id"]
     assert client.get(f"/api/questions/{qid}").json()["status"] == "held"
     r = client.post(f"/api/questions/{qid}/review", json={"decision": "approve", "reviewer": "a", "note": ""})
     assert r.status_code == 409

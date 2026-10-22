@@ -161,20 +161,20 @@ class Broken:
 
 
 def test_fabricated_quote_is_held(store, passages):
-    rec = make(store, passages, drafter=Fabricator()).answer("What does the card cost?")
+    rec = make(store, passages, drafter=Fabricator()).answer("What does renewing the resident card cost?")
     assert rec.status == "held"
     assert not rec.check["sentences"][0]["kept"]
 
 
 def test_wrong_number_is_cut(store, passages):
-    rec = make(store, passages, drafter=Inflator()).answer("renew card")
+    rec = make(store, passages, drafter=Inflator()).answer("How do I renew my resident card?")
     assert rec.check["status"] == "pass_with_cuts" and rec.status == "awaiting_review"
     cut = [s for s in rec.check["sentences"] if not s["kept"]]
     assert len(cut) == 1 and "30" in cut[0]["reasons"][0]
 
 
 def test_drafter_failure_is_held_and_logged(store, passages):
-    rec = make(store, passages, drafter=Broken()).answer("renew card")
+    rec = make(store, passages, drafter=Broken()).answer("How do I renew my resident card?")
     assert rec.status == "held"
     assert "failed" in [e["kind"] for e in store.get(rec.id)["audit"]]
 
@@ -185,7 +185,7 @@ def test_drafter_failure_is_held_and_logged(store, passages):
 def test_review_rules(store, passages):
     p = make(store, passages)
     ok = p.answer("How early can I renew my resident card?")
-    held = make(store, passages, drafter=Fabricator()).answer("What does it cost?")
+    held = make(store, passages, drafter=Fabricator()).answer("What does renewing the resident card cost?")
     with pytest.raises(ReviewError):
         store.review(held.id, "approve", "amna")
     store.review(held.id, "reject", "amna", "Made-up price.")
@@ -204,7 +204,7 @@ def test_review_rules(store, passages):
 
 
 def test_audit_events_are_append_only(store, passages):
-    rec = make(store, passages).answer("renew card")
+    rec = make(store, passages).answer("How do I renew my resident card?")
     with sqlite3.connect(store.path) as c:
         with pytest.raises(sqlite3.DatabaseError):
             c.execute("UPDATE audit_events SET kind = 'x' WHERE question_id = ?", (rec.id,))

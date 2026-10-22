@@ -59,6 +59,11 @@ _EVASION = re.compile(
 
 REFUSAL_TEXT = "I can't help with getting around UAE rules, fines or penalties."
 REFUSAL_FOLLOW_UP = "For your real options, ask ICP or GDRFA through their official channels."
+VAGUE = "vague_question"
+ASK_FOR_DETAIL = "Please say which service or document you mean, so I can answer from the right official source."
+# A question needs at least this many key words, after stopwords, for Dalil to
+# know what it is about. "How long can I stay?" has two.
+MIN_KEY_WORDS = 3
 PERSONAL_DATA_CAVEAT = (
     "Don't share ID or passport numbers here; check your status on the official ICP or GDRFA channels."
 )
@@ -68,6 +73,10 @@ PERSONAL_DATA_CAVEAT = (
 class ScreenResult:
     redacted_question: str
     flags: list[str] = field(default_factory=list)
+
+    @property
+    def is_vague(self) -> bool:
+        return VAGUE in self.flags
 
     @property
     def has_personal_data(self) -> bool:
@@ -120,6 +129,9 @@ def find_personal_data(text: str) -> list[str]:
 def screen(question: str) -> ScreenResult:
     """Redact personal data and flag requests to get around the rules."""
     redacted, flags = redact(question.strip())
+    from dalil.retrieve import tokenize
+    if len(set(tokenize(redacted))) < MIN_KEY_WORDS:
+        flags.append(VAGUE)
     if _EVASION.search(redacted):
         flags.append(RULE_EVASION)
     return ScreenResult(redacted, flags)
