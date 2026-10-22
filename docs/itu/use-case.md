@@ -28,8 +28,8 @@ Each requirement has an ID that the report refers back to.
 - **P-3.** It is required that a claim's key words appear in its sources, and that it adds no negation they lack.
 - **P-4.** It is required that a person approves every answer before it is sent, and that requests to get around the rules get a fixed refusal.
 - **D-1.** It is required that only approved sentences are sent; sentences the checker cut never are.
-- **SINK-1.** It is required that every step, from screening to delivery, is an append-only audit event, and that every review decision is kept with the passages it concerned.
-- **SB-1.** It is required that changes are tested in a sandbox against fixed questions and error scenarios before they go live.
+- **SINK-1.** It is required that every step, from screening to delivery, is an append-only audit event, and that every review decision is kept with the passages the answer cited. Both Dalil's review memory and the knowledge base's `kb_decisions` collection store those passage ids.
+- **SB-1.** It is required that every change is run against fixed questions and error scenarios before it goes live. Today `scripts/run_eval.py` does this by hand; nothing blocks a release that skips it.
 
 ## Error scenarios
 
