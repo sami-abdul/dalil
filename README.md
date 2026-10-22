@@ -71,6 +71,8 @@ uv run python scripts/eval_retrieval.py          # retrieval on the ten test que
 uv run python scripts/run_eval.py                # every test question and error scenario end to end
 ```
 
+The measured results, and what they do not show, are in [docs/evaluation.md](docs/evaluation.md).
+
 ## Built with
 
 | Part | What |
@@ -82,7 +84,7 @@ uv run python scripts/run_eval.py                # every test question and error
 
 ## Not done yet
 
-- **Speed.** On the build machine's CPU, Nemotron 3 Nano 4B takes about 40 to 55 seconds per answer: it reads the prompt at 65 to 80 tokens a second and writes at 6 to 8. A GPU would be far faster.
+- **Speed.** On the build machine's CPU, an answer takes a median of 19 seconds and at most 27. A GPU would be far faster.
 - **Model size.** A 4B model sometimes picks a correct but off-topic sentence, or mixes the rules of two related services. Every quote and number is still checked, and the reviewer catches the rest.
 
 ## Data
