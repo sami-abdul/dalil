@@ -200,3 +200,21 @@ def test_live_select_one():
     client = z.Client(z.load_config())
     assert client.sql("SELECT 1 AS one").scalar() == "1"
     assert client.org_id
+
+
+def test_default_open_tables_reads_committed_map(tmp_path):
+    mod = _load_script("load_zetaris")
+    m = tmp_path / "tables.csv"
+    m.write_text("table,file,licence,source_publisher\nopen_x,x.csv,CC BY 4.0,Somebody\n", encoding="utf-8")
+    assert mod.default_open_tables(m) == [f"open_x={tmp_path / 'x.csv'}"]
+    assert mod.default_open_tables(tmp_path / "missing.csv") == []
+
+
+def test_committed_open_tables_point_at_real_files():
+    mod = _load_script("load_zetaris")
+    specs = mod.default_open_tables()
+    assert len(specs) == 4
+    for spec in specs:
+        table, _, path = spec.partition("=")
+        z.check_name(table)
+        assert Path(path).is_file()

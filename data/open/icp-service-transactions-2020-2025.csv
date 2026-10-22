@@ -1,0 +1,101 @@
+year,service_en,service_en_as_published,service_ar,transactions,original_file
+2020,Issuance of a New ID Card,Issuing a new identity card,,462604,icp-services-2020-2022.csv
+2021,Issuance of a New ID Card,Issuing a new identity card,,1301232,icp-services-2020-2022.csv
+2022,Issuance of a New ID Card,Issuing a new identity card,,1877492,icp-services-2020-2022.csv
+2020,Renewal of ID Card,Identity card renewal,,1800115,icp-services-2020-2022.csv
+2021,Renewal of ID Card,Identity card renewal,,4299619,icp-services-2020-2022.csv
+2022,Renewal of ID Card,Identity card renewal,,4148259,icp-services-2020-2022.csv
+2020,Issuance of Entry Permit,Issuing an entry permit,,1968345,icp-services-2020-2022.csv
+2021,Issuance of Entry Permit,Issuing an entry permit,,9019429,icp-services-2020-2022.csv
+2022,Issuance of Entry Permit,Issuing an entry permit,,20014060,icp-services-2020-2022.csv
+2020,Issuance of Residence Permits,Issuing residence permits,,787095,icp-services-2020-2022.csv
+2021,Issuance of Residence Permits,Issuing residence permits,,2032855,icp-services-2020-2022.csv
+2022,Issuance of Residence Permits,Issuing residence permits,,1525345,icp-services-2020-2022.csv
+2020,Renewal of Residence Permits,Renewal of residence permits,,1275748,icp-services-2020-2022.csv
+2021,Renewal of Residence Permits,Renewal of residence permits,,2379134,icp-services-2020-2022.csv
+2022,Renewal of Residence Permits,Renewal of residence permits,,4280491,icp-services-2020-2022.csv
+2020,Issuance of a New Family Data,Issuing a new family book,,12089,icp-services-2020-2022.csv
+2021,Issuance of a New Family Data,Issuing a new family book,,12184,icp-services-2020-2022.csv
+2022,Issuance of a New Family Data,Issuing a new family book,,14702,icp-services-2020-2022.csv
+2020,Amendment of Family Data,Modifying Family book data,,110160,icp-services-2020-2022.csv
+2021,Amendment of Family Data,Modifying Family book data,,18002,icp-services-2020-2022.csv
+2022,Amendment of Family Data,Modifying Family book data,,53425,icp-services-2020-2022.csv
+2020,Issuance of a New Passport,Issuing a new passport,,64052,icp-services-2020-2022.csv
+2021,Issuance of a New Passport,Issuing a new passport,,34812,icp-services-2020-2022.csv
+2022,Issuance of a New Passport,Issuing a new passport,,64716,icp-services-2020-2022.csv
+2020,Passport Renewal,renewing passport,,213783,icp-services-2020-2022.csv
+2021,Passport Renewal,renewing passport,,275936,icp-services-2020-2022.csv
+2022,Passport Renewal,renewing passport,,274618,icp-services-2020-2022.csv
+2020,Issuance of Establishment Card,Issuing an establishment card?,,38624,icp-services-2020-2022.csv
+2021,Issuance of Establishment Card,Issuing an establishment card?,,48532,icp-services-2020-2022.csv
+2022,Issuance of Establishment Card,Issuing an establishment card?,,51056,icp-services-2020-2022.csv
+2020,Renewal of Establishment Card,Renewal of establishment card?,,91409,icp-services-2020-2022.csv
+2021,Renewal of Establishment Card,Renewal of establishment card?,,97703,icp-services-2020-2022.csv
+2022,Renewal of Establishment Card,Renewal of establishment card?,,101899,icp-services-2020-2022.csv
+2020,Amendment of Establishment Card,Modifying the establishments card?,,104796,icp-services-2020-2022.csv
+2021,Amendment of Establishment Card,Modifying the establishments card?,,141850,icp-services-2020-2022.csv
+2022,Amendment of Establishment Card,Modifying the establishments card?,,167382,icp-services-2020-2022.csv
+2020,Extension of Entry Permit,Extension of entry permit,,22554,icp-services-2020-2022.csv
+2021,Extension of Entry Permit,Extension of entry permit,,22755,icp-services-2020-2022.csv
+2022,Extension of Entry Permit,Extension of entry permit,,23736,icp-services-2020-2022.csv
+2020,Cancellation of Entry Permit,Cancellation of entry permit,,5057,icp-services-2020-2022.csv
+2021,Cancellation of Entry Permit,Cancellation of entry permit,,8801,icp-services-2020-2022.csv
+2022,Cancellation of Entry Permit,Cancellation of entry permit,,14816,icp-services-2020-2022.csv
+2020,Amendment of Residence Data,Modifying residence data,,30462,icp-services-2020-2022.csv
+2021,Amendment of Residence Data,Modifying residence data,,23632,icp-services-2020-2022.csv
+2022,Amendment of Residence Data,Modifying residence data,,5560,icp-services-2020-2022.csv
+2020,Cancellation of Residence Permit,Cancellation of residence permit,,240200,icp-services-2020-2022.csv
+2021,Cancellation of Residence Permit,Cancellation of residence permit,,249455,icp-services-2020-2022.csv
+2022,Cancellation of Residence Permit,Cancellation of residence permit,,228200,icp-services-2020-2022.csv
+2020,Issuance of Exit Permit,Issuing a departure permit,,16167,icp-services-2020-2022.csv
+2021,Issuance of Exit Permit,Issuing a departure permit,,36711,icp-services-2020-2022.csv
+2022,Issuance of Exit Permit,Issuing a departure permit,,98154,icp-services-2020-2022.csv
+2020,Data Amendment,Updating Data,,27345,icp-services-2020-2022.csv
+2021,Data Amendment,Updating Data,,160367,icp-services-2020-2022.csv
+2022,Data Amendment,Updating Data,,103221,icp-services-2020-2022.csv
+2020,Exemption from Late Fees,Exemption from late fees,,,icp-services-2020-2022.csv
+2021,Exemption from Late Fees,Exemption from late fees,,16068,icp-services-2020-2022.csv
+2022,Exemption from Late Fees,Exemption from late fees,,27994,icp-services-2020-2022.csv
+2020,Passport Renewal for Citizens Outside UAE,Renewing the passports of citizens residing outside the country,,,icp-services-2020-2022.csv
+2021,Passport Renewal for Citizens Outside UAE,Renewing the passports of citizens residing outside the country,,,icp-services-2020-2022.csv
+2022,Passport Renewal for Citizens Outside UAE,Renewing the passports of citizens residing outside the country,,66,icp-services-2020-2022.csv
+2023,Issuance of a New ID Card,Issuing a new identity card,,1707019,icp-services-2023.csv
+2023,Renewal of ID Card,Identity card renewal,,3617731,icp-services-2023.csv
+2023,Issuance of Entry Permit,Issuing an entry permit,,19600244,icp-services-2023.csv
+2023,Issuance of Residence Permits,Issuing residence permits,,1607151,icp-services-2023.csv
+2023,Renewal of Residence Permits,Renewal of residence permits,,3513863,icp-services-2023.csv
+2023,Issuance of a New Family Data,Issuing a new family book,,15784,icp-services-2023.csv
+2023,Amendment of Family Data,Modifying Family book data,,81757,icp-services-2023.csv
+2023,Issuance of a New Passport,Issuing a new passport,,75143,icp-services-2023.csv
+2023,Passport Renewal,renewing passport,,263115,icp-services-2023.csv
+2023,Issuance of Establishment Card,Issuing an establishment card?,,54086,icp-services-2023.csv
+2023,Renewal of Establishment Card,Renewal of establishment card?,,108265,icp-services-2023.csv
+2023,Amendment of Establishment Card,Modifying the establishments card?,,187579,icp-services-2023.csv
+2023,Extension of Entry Permit,Extension of entry permit,,167068,icp-services-2023.csv
+2023,Cancellation of Entry Permit,Cancellation of entry permit,,18317,icp-services-2023.csv
+2023,Amendment of Residence Data,Modifying residence data,,9415,icp-services-2023.csv
+2023,Cancellation of Residence Permit,Cancellation of residence permit,,230158,icp-services-2023.csv
+2023,Issuance of Exit Permit,Issuing a departure permit,,82736,icp-services-2023.csv
+2023,Data Amendment,Updating Data,,127425,icp-services-2023.csv
+2023,Passport Renewal for Citizens Outside UAE,Renewing the passports of citizens residing outside the country,,506,icp-services-2023.csv
+2023,Exemption from Late Fees,Exemption from late fees,,43258,icp-services-2023.csv
+2025,Issuance of a New ID Card,Issuance of a New ID Card,اصدار بطاقة هوية جديدة,1953786,icp-total-services-transactions-2025.xlsx
+2025,Renewal of ID Card,Renewal of ID Card,تجديد بطاقة الهوية,5856085,icp-total-services-transactions-2025.xlsx
+2025,Issuance of Entry Permit,Issuance of Entry Permit,إصدار إذن دخول,22071418,icp-total-services-transactions-2025.xlsx
+2025,Issuance of Residence Permits,Issuance of Residence Permits,إصدار تصاريح الإقامة,4520694,icp-total-services-transactions-2025.xlsx
+2025,Renewal of Residence Permits,Renewal of Residence Permits,تجديد تصاريح الإقامة,3763072,icp-total-services-transactions-2025.xlsx
+2025,Issuance of a New Family Data,Issuance of a New Family Data,إصدار بيانات أسرة جديد,15984,icp-total-services-transactions-2025.xlsx
+2025,Amendment of Family Data,Amendment of Family Data,تعديل بيانات أسرة,35296,icp-total-services-transactions-2025.xlsx
+2025,Issuance of a New Passport,Issuance of a New Passport,إصدار جواز سفر جديد,65690,icp-total-services-transactions-2025.xlsx
+2025,Passport Renewal,Passport Renewal,تجديد جواز السفر,250553,icp-total-services-transactions-2025.xlsx
+2025,Issuance of Establishment Card,Issuance of Establishment Card,إصدار بطاقة المنشآت,92451,icp-total-services-transactions-2025.xlsx
+2025,Renewal of Establishment Card,Renewal of Establishment Card,تجديد بطاقة المنشآت,112518,icp-total-services-transactions-2025.xlsx
+2025,Amendment of Establishment Card,Amendment of Establishment Card,تعديل بطاقة المنشآت,290641,icp-total-services-transactions-2025.xlsx
+2025,Extension of Entry Permit,Extension of Entry Permit,تمديد إذن دخول,103140,icp-total-services-transactions-2025.xlsx
+2025,Cancellation of Entry Permit,Cancellation of Entry Permit,إلغاء إذن دخول,146841,icp-total-services-transactions-2025.xlsx
+2025,Amendment of Residence Data,Amendment of Residence Data,تعديل بيانات الإقامة,56771,icp-total-services-transactions-2025.xlsx
+2025,Cancellation of Residence Permit,Cancellation of Residence Permit,إلغاء تصريح الإقامة,972804,icp-total-services-transactions-2025.xlsx
+2025,Issuance of Exit Permit,Issuance of Exit Permit,إصدار تصريح مغادرة,13195,icp-total-services-transactions-2025.xlsx
+2025,Data Amendment,Data Amendment,تعديل بيانات,236601,icp-total-services-transactions-2025.xlsx
+2025,Passport Renewal for Citizens Outside UAE,Passport Renewal for Citizens Outside UAE,تجديد جوازات المواطنين المتواجدين خارج الدولة,217,icp-total-services-transactions-2025.xlsx
+2025,Exemption from Late Fees,Exemption from Late Fees,الاعفاء من رسوم التأخير,25229,icp-total-services-transactions-2025.xlsx

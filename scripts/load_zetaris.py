@@ -158,6 +158,17 @@ def register_file_table(client: z.Client, container: str, database: str, table: 
     return action
 
 
+OPEN_TABLES = ROOT / "data" / "open" / "tables.csv"
+
+
+def default_open_tables(path: Path = OPEN_TABLES) -> list[str]:
+    """TABLE=PATH specs for the committed open-data tables, used when no --csv is given."""
+    if not path.is_file():
+        return []
+    with path.open(newline="", encoding="utf-8") as fh:
+        return [f"{row['table']}={path.parent / row['file']}" for row in csv.DictReader(fh)]
+
+
 def count(client: z.Client, database: str, table: str) -> int:
     return int(client.sql(f"SELECT COUNT(*) AS n FROM {z.check_name(database)}.{z.check_name(table)}").scalar())
 
@@ -169,7 +180,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--database", default=DATABASE)
     ap.add_argument("--env-file", help="Zetaris credentials file (default: DALIL_ZETARIS_ENV or ~/.config/lfg/credentials/zetaris-local.env)")
     ap.add_argument("--csv", action="append", default=[], metavar="TABLE=PATH",
-                    help="also register an open-data CSV with a header row (repeatable)")
+                    help="register an open-data CSV with a header row (repeatable); default: every row of data/open/tables.csv")
     ap.add_argument("--dry-run", action="store_true", help="build the files and print the plan; send nothing")
     args = ap.parse_args(argv)
 
@@ -184,7 +195,8 @@ def main(argv: list[str] | None = None) -> int:
         loaded = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         documents, pages = build_rows(docs, source, loaded)
         extra = []
-        for spec in args.csv:
+        specs = args.csv or default_open_tables()
+        for spec in specs:
             table, sep, path = spec.partition("=")
             if not sep or not Path(path).is_file():
                 raise z.ZetarisError(f"--csv wants TABLE=PATH to an existing file, got {spec!r}")
