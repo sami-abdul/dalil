@@ -6,7 +6,7 @@ llama-server with --embeddings, on 127.0.0.1. The model expects "query: " and
 disk under build/embeddings/, keyed by the model name and a hash of each text,
 so the corpus is embedded once.
 
-    DALIL_EMBED_URL    default http://127.0.0.1:8791/v1
+    DALIL_EMBED_URL    default http://127.0.0.1:8792/v1
     DALIL_EMBED_MODEL  default "nemotron-embed"
 """
 
@@ -28,7 +28,7 @@ class HTTPEmbedder:
     def __init__(self, url: str | None = None, model: str | None = None, timeout: float = 300.0,
                  query_prefix: str = "query: ", passage_prefix: str = "passage: ",
                  cache_dir: Path | None = CACHE_DIR):
-        self.url = (url or os.environ.get("DALIL_EMBED_URL") or "http://127.0.0.1:8791/v1").rstrip("/")
+        self.url = (url or os.environ.get("DALIL_EMBED_URL") or "http://127.0.0.1:8792/v1").rstrip("/")
         self.model = model or os.environ.get("DALIL_EMBED_MODEL") or "nemotron-embed"
         self.timeout = timeout
         self.query_prefix, self.passage_prefix = query_prefix, passage_prefix

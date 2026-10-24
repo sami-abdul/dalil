@@ -23,7 +23,7 @@ Embedding the 1,024 passages took about nine minutes on CPU, once. After that th
 
 ## End to end, drafting with NVIDIA Nemotron 3 Nano 4B
 
-`DALIL_EMBED_URL=http://127.0.0.1:8791/v1 uv run python scripts/run_eval.py --llm`, with Nemotron 3 Nano 4B on 14 CPU threads and the embedding model on 4.
+`DALIL_EMBED_URL=http://127.0.0.1:8792/v1 uv run python scripts/run_eval.py --llm`, with Nemotron 3 Nano 4B on 14 CPU threads and the embedding model on 4.
 
 - **Answerable questions:** every one of the ten went to review with at least one kept claim citing an expected document. Nine passed the checker whole.
 - **Cut by the checker:** one claim, correctly. The model wrote that Golden Visa holders can sponsor their parents; the cited source says spouses and children.
@@ -38,7 +38,7 @@ Embedding the 1,024 passages took about nine minutes on CPU, once. After that th
 
 ## ITU error scenarios
 
-`DALIL_EMBED_URL=http://127.0.0.1:8791/v1 uv run python scripts/run_itu_scenarios.py`, run on 22 October 2026 with Nemotron drafting. Each scenario is a sequence of questions through the real pipeline. Dalil keeps no conversation state, so each question is answered on its own, and a later question that adds detail restates the whole question. Each step's check tests exactly what the table says, and `tests/test_itu_scenarios.py` shows that each check fails on an empty answer and on the fault it guards against. The audit logs are kept privately as evidence for the ITU report.
+`DALIL_EMBED_URL=http://127.0.0.1:8792/v1 uv run python scripts/run_itu_scenarios.py`, run on 22 October 2026 with Nemotron drafting. Each scenario is a sequence of questions through the real pipeline. Dalil keeps no conversation state, so each question is answered on its own, and a later question that adds detail restates the whole question. Each step's check tests exactly what the table says, and `tests/test_itu_scenarios.py` shows that each check fails on an empty answer and on the fault it guards against. The audit logs are kept privately as evidence for the ITU report.
 
 | Scenario | What happens | Result |
 |---|---|---|

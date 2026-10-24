@@ -56,7 +56,7 @@ cp .env.example .env                             # then fill in the Zetaris sett
 uv run python scripts/load_zetaris.py            # documents, pages, passages and open data into Zetaris
 uv run python scripts/check_zetaris.py           # counts, and a citation query rerun inside Zetaris
 LLAMA_SERVER=... MODEL=... scripts/serve_nemotron.sh         # Nemotron 3 Nano 4B on 127.0.0.1:8790
-LLAMA_SERVER=... MODEL=... scripts/serve_nemotron_embed.sh   # Nemotron-3-Embed-1B on 127.0.0.1:8791
+LLAMA_SERVER=... MODEL=... scripts/serve_nemotron_embed.sh   # Nemotron-3-Embed-1B on 127.0.0.1:8792
 uv run python scripts/serve.py                   # app on http://127.0.0.1:8787, H-MEM bridge on 8788
 ```
 

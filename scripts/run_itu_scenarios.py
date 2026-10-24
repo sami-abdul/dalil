@@ -1,6 +1,6 @@
 """Run the ITU error scenarios end to end and keep their audit logs as evidence.
 
-    DALIL_EMBED_URL=http://127.0.0.1:8791/v1 uv run python scripts/run_itu_scenarios.py [--extractive]
+    DALIL_EMBED_URL=http://127.0.0.1:8792/v1 uv run python scripts/run_itu_scenarios.py [--extractive]
 
 ITU judges how an agent behaves when things go wrong, with information that
 arrives in parts and is sometimes incomplete. Each scenario here is a sequence

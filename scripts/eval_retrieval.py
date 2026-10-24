@@ -32,7 +32,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--k", type=int, default=8)
     ap.add_argument("--no-stem", action="store_true", help="index whole words, without stemming")
     ap.add_argument("--dense", action="store_true",
-                    help="fuse BM25 with dense embeddings from DALIL_EMBED_URL (default 127.0.0.1:8791)")
+                    help="fuse BM25 with dense embeddings from DALIL_EMBED_URL (default 127.0.0.1:8792)")
     args = ap.parse_args(argv)
     if not args.passages.is_file():
         print(f"error: {args.passages} not found; run scripts/build_passages.py first", file=sys.stderr)

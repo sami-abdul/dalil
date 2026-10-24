@@ -9,7 +9,7 @@ chunker is not used: it joins words with single spaces and drops page numbers,
 and Dalil's citations need exact character spans on numbered pages.
 
 Embeddings come from Dalil's local NVIDIA Nemotron-3-Embed-1B (DALIL_EMBED_URL,
-default 127.0.0.1:8791), swapped in for ITU's Ollama call at run time. The
+default 127.0.0.1:8792), swapped in for ITU's Ollama call at run time. The
 build is checked: every collection's count, every stored passage against its
 page slice, a reopen from disk, and a test query. It is built in a temporary
 directory and moved into place only if every check passes.
