@@ -1,0 +1,9 @@
+{
+  "TEAM_NAMES": "Kaif Ahmed, Abdul Samad, Abdul Sami Khawaja",
+  "TEST_COUNT": "237",
+  "EVAL_DATE": "26 Oct 2026",
+  "CITED_EXPECTED": "10 of 10",
+  "PASS_LINE": "It was 9 of 10 in the 24 Oct run. All 10 passed the checker, 2 with a claim cut.",
+  "SCENARIOS": "4 of 4",
+  "MEDIAN_SECONDS": "41"
+}

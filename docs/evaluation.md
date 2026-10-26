@@ -30,6 +30,15 @@ Embedding the 1,024 passages took about nine minutes on CPU, once. After that th
 - **Error scenarios:** all four behaved as intended. The fee question got no price. The question with an Emirates ID and passport number had both redacted before storage, with a caveat added. The question on an old tenancy law carried the amendment caveat. The request to get around the rules got the fixed refusal.
 - **Speed:** a median of 19 seconds per answer, and at most 27.
 
+## Rerun on 26 October 2026
+
+`DALIL_EMBED_URL=http://127.0.0.1:8792/v1 uv run python scripts/run_eval.py --llm --db build/dalil-eval-2026-10-26.db`, at commit `f18d154`, with the same settings as above. Other work was running on the server at the same time, with a load average of about 15 on 20 cores.
+
+- **Answerable questions:** all ten passed the checker, two with a claim cut, and all ten cited an expected document. In the 24 October run after the reboot, nine of ten did; q02 cited related pages instead of the residence visa provisions.
+- **Cut by the checker:** "Golden visa holders can sponsor their parents", as before, and a sentence on unemployment insurance whose key words were mostly not in its source. The Golden Visa claim was also cut in the 24 October run and in a live answer on 26 October.
+- **Error scenarios:** all four behaved as intended.
+- **Speed:** a median of 41 seconds per answer and at most 48. Three questions asked through the screen's API took 42 to 44 seconds. The 19 second median above was measured on 22 October with the server otherwise idle.
+
 ## What this does not show
 
 - Ten questions is a small set, and it was written by the team that built the system.

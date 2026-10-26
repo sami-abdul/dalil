@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dalil: Open Agent Hackathon 2026</title>
+<style>
+  @page { size: 1280px 720px; margin: 0; }
+  :root { --ink:#14202b; --muted:#5b6b78; --line:#d9e0e6; --bg:#ffffff; --navy:#0f2a3d; --accent:#1d8a5f; --warn:#b5462f; --chip:#e8f4ee; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:#888; }
+  body { font-family: "Inter", "Noto Sans", "DejaVu Sans", Arial, sans-serif; color: var(--ink); }
+  .slide { width:1280px; height:720px; background:var(--bg); position:relative; overflow:hidden; padding:64px 80px 56px; page-break-after:always; break-after:page; margin:0 auto 24px; }
+  @media print { html, body { background:none; } .slide { margin:0; } }
+  .slide h2 { font-size:40px; margin:0 0 28px; letter-spacing:-0.5px; }
+  .slide h2 small { display:block; font-size:16px; font-weight:600; color:var(--accent); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; }
+  .slide p, .slide li { font-size:23px; line-height:1.45; }
+  .slide ul { margin:0; padding-left:28px; }
+  .slide li { margin-bottom:12px; }
+  .foot { position:absolute; left:80px; right:80px; bottom:26px; font-size:14px; color:var(--muted); display:flex; justify-content:space-between; }
+  .dark { background:var(--navy); color:#fff; }
+  .dark .foot { color:#9fb3c2; }
+  .title h1 { font-size:88px; margin:70px 0 12px; letter-spacing:-2px; }
+  .title .tag { font-size:30px; color:#cfe3ef; max-width:560px; line-height:1.35; }
+  .title .meta { position:absolute; left:80px; bottom:70px; font-size:20px; color:#cfe3ef; line-height:1.6; }
+  .title .shot { position:absolute; right:60px; top:150px; width:560px; border-radius:10px; box-shadow:0 20px 60px rgba(0,0,0,.45); }
+  .steps { display:grid; grid-template-columns:repeat(7,1fr); gap:12px; margin-top:20px; }
+  .step { border:1px solid var(--line); border-top:5px solid var(--accent); border-radius:8px; padding:16px 14px; min-height:330px; }
+  .step b { display:block; font-size:21px; margin-bottom:10px; }
+  .step span { font-size:17px; line-height:1.4; color:#33444f; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:40px; }
+  .card { border:1px solid var(--line); border-radius:10px; padding:24px 28px; }
+  .card h3 { margin:0 0 12px; font-size:26px; }
+  .card p { font-size:20px; margin:0 0 10px; }
+  .diagram { width:100%; height:500px; object-fit:contain; }
+  .big { font-size:64px; font-weight:700; color:var(--accent); line-height:1; }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-bottom:26px; }
+  .stat { border:1px solid var(--line); border-radius:10px; padding:20px 22px; }
+  .stat .lbl { font-size:18px; color:#33444f; margin-top:8px; line-height:1.35; }
+  .limits li { font-size:19px; }
+  .shots { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .shots figure { margin:0; }
+  .shots img { width:100%; height:228px; object-fit:cover; object-position:top left; border:1px solid var(--line); border-radius:6px; }
+  .shots figcaption { font-size:15px; color:var(--muted); margin-top:4px; }
+  .cut { background:#fbeeea; border-left:5px solid var(--warn); padding:14px 18px; font-size:21px; margin-top:18px; border-radius:4px; }
+  .cut s { color:var(--warn); }
+  .stack td { font-size:20px; padding:8px 14px 8px 0; vertical-align:top; border-bottom:1px solid var(--line); }
+  .stack td:first-child { font-weight:700; width:230px; }
+  .pill { display:inline-block; background:var(--chip); color:var(--accent); font-weight:700; border-radius:999px; padding:2px 12px; font-size:16px; margin-right:6px; }
+  .flow { display:grid; grid-template-columns:repeat(8,1fr); gap:22px; margin-top:34px; position:relative; }
+  .node { border:2px solid var(--line); border-radius:10px; padding:12px 10px; font-size:16px; line-height:1.3; min-height:118px; background:#fff; position:relative; }
+  .node b { display:block; font-size:18px; margin-bottom:6px; }
+  .node:not(:last-child)::after { content:"\2192"; position:absolute; right:-21px; top:40px; font-size:22px; color:var(--muted); }
+  .t { display:inline-block; font-size:12px; font-weight:700; border-radius:4px; padding:1px 6px; margin-top:6px; color:#fff; }
+  .tz { background:#2b5fa8; } .tm { background:#8a4fb0; } .tn { background:#5f8f1a; }
+  .node.z { border-color:#2b5fa8; } .node.m { border-color:#8a4fb0; } .node.n { border-color:#5f8f1a; } .node.h { border-color:var(--accent); background:var(--chip); }
+  .stores { display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-top:44px; }
+  .store { border:2px dashed var(--line); border-radius:10px; padding:16px 20px; font-size:18px; line-height:1.45; }
+  .store b { font-size:20px; }
+</style>
+</head>
+<body>
+
+<!-- 1. Title -->
+<section class="slide dark title">
+  <h1>Dalil</h1>
+  <div class="tag">Answers about UAE government services that you can check.</div>
+  <img class="shot" src="assets/shot-evidence.png" alt="Dalil reviewer screen">
+  <div class="meta">Team LFG: {{TEAM_NAMES}}<br>Track 02, The Agent That Can Explain Why<br>Open Agent Hackathon 2026</div>
+</section>
+
+<!-- 2. Problem -->
+<section class="slide">
+  <h2><small>Problem and users</small>One wrong answer costs a resident a fine</h2>
+  <ul>
+    <li>Residents ask the same questions every day: sponsoring family, renewing an Emirates ID, notice periods, end-of-service gratuity.</li>
+    <li>The answers sit across service pages, federal laws and fee tables from different authorities.</li>
+    <li>A wrong answer means a fine or a rejected application, so a service team cannot let a chatbot answer unchecked.</li>
+    <li><b>Who uses Dalil:</b> service-centre staff who answer residents, and the residents who get the reviewed answer.</li>
+  </ul>
+  <div class="foot"><span>Dalil</span><span>2</span></div>
+</section>
+
+<!-- 3. Solution -->
+<section class="slide">
+  <h2><small>Solution</small>Seven steps, and a person signs off</h2>
+  <div class="steps">
+    <div class="step"><b>1. Ask</b><span>A resident's question comes in.</span></div>
+    <div class="step"><b>2. Screen</b><span>Personal data is redacted before storage. Requests to get around the rules are refused.</span></div>
+    <div class="step"><b>3. Search</b><span>1,024 passages from 45 official documents, plus open data through Zetaris.</span></div>
+    <div class="step"><b>4. Draft</b><span>NVIDIA Nemotron writes the answer. Every sentence points at a source.</span></div>
+    <div class="step"><b>5. Check</b><span>Quotes must match word for word, numbers must be in the evidence. Failing sentences are cut.</span></div>
+    <div class="step"><b>6. Approve</b><span>A person reads it with every quote highlighted on its page. Nothing goes out before.</span></div>
+    <div class="step"><b>7. Remember</b><span>The decision goes to Meterless H-MEM. A rejection changes the next similar answer.</span></div>
+  </div>
+  <div class="foot"><span>Dalil</span><span>3</span></div>
+</section>
+
+<!-- 4. Architecture -->
+<section class="slide">
+  <h2><small>Workflow and architecture</small>How it fits together</h2>
+  <div class="flow">
+    <div class="node"><b>Question</b>From a resident, through the service team</div>
+    <div class="node"><b>Screen</b>Redact personal data, refuse rule-dodging</div>
+    <div class="node m"><b>Recall</b>Past reviews of similar questions<br><span class="t tm">Meterless H-MEM</span></div>
+    <div class="node n z"><b>Search</b>BM25 + Nemotron embeddings, plus open-data queries<br><span class="t tn">NVIDIA</span> <span class="t tz">Zetaris</span></div>
+    <div class="node n"><b>Draft</b>Every sentence cites a passage or a query<br><span class="t tn">Nemotron 3 Nano</span></div>
+    <div class="node z"><b>Check</b>Quotes word for word, numbers in evidence, queries rerun<br><span class="t tz">Zetaris</span></div>
+    <div class="node h"><b>Reviewer</b>Approve or reject, with quotes highlighted on the page</div>
+    <div class="node"><b>Answer sent</b>Only the sentences that passed</div>
+  </div>
+  <div class="stores">
+    <div class="store"><b>Zetaris Lightning database <code>dalil</code></b><br>53 documents, 349 pages, 1,024 passages and four Bayanat open datasets. Search reads the passages; the checker reruns every cited query here.</div>
+    <div class="store"><b>Meterless H-MEM trust ledger</b><br>Every decision with the passages it cited. A rejection keeps those passages out of the next similar answer, and its note goes to the drafter.</div>
+  </div>
+  <div class="foot"><span>Every step goes to an append-only audit trail. Everything runs on one server, models included.</span><span>4</span></div>
+</section>
+
+<!-- 5. Stack -->
+<section class="slide">
+  <h2><small>Technical stack</small>What it runs on</h2>
+  <table class="stack">
+    <tr><td>App</td><td>Python 3.13, FastAPI, SQLite audit trail, plain HTML, CSS and JavaScript screen</td></tr>
+    <tr><td>Zetaris</td><td>Lightning 2.4.3.1, the free local version: documents, pages, passages and four Bayanat open datasets in one database</td></tr>
+    <tr><td>Meterless</td><td>H-MEM reference engine on Node: review memory and trust ledger</td></tr>
+    <tr><td>NVIDIA</td><td>Nemotron 3 Nano 4B drafts, Nemotron-3-Embed-1B for dense search, both local through llama.cpp</td></tr>
+    <tr><td>Search</td><td>BM25 fused with the Nemotron embeddings</td></tr>
+    <tr><td>Size</td><td>45 documents, 349 pages, 1,024 passages, 4 open datasets, {{TEST_COUNT}} tests</td></tr>
+  </table>
+  <div class="foot"><span>Dalil</span><span>5</span></div>
+</section>
+
+<!-- 6. Sponsors -->
+<section class="slide">
+  <h2><small>Sponsor technology</small>How Zetaris and Meterless are used</h2>
+  <div class="two">
+    <div class="card"><h3>Zetaris</h3>
+      <p>Documents, pages, passages and four Bayanat open datasets live in one Lightning database.</p>
+      <p>A number from open data is cited as a Zetaris query. The checker reruns that query before the sentence may stay.</p>
+      <p>Zetaris proves every passage equals its slice of the page: 1,024 of 1,024.</p></div>
+    <div class="card"><h3>Meterless H-MEM</h3>
+      <p>Every approval and rejection lands in H-MEM's append-only trust ledger, with the passages it cited.</p>
+      <p>Before drafting, Dalil recalls reviews of similar questions and leaves out passages a reviewer rejected.</p></div>
+  </div>
+  <div class="foot"><span>NVIDIA Nemotron drafts and embeds, running on the team's own server</span><span>6</span></div>
+</section>
+
+<!-- 7. Unique -->
+<section class="slide">
+  <h2><small>What is new</small>A citation you can rerun</h2>
+  <ul>
+    <li>A quote maps to an exact character span on its page. A number maps to a Zetaris query.</li>
+    <li>The checker trusts neither the model's quotes nor its SQL. Dalil writes each quote itself and refuses a number the evidence lacks.</li>
+    <li>A reviewer's rejection changes the next answer to a similar question.</li>
+  </ul>
+  <div class="cut">Model draft: <s>"Golden visa holders can sponsor their parents."</s><br>Cut by the checker: the cited source names spouses and children.</div>
+  <div class="foot"><span>Dalil</span><span>7</span></div>
+</section>
+
+<!-- 8. Visuals -->
+<section class="slide">
+  <h2 style="margin-bottom:18px"><small>Product</small>The reviewer screen</h2>
+  <div style="display:grid;grid-template-columns:830px 1fr;gap:28px;align-items:start">
+    <img src="assets/shot-evidence.png" alt="Dalil reviewer screen" style="width:830px;border:1px solid var(--line);border-radius:6px">
+    <ul style="padding-left:20px">
+      <li style="font-size:19px">The answer to send, each sentence with a numbered citation.</li>
+      <li style="font-size:19px">Below it, the sentences the checker cut and why. "Golden visa holders can sponsor their parents" never reaches the resident.</li>
+      <li style="font-size:19px">On the right, the cited words highlighted on the official page.</li>
+      <li style="font-size:19px">Approve or reject at the bottom. The audit trail tab replays every step.</li>
+    </ul>
+  </div>
+  <div class="foot"><span>Live screen, 26 Oct 2026</span><span>8</span></div>
+</section>
+
+<!-- 9. Results -->
+<section class="slide">
+  <h2><small>Measured, {{EVAL_DATE}}</small>Results and limits</h2>
+  <div class="stats">
+    <div class="stat"><div class="big">{{CITED_EXPECTED}}</div><div class="lbl">test questions cited an expected document. {{PASS_LINE}}</div></div>
+    <div class="stat"><div class="big">{{SCENARIOS}}</div><div class="lbl">error scenarios behaved as intended: no invented fee, personal data redacted, outdated law flagged, rule-dodging refused</div></div>
+    <div class="stat"><div class="big">1,014</div><div class="lbl">of 1,014 real passages: every reflowed quote found, every altered quote caught</div></div>
+  </div>
+  <ul class="limits">
+    <li>The team wrote the ten test questions, so the set is small.</li>
+    <li>The checker tests quotes, numbers, sources and key words, not meaning. A person reads every answer.</li>
+    <li>On CPU, the median answer takes {{MEDIAN_SECONDS}} seconds. A GPU would be far faster.</li>
+  </ul>
+  <div class="foot"><span>Dalil</span><span>9</span></div>
+</section>
+
+<!-- 10. Future -->
+<section class="slide">
+  <h2><small>Next</small>Where Dalil goes from here</h2>
+  <ul>
+    <li><b>ITU AI for Good, UAE:</b> the same agent on ITU's own knowledge-base code, with seven tested error scenarios. Due 10 Nov.</li>
+    <li><b>Arabic answers.</b></li>
+    <li><b>A GPU,</b> to bring an answer well under the current time on CPU.</li>
+    <li><b>A company's own documents</b> in place of government ones, for business use.</li>
+  </ul>
+  <div class="foot"><span>Dalil</span><span>10</span></div>
+</section>
+
+<!-- 11. Close -->
+<section class="slide dark title">
+  <h1 style="font-size:72px">Dalil</h1>
+  <div class="tag">Answers about UAE government services, with every sentence tied to the official text it came from, and a person signing off before anything goes out.</div>
+  <div class="meta">github.com/sami-abdul/dalil<br>Team LFG: {{TEAM_NAMES}}</div>
+</section>
+
+</body>
+</html>

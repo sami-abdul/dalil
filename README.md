@@ -101,7 +101,7 @@ Dalil's passages are stored instead of the output of ITU's chunker, because that
 
 ## Not done yet
 
-- **Speed.** On the build machine's CPU, an answer takes a median of 19 seconds and at most 27. A GPU would be far faster.
+- **Speed.** On the build machine's CPU, an answer took a median of 19 seconds on 22 October with the server otherwise idle, and 41 seconds on 26 October while other work was running. A GPU would be far faster.
 - **Model size.** A 4B model sometimes picks a correct but off-topic sentence, or mixes the rules of two related services. Every quote and number is still checked, and the reviewer catches the rest.
 
 ## Data
