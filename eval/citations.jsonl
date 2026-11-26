@@ -1,0 +1,43 @@
+{"id": "c01", "question": "What are the features of the Emirates ID card's electronic chip?", "expected_docs": ["uae-emirates-id"]}
+{"id": "c02", "question": "Can I get my Emirates ID card within 24 hours?", "expected_docs": ["uae-emirates-id"]}
+{"id": "c03", "question": "Who is eligible for a Green visa?", "expected_docs": ["uae-green-visa", "uae-work-residence-visa"]}
+{"id": "c04", "question": "What are the conditions to get a jobseeker visit visa?", "expected_docs": ["uae-jobseeker-visit-visa"]}
+{"id": "c05", "question": "Who can get a residence visa for retired people?", "expected_docs": ["uae-retirement-residence-visa"]}
+{"id": "c06", "question": "What salary must an employee earn to sponsor their family's residence visas?", "expected_docs": ["uae-family-residence-visa"]}
+{"id": "c07", "question": "Which categories of people can get a Golden visa?", "expected_docs": ["uae-golden-visa"]}
+{"id": "c08", "question": "What happens to my residence visa if I stay outside the UAE for more than six months?", "expected_docs": ["uae-residence-visa-general-provisions"]}
+{"id": "c09", "question": "Can a divorced woman extend her residence visa, and for how long?", "expected_docs": ["uae-residence-visa-general-provisions"]}
+{"id": "c10", "question": "Which medical conditions make someone unfit for a UAE residence visa?", "expected_docs": ["uae-health-conditions-residence-visa", "uae-residence-visa-general-provisions"]}
+{"id": "c11", "question": "Is health insurance mandatory for residents in Dubai and Abu Dhabi?", "expected_docs": ["uae-health-insurance"]}
+{"id": "c12", "question": "What is the minimum age for a car driving licence in the UAE?", "expected_docs": ["uae-get-a-driving-licence"]}
+{"id": "c13", "question": "What documents do I need to register a vehicle?", "expected_docs": ["uae-registering-vehicles"]}
+{"id": "c14", "question": "How many hours a day can a private sector worker be asked to work, and how is overtime paid?", "expected_docs": ["uae-working-hours", "uaelegislation-federal-decree-law-33-2021-labour-relations-en"]}
+{"id": "c15", "question": "How many days of annual leave does a private sector worker get?", "expected_docs": ["uae-types-of-leave", "uaelegislation-federal-decree-law-33-2021-labour-relations-en"]}
+{"id": "c16", "question": "How long is maternity leave for a private sector employee?", "expected_docs": ["uae-types-of-leave", "uaelegislation-federal-decree-law-33-2021-labour-relations-en"]}
+{"id": "c17", "question": "When must employers pay salaries, and through which system?", "expected_docs": ["uae-payment-of-wages", "uaelegislation-federal-decree-law-33-2021-labour-relations-en"]}
+{"id": "c18", "question": "What penalties do companies face for paying wages late?", "expected_docs": ["uae-payment-of-wages"]}
+{"id": "c19", "question": "How much is the monthly subscription for unemployment insurance?", "expected_docs": ["uae-unemployment-insurance"]}
+{"id": "c20", "question": "What are the conditions for claiming compensation under the unemployment insurance scheme?", "expected_docs": ["uae-unemployment-insurance"]}
+{"id": "c21", "question": "What types of work permits does MoHRE issue?", "expected_docs": ["uae-work-permits"]}
+{"id": "c22", "question": "What are the obligations of an employer who hires a domestic worker?", "expected_docs": ["uae-domestic-helpers"]}
+{"id": "c23", "question": "How long can a probation period last in a private sector job?", "expected_docs": ["uae-employment-contracts", "uaelegislation-federal-decree-law-33-2021-labour-relations-en"]}
+{"id": "c24", "question": "What are the rules on non-compete clauses in employment contracts?", "expected_docs": ["uae-employment-contracts", "uaelegislation-federal-decree-law-33-2021-labour-relations-en"]}
+{"id": "c25", "question": "When can an employer end an employment contract without notice?", "expected_docs": ["uae-terminating-employment-contracts", "uaelegislation-federal-decree-law-33-2021-labour-relations-en"]}
+{"id": "c26", "question": "What counts as arbitrary dismissal by an employer?", "expected_docs": ["uae-terminating-employment-contracts", "uaelegislation-federal-decree-law-33-2021-labour-relations-en"]}
+{"id": "c27", "question": "How do I file a labour complaint against my employer?", "expected_docs": ["uae-labour-dispute", "uae-labour-rights"]}
+{"id": "c28", "question": "What is the voluntary savings scheme for end-of-service benefits?", "expected_docs": ["uae-end-of-service-private-sector"]}
+{"id": "c29", "question": "What are the steps to start a business on the mainland?", "expected_docs": ["uae-steps-start-business-mainland"]}
+{"id": "c30", "question": "Which legal entity types can I choose when starting a business in a free zone?", "expected_docs": ["uae-start-business-free-zone"]}
+{"id": "c31", "question": "Can I ask a company to correct my personal data under the data protection law?", "expected_docs": ["uaelegislation-federal-decree-law-45-2021-personal-data-protection-en", "uae-data-protection-laws", "uae-pdpl-fdl-45-2021-ar"]}
+{"id": "c32", "question": "When can my personal data be processed without my consent?", "expected_docs": ["uaelegislation-federal-decree-law-45-2021-personal-data-protection-en", "uae-data-protection-laws", "uae-pdpl-fdl-45-2021-ar"]}
+{"id": "c33", "question": "Can a landlord in Dubai increase the rent during the first two years of a lease?", "expected_docs": ["dubai-tenancy-law-26-2007"]}
+{"id": "c34", "question": "What are the objectives of the UAE National Strategy for Artificial Intelligence 2031?", "expected_docs": ["ai-gov-uae-national-strategy-for-ai-2031-en", "uae-strategy-for-ai-page", "uae-ai-in-government-policies"]}
+{"id": "c35", "question": "What does the UAE Digital Government Strategy 2025 mean by inclusive by default?", "expected_docs": ["uae-digital-government-strategy-2025"]}
+{"id": "c36", "question": "Who does the Dubai law on data dissemination and exchange apply to?", "expected_docs": ["dubai-data-law-26-2015"]}
+{"id": "c37", "question": "What does the National Policy for Digital Accessibility require from government digital services?", "expected_docs": ["uae-national-digital-accessibility-policy"]}
+{"id": "c38", "question": "Does the UAE data protection law cover how a government entity handles my personal data?", "expected_docs": ["uaelegislation-federal-decree-law-45-2021-personal-data-protection-en", "uae-pdpl-fdl-45-2021-ar", "uae-data-protection-laws"]}
+{"id": "c39", "question": "ما هي أهداف سياسة المنصة الرقمية الموحدة؟", "expected_docs": ["uae-unified-digital-platform-policy-ar", "uae-digital-government-strategy-2025"]}
+{"id": "c40", "question": "هل يطبق قانون حماية البيانات الشخصية على الجهات الحكومية؟", "expected_docs": ["uae-pdpl-fdl-45-2021-ar", "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en", "uae-data-protection-laws"]}
+{"id": "c41", "question": "Can a Golden Visa holder sponsor their parents, and what do they need?", "expected_docs": ["uae-golden-visa"], "must_pass": true, "must_not_say": ["parents"]}
+{"id": "c42", "question": "Can a Green visa holder sponsor their parents?", "expected_docs": ["uae-green-visa", "uae-work-residence-visa", "uae-family-residence-visa"], "must_not_say": ["parents"]}
+{"id": "c43", "question": "Can a Golden visa holder sponsor their brothers and sisters?", "expected_docs": ["uae-golden-visa"], "must_not_say": ["brothers", "sisters"]}

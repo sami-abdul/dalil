@@ -24,10 +24,10 @@ def store(tmp_path):
     return Store(tmp_path / "dalil.db")
 
 
-def make(store, passages, hits=None, drafter=None, zetaris=None):
+def make(store, passages, hits=None, drafter=None, zetaris=None, redraft=True):
     hits = hits if hits is not None else [hit(PASSAGES[0], 20.0), hit(PASSAGES[1], 15.0)]
     factory = (lambda: zetaris) if zetaris is not None else None
-    return Pipeline(store, FakeRetriever(hits), passages, drafter=drafter, zetaris_factory=factory)
+    return Pipeline(store, FakeRetriever(hits), passages, drafter=drafter, zetaris_factory=factory, redraft=redraft)
 
 
 # --- drafter -------------------------------------------------------------------
@@ -78,7 +78,7 @@ def test_data_claim_cites_every_value():
                      fact=RULES[0].fact)
     draft = ExtractiveDrafter().draft("renew resident card", [hit(PASSAGES[0], 20.0)], [res])
     data = [s for s in draft if "sql" in (s["citations"] or [{}])[0]]
-    assert data and data[0]["text"] == "ICP open data counts 4242 Emirates ID card renewals in 2025."
+    assert data and data[0]["text"] == "In 2025, ICP renewed 4242 Emirates ID cards, according to its open data."
     assert sorted(c["value"] for c in data[0]["citations"]) == ["2025", "4242"]
 
 
@@ -100,10 +100,10 @@ def test_rules_are_fixed_safe_selects():
 
 def test_answer_runs_every_step_and_queues(store, passages):
     z = FakeZetaris()
-    rec = make(store, passages, zetaris=z).answer("How early can I renew my Emirates ID card?")
+    rec = make(store, passages, zetaris=z).answer("How many Emirates ID cards are renewed in a year, and how early can I renew mine?")
     assert rec.status == "awaiting_review"
     assert rec.check["status"] == "pass"
-    assert any(s["text"].startswith("ICP open data counts 4242") and s["kept"] for s in rec.check["sentences"])
+    assert any(s["text"].startswith("In 2025, ICP renewed 4242") and s["kept"] for s in rec.check["sentences"])
     # The fixed query ran once, and the verifier reran it once per cited value.
     assert z.calls.count(RULES[0].sql) == 3
     kinds = [e["kind"] for e in store.get(rec.id)["audit"]]
@@ -112,7 +112,7 @@ def test_answer_runs_every_step_and_queues(store, passages):
 
 
 def test_zetaris_down_skips_lookup_with_a_note(store, passages):
-    rec = make(store, passages, zetaris=FakeZetaris(fail=True)).answer("How do I renew my Emirates ID?")
+    rec = make(store, passages, zetaris=FakeZetaris(fail=True)).answer("How many Emirates ID cards are renewed each year?")
     assert rec.status == "awaiting_review"
     assert rec.data and rec.data[0]["rows"] == [] and "unreachable" in rec.data[0]["note"]
     assert not any("sql" in c for s in rec.draft for c in s["citations"])
@@ -122,7 +122,10 @@ def test_personal_data_is_never_stored(store, passages, tmp_path):
     p = make(store, passages)
     rec = p.answer(f"My ID is {ID} and passport N1234567, can I renew my card early?")
     assert "[EMIRATES ID]" in rec.question and ID not in rec.question
-    assert p.retriever.queries == [rec.question]
+    # Only the redacted question is searched, and without its placeholders.
+    assert len(p.retriever.queries) == 1
+    assert ID not in p.retriever.queries[0] and "N1234567" not in p.retriever.queries[0]
+    assert "[EMIRATES ID]" not in p.retriever.queries[0] and "renew my card early" in p.retriever.queries[0]
     assert rec.draft[-1]["text"] == safety.PERSONAL_DATA_CAVEAT
     assert rec.check["sentences"][-1]["kept"]
     raw = (tmp_path / "dalil.db").read_bytes()
@@ -161,9 +164,31 @@ class Broken:
 
 
 def test_fabricated_quote_is_held(store, passages):
-    rec = make(store, passages, drafter=Fabricator()).answer("What does renewing the resident card cost?")
+    rec = make(store, passages, drafter=Fabricator(), redraft=False).answer("What does renewing the resident card cost?")
     assert rec.status == "held"
     assert not rec.check["sentences"][0]["kept"]
+
+
+def test_when_every_claim_is_cut_the_sources_are_quoted_instead(store, passages):
+    rec = make(store, passages, drafter=Fabricator()).answer("What does renewing the resident card cost?")
+    assert rec.status == "awaiting_review"
+    kept = [s for s in rec.check["sentences"] if s["kept"] and s["kind"] == "claim"]
+    assert kept and all(s["citations"][0]["quote"] == s["text"] for s in kept)  # whole source sentences
+    assert "AED 50" not in rec.check["answer"]
+    events = {e["kind"]: e["detail"] for e in store.get(rec.id)["audit"]}
+    assert events["redrafted"]["drafter"] == "ExtractiveDrafter"
+
+
+def test_no_redraft_when_the_quotes_fail_too(store, passages):
+    # Weak retrieval: the extractive drafter can only refuse, so no redraft
+    # stands in; the resident gets the fixed refusal, and the cut claim stays
+    # in the record for the reviewer.
+    rec = make(store, passages, hits=[hit(PASSAGES[0], 2.0)], drafter=Fabricator()).answer(
+        "What does renewing the resident card cost?")
+    events = [e["kind"] for e in store.get(rec.id)["audit"]]
+    assert "redrafted" not in events and "declined" in events
+    assert [s["kind"] for s in rec.check["sentences"] if s["kept"]] == ["refusal"]
+    assert any(not s["kept"] and s["kind"] == "claim" for s in rec.check["sentences"])
 
 
 def test_wrong_number_is_cut(store, passages):
@@ -185,7 +210,7 @@ def test_drafter_failure_is_held_and_logged(store, passages):
 def test_review_rules(store, passages):
     p = make(store, passages)
     ok = p.answer("How early can I renew my resident card?")
-    held = make(store, passages, drafter=Fabricator()).answer("What does renewing the resident card cost?")
+    held = make(store, passages, drafter=Fabricator(), redraft=False).answer("What does renewing the resident card cost?")
     with pytest.raises(ReviewError):
         store.review(held.id, "approve", "amna")
     store.review(held.id, "reject", "amna", "Made-up price.")
@@ -230,3 +255,13 @@ def test_search_fills_up_from_below_when_passages_are_left_out():
     p.retriever, p.k = Ranked(), 3
     got = [h.passage_id for h in p.search("q", {"p0", "p1"})]
     assert got == ["p2", "p3", "p4"]
+
+
+def test_a_sentence_is_said_once_whatever_its_punctuation_or_citation():
+    from dalil.pipeline import drop_repeats
+    a = {"text": "Golden visa holders can sponsor their spouse and children.", "kind": "claim",
+         "citations": [{"passage_id": "gold:p1:1"}]}
+    b = {"text": "golden visa holders can sponsor their spouse and children", "kind": "claim",
+         "citations": [{"passage_id": "gold:p2:1"}]}
+    c = {"text": "Golden visa holders can sponsor domestic workers.", "kind": "claim", "citations": []}
+    assert drop_repeats([a, b, c]) == [a, c]

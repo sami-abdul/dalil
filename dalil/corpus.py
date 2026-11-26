@@ -17,6 +17,7 @@ import logging
 import os
 import re
 import unicodedata
+from collections import Counter
 from collections.abc import Iterable, Iterator
 from pathlib import Path
 from typing import Any
@@ -431,11 +432,117 @@ def repair_glyphs(doc: str, text: str) -> str:
     return text
 
 
-def extract_pdf_pages(path: Path) -> list[dict[str, Any]]:
+# --------------------------------------------------------------------------
+# Arabic PDF lines
+#
+# pypdf keeps Arabic letters in logical order, but on right-to-left lines it
+# emits some short runs at the wrong end of the line: a list marker ("أ.",
+# "2 .") or the closing full stop or colon, and sometimes the last few letters
+# of the line's final word, glued to the front of its first word. In a
+# two-column definition table the term is glued to the end of its definition.
+# repair_rtl_line puts those runs back. It only moves characters within one
+# line; it never adds, drops or changes a letter, so the text is still the
+# publisher's wording. Where it cannot tell, it leaves the line alone.
+
+_AR_LETTERS = "ء-ي"
+_AR_WORD = re.compile(rf"[{_AR_LETTERS}ً-ْٰ]+")
+# Single letters used as list markers in UAE legislation (abjad order).
+_AR_MARKER_LETTERS = "أبجدهوزحطيكلمنسعفصقرشتثخذضظغ"
+_RTL_NUMBER_LEAD = re.compile(r"^(\d{1,3})\s*\.\s*([.:،؛]*)\s*(.*)$")
+_RTL_PUNCT_LEAD = re.compile(r"^([.:،؛]+)\s*(.*)$")
+_RTL_LETTER_TAIL = re.compile(rf"(?:(?<=\s)|(?<=[.:]))([{_AR_MARKER_LETTERS}])\.\s*$")
+_RTL_PAREN_NUMBER = re.compile(r"\)\s*(\d+)\s*\(")
+
+
+def arabic_vocabulary(pages: Iterable[str]) -> Counter:
+    """Word counts over a document, used to spot words that extraction glued
+    together or split."""
+    return Counter(w for text in pages for w in _AR_WORD.findall(text))
+
+
+def _known(word: str, vocab: Counter) -> bool:
+    return vocab.get(word, 0) >= 2
+
+
+def _split_glued(token: str, vocab: Counter) -> tuple[str, str] | None:
+    """(left, right) if `token` is two known words run together, else None."""
+    if _known(token, vocab):
+        return None
+    best = None
+    for i in range(2, len(token) - 1):
+        left, right = token[:i], token[i:]
+        if _known(left, vocab) and _known(right, vocab):
+            score = min(vocab[left], vocab[right])
+            if best is None or score > best[0]:
+                best = (score, left, right)
+    return None if best is None else (best[1], best[2])
+
+
+def repair_rtl_line(line: str, vocab: Counter) -> str:
+    """Put a right-to-left line's misplaced runs back in logical order.
+
+    "البيانات الحكومية.أ." becomes "أ. البيانات الحكومية.";
+    "2 .:تيلا تسري ... على ما يأ" becomes "2. لا تسري ... على ما يأتي:";
+    ".الشخصية لأصحاب البيانات" becomes "الشخصية لأصحاب البيانات.";
+    "الإمارات العربية المتحدة.الدولة:" becomes "الدولة: الإمارات العربية المتحدة.".
+    """
+    if not _AR_WORD.search(line):
+        return line
+    text = _RTL_PAREN_NUMBER.sub(lambda m: f"({m.group(1)})", line.strip())
+    marker, punct = "", ""
+    m = _RTL_NUMBER_LEAD.match(text)
+    if m and _AR_WORD.match(m.group(3) or ""):
+        marker, punct, text = f"{m.group(1)}.", m.group(2), m.group(3).strip()
+    else:
+        m = _RTL_PUNCT_LEAD.match(text)
+        if m and _AR_WORD.match(m.group(2) or ""):
+            punct, text = m.group(1), m.group(2).strip()
+    m = _RTL_LETTER_TAIL.search(text)
+    if m and not marker and len(text) > 4:
+        marker, text = f"{m.group(1)}.", text[:m.start()].rstrip()
+    if punct and text:
+        # The tail of the last word may have come out glued to the first word.
+        first, _, rest = text.partition(" ")
+        last = rest.rsplit(" ", 1)[-1] if rest else ""
+        if rest and not _known(first, vocab) and last:
+            for i in range(1, len(first) - 1):
+                frag, word = first[:i], first[i:]
+                if _known(word, vocab) and _known(last + frag, vocab):
+                    text = f"{word} {rest}{frag}"
+                    break
+    if text.endswith(":") and not marker:
+        # A definition table row: "<definition><term>:" or "<definition>.<term>:".
+        body = text[:-1]
+        head, dot, term = body.rpartition(".")
+        if dot and head and term and " " not in term.strip() and _AR_WORD.fullmatch(term.strip()):
+            return f"{term.strip()}: {head.strip()}.{punct.replace('.', '')}".rstrip()
+        words = body.split(" ")
+        # The term is the last one to three words, the first of them glued to
+        # the definition's last word.
+        for at in range(len(words) - 1, max(0, len(words) - 4), -1):
+            glued = _split_glued(words[at], vocab)
+            if glued:
+                definition = " ".join([*words[:at], glued[0]])
+                term = " ".join([glued[1], *words[at + 1:]])
+                return f"{term}: {definition}{punct or '.'}"
+    if punct and not text.endswith(punct):
+        text = f"{text}{punct}"
+    return f"{marker} {text}".strip() if marker else text
+
+
+def repair_rtl_pages(pages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """repair_rtl_line on every line of an Arabic PDF's pages."""
+    vocab = arabic_vocabulary(p["text"] for p in pages)
+    return [{**p, "text": "\n".join(repair_rtl_line(line, vocab) for line in p["text"].split("\n"))}
+            for p in pages]
+
+
+def extract_pdf_pages(path: Path, language: str = "") -> list[dict[str, Any]]:
     """One entry per physical PDF page, numbered from 1, empty pages included.
 
     pypdf is used because it keeps Arabic letters and lam-alef ligatures in
-    logical order, where pdftotext swaps letters inside ligatures.
+    logical order, where pdftotext swaps letters inside ligatures. Lines of an
+    Arabic document then go through repair_rtl_line.
     """
     from pypdf import PdfReader
 
@@ -448,7 +555,7 @@ def extract_pdf_pages(path: Path) -> list[dict[str, Any]]:
     for number, page in enumerate(reader.pages, start=1):
         text = repair_glyphs(doc_id(path.name), page.extract_text() or "")
         pages.append({"page": number, "text": normalise_text(text)})
-    return pages
+    return repair_rtl_pages(pages) if language == "ar" else pages
 
 
 # --------------------------------------------------------------------------
@@ -462,7 +569,7 @@ def extract_document(row: dict[str, str], corpus_dir: Path | str) -> dict[str, A
         raise CorpusError(f"missing corpus file: {path}")
     kind = doc_kind(row["file"])
     try:
-        pages = extract_pdf_pages(path) if kind == "pdf" else extract_html_pages(path)
+        pages = extract_pdf_pages(path, row["language"]) if kind == "pdf" else extract_html_pages(path)
     except CorpusError:
         raise
     except Exception as exc:  # pypdf and lxml raise many types on bad input

@@ -13,5 +13,6 @@ set -euo pipefail
 : "${MODEL:?set MODEL to the embedding GGUF file}"
 PORT="${DALIL_EMBED_PORT:-8792}"
 THREADS="${DALIL_EMBED_THREADS:-4}"  # queries are short; the corpus is embedded once and cached
-exec "$LLAMA_SERVER" -m "$MODEL" --host 127.0.0.1 --port "$PORT" -t "$THREADS" -c 8192 -b 8192 -ub 8192 \
+GPU_LAYERS="${DALIL_GPU_LAYERS:-99}"  # ignored by a CPU-only build
+exec "$LLAMA_SERVER" -m "$MODEL" --host 127.0.0.1 --port "$PORT" -t "$THREADS" -ngl "$GPU_LAYERS" -c 8192 -b 8192 -ub 8192 \
     --embeddings --pooling mean --alias nemotron-embed

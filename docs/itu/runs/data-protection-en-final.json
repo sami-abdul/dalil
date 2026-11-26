@@ -1,0 +1,245 @@
+{
+ "summary": {
+  "question": "Does the UAE data protection law cover how a government entity handles my personal data?",
+  "runs": 10,
+  "cites_article_2": 10,
+  "cites_exclusion_2_2": 10,
+  "runs_with_unnamed_dubai_claim": 0,
+  "drafters": [
+   "LLMDrafter"
+  ],
+  "seconds_median": 6.8
+ },
+ "runs": [
+  {
+   "run": 1,
+   "seconds": 14.9,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 2,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 8,
+   "cited_passages": [
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:1",
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:2"
+   ],
+   "claims": [
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data applies to the processing of all or part of the Personal Data by means of electronic systems which operate automatically, or by other means, by the following: a. Each Data Subject residing in the State or having a place of business in it. b. Each Controller or Processor residing in the State and carrying out the activities of processing Personal Data of Data Subjects inside and outside the State.",
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data shall not apply to Governmental entities which control or process Personal Data."
+   ]
+  },
+  {
+   "run": 2,
+   "seconds": 6.7,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 2,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 8,
+   "cited_passages": [
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:1",
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:2"
+   ],
+   "claims": [
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data applies to the processing of all or part of the Personal Data by means of electronic systems which operate automatically, or by other means, by the following: a. Each Data Subject residing in the State or having a place of business in it. b. Each Controller or Processor residing in the State and carrying out the activities of processing Personal Data of Data Subjects inside and outside the State.",
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data shall not apply to the following: a. Government Data b. Governmental entities which control or process Personal Data."
+   ]
+  },
+  {
+   "run": 3,
+   "seconds": 6.0,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 2,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 8,
+   "cited_passages": [
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:1",
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:2"
+   ],
+   "claims": [
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data applies to the processing of all or part of the Personal Data by means of electronic systems which operate automatically, or by other means, by each Data Subject residing in the State or having a place of business in it.",
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data does not apply to Governmental entities which control or process Personal Data."
+   ]
+  },
+  {
+   "run": 4,
+   "seconds": 6.4,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 2,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 8,
+   "cited_passages": [
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:1",
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:2"
+   ],
+   "claims": [
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data applies to the processing of all or part of the Personal Data by means of electronic systems which operate automatically, or by other means, by each Data Subject residing in the State or having a place of business in it, and by each Controller or Processor residing in the State and carrying out the activities of processing Personal Data of Data Subjects inside and outside the State.",
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data shall not apply to Governmental entities which control or process Personal Data."
+   ]
+  },
+  {
+   "run": 5,
+   "seconds": 7.1,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 2,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 8,
+   "cited_passages": [
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:1",
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:2"
+   ],
+   "claims": [
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data applies to the processing of all or part of the Personal Data by means of electronic systems which operate automatically, or by other means, by the following: a. Each Data Subject residing in the State or having a place of business in it. b. Each Controller or Processor residing in the State and carrying out the activities of processing Personal Data of Data Subjects inside and outside the State.",
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data shall not apply to the following: a. Government Data b. Governmental entities which control or process Personal Data."
+   ]
+  },
+  {
+   "run": 6,
+   "seconds": 6.9,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 2,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 8,
+   "cited_passages": [
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:1",
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:2"
+   ],
+   "claims": [
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data applies to the processing of all or part of the Personal Data by means of electronic systems which operate automatically, or by other means, by the following: a. Each Data Subject residing in the State or having a place of business in it. b. Each Controller or Processor residing in the State and carrying out the activities of processing Personal Data of Data Subjects inside and outside the State.",
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data shall not apply to the following: a. Government Data b. Governmental entities which control or process Personal Data."
+   ]
+  },
+  {
+   "run": 7,
+   "seconds": 6.9,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 2,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 8,
+   "cited_passages": [
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:1",
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:2"
+   ],
+   "claims": [
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data applies to the processing of all or part of the Personal Data by means of electronic systems which operate automatically, or by other means, by each Data Subject residing in the State or having a place of business in it, and by each Controller or Processor residing in the State and carrying out the activities of processing Personal Data of Data Subjects inside and outside the State.",
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data shall not apply to Governmental entities which control or process Personal Data."
+   ]
+  },
+  {
+   "run": 8,
+   "seconds": 6.8,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 2,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 8,
+   "cited_passages": [
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:1",
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:2"
+   ],
+   "claims": [
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data applies to the processing of all or part of the Personal Data by means of electronic systems which operate automatically, or by other means, by the following: a. Each Data Subject residing in the State or having a place of business in it. b. Each Controller or Processor residing in the State and carrying out the activities of processing Personal Data of Data Subjects inside and outside the State.",
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data shall not apply to the following: a. Government Data b. Governmental entities which control or process Personal Data."
+   ]
+  },
+  {
+   "run": 9,
+   "seconds": 6.8,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 2,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 8,
+   "cited_passages": [
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:1",
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:2"
+   ],
+   "claims": [
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data applies to the processing of all or part of the Personal Data by means of electronic systems which operate automatically, or by other means, by the following: a. Each Data Subject residing in the State or having a place of business in it. b. Each Controller or Processor residing in the State and carrying out the activities of processing Personal Data of Data Subjects inside and outside the State.",
+    "Federal Decree Law No. 45 of 2021 Concerning the Protection of Personal Data shall not apply to the following: a. Government Data b. Governmental entities which control or process Personal Data."
+   ]
+  },
+  {
+   "run": 10,
+   "seconds": 6.8,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 2,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 8,
+   "cited_passages": [
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:1",
+    "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en:p6:2"
+   ],
+   "claims": [
+    "Federal Decree Law No. (45) of 2021 Concerning the Protection of Personal Data applies to the processing of all or part of the Personal Data by means of electronic systems which operate automatically, or by other means, by the following: a. Each Data Subject residing in the State or having a place of business in it. b. Each Controller or Processor residing in the State and carrying out the activities of processing Personal Data of Data Subjects inside and outside the State.",
+    "Federal Decree Law No. (45) of 2021 Concerning the Protection of Personal Data shall not apply to the following: a. Government Data b. Governmental entities which control or process Personal Data."
+   ]
+  }
+ ]
+}

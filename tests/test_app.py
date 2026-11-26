@@ -52,12 +52,14 @@ def test_post_and_list(client):
 
 
 def test_detail_shape(client):
-    qid = ask(client)["id"]
+    qid = ask(client, "How many Emirates ID cards are renewed in a year, and how early can I renew mine?")["id"]
     d = client.get(f"/api/questions/{qid}").json()
-    assert set(d) == {"id", "question", "flags", "status", "created_at", "retrieval", "data", "check", "review", "audit"}
+    assert set(d) == {"id", "question", "flags", "status", "created_at", "retrieval", "data", "check", "review", "audit",
+                      "knowledge_base"}
     assert set(d["retrieval"][0]) == {"passage_id", "doc_id", "title", "page", "score", "heading", "text", "start", "end"}
     assert d["retrieval"][0]["title"] == "Renewing a card"
-    assert set(d["data"][0]) == {"table", "sql", "rows", "note"}
+    assert set(d["data"][0]) == {"table", "sql", "rows", "note", "source", "source_label"}
+    assert d["data"][0]["source"] == "zetaris" and d["data"][0]["source_label"] == "queried through Zetaris"
     cits = [c for s in d["check"]["sentences"] for c in s["citations"]]
     passage_cit = next(c for c in cits if c.get("passage_id"))
     assert passage_cit["title"] == "Renewing a card" and passage_cit["source_url"] == "https://example.ae/a"
@@ -65,6 +67,7 @@ def test_detail_shape(client):
     data_cit = next(c for c in cits if c.get("sql"))
     assert data_cit["title"].startswith("ICP service transactions")
     assert data_cit["source_url"].startswith("https://bayanat.ae/")
+    assert data_cit["source_label"] == "queried through Zetaris"
     assert d["review"] is None
     assert [a["kind"] for a in d["audit"]][0] == "screened"
     assert client.get("/api/questions/nope").status_code == 404
@@ -98,6 +101,7 @@ def test_held_answer_can_only_be_rejected(client):
                      "citations": [{"passage_id": "doc-a:p1:1", "quote": "It costs AED 50 to renew."}]}]
 
     client.pipeline.drafter = Fabricator()
+    client.pipeline.redraft = False  # hold the bad draft rather than quote the sources instead
     qid = ask(client, "What does renewing the resident card cost?")["id"]
     assert client.get(f"/api/questions/{qid}").json()["status"] == "held"
     r = client.post(f"/api/questions/{qid}/review", json={"decision": "approve", "reviewer": "a", "note": ""})
@@ -118,8 +122,11 @@ def test_pages_and_files(client):
 
 
 def test_health(client):
-    assert client.get("/api/health").json() == {"ok": True, "zetaris": True, "passages": len(PASSAGES),
-                                                "memory": False, "memories": 0}
+    assert client.get("/api/health").json() == {
+        "ok": True, "zetaris": True, "passages": len(PASSAGES), "memory": False, "memories": 0,
+        "data_source": {"connected": True, "kind": "zetaris", "label": "Open data: Zetaris", "tables": []},
+        "knowledge_base": {"id": "default", "name": "Knowledge base", "country": "",
+                           "documents": len(DOCUMENTS), "passages": len(PASSAGES)}}
 
 
 def test_empty_question_rejected(client):

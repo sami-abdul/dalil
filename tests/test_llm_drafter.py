@@ -65,7 +65,7 @@ def test_non_json_reply_raises():
 def test_fallback_uses_extractive_drafter_and_says_so():
     f = FallbackDrafter(Canned("not json"), ExtractiveDrafter())
     f.draft("How much is the late renewal fine?", [hit("p1")], [])
-    assert f.last_used == "ExtractiveDrafter" and f.last_error == "DraftError"
+    assert f.last_used == "ExtractiveDrafter" and f.last_error.startswith("DraftError")
     ok = FallbackDrafter(Canned({"sentences": []}), ExtractiveDrafter())
     ok.draft("q", [hit("p1")], [])
     assert ok.last_used == "Canned" and ok.last_error == ""

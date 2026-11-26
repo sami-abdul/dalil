@@ -1,0 +1,234 @@
+{
+ "summary": {
+  "questions": 1,
+  "runs": 10,
+  "answers": 10,
+  "answered": 10,
+  "found": 0,
+  "clean": 0,
+  "claims_kept": 25,
+  "claims_right": 0,
+  "claim_precision": 0.0,
+  "seconds_median": 11.2,
+  "drafters": [
+   "LLMDrafter"
+  ]
+ },
+ "results": [
+  {
+   "id": "c41",
+   "run": 1,
+   "seconds": 13.9,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 2,
+   "right": 0,
+   "cited_docs": [
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ]
+   ],
+   "found": false,
+   "clean": false
+  },
+  {
+   "id": "c41",
+   "run": 2,
+   "seconds": 12.4,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 2,
+   "right": 0,
+   "cited_docs": [
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ]
+   ],
+   "found": false,
+   "clean": false
+  },
+  {
+   "id": "c41",
+   "run": 3,
+   "seconds": 9.2,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 2,
+   "right": 0,
+   "cited_docs": [
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ]
+   ],
+   "found": false,
+   "clean": false
+  },
+  {
+   "id": "c41",
+   "run": 4,
+   "seconds": 11.2,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 3,
+   "right": 0,
+   "cited_docs": [
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ]
+   ],
+   "found": false,
+   "clean": false
+  },
+  {
+   "id": "c41",
+   "run": 5,
+   "seconds": 11.5,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 3,
+   "right": 0,
+   "cited_docs": [
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ]
+   ],
+   "found": false,
+   "clean": false
+  },
+  {
+   "id": "c41",
+   "run": 6,
+   "seconds": 11.0,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 3,
+   "right": 0,
+   "cited_docs": [
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ]
+   ],
+   "found": false,
+   "clean": false
+  },
+  {
+   "id": "c41",
+   "run": 7,
+   "seconds": 9.0,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 2,
+   "right": 0,
+   "cited_docs": [
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ]
+   ],
+   "found": false,
+   "clean": false
+  },
+  {
+   "id": "c41",
+   "run": 8,
+   "seconds": 11.2,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 3,
+   "right": 0,
+   "cited_docs": [
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ]
+   ],
+   "found": false,
+   "clean": false
+  },
+  {
+   "id": "c41",
+   "run": 9,
+   "seconds": 14.6,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 3,
+   "right": 0,
+   "cited_docs": [
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ]
+   ],
+   "found": false,
+   "clean": false
+  },
+  {
+   "id": "c41",
+   "run": 10,
+   "seconds": 9.4,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 2,
+   "right": 0,
+   "cited_docs": [
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ]
+   ],
+   "found": false,
+   "clean": false
+  }
+ ]
+}

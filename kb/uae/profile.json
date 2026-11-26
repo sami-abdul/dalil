@@ -1,0 +1,19 @@
+{
+ "id": "uae",
+ "name": "UAE government services",
+ "country": "United Arab Emirates",
+ "audience": "UAE residents",
+ "ask_label": "Ask about a UAE government service",
+ "example_question": "For example: How is end of service gratuity worked out?",
+ "description": "53 official UAE government pages and laws (u.ae, ICP, MOHRE, Bayanat and others), cut into passages, with four Bayanat open datasets. The documents are private: they stay under corpus/ and build/, which git ignores.",
+ "manifest": "data/MANIFEST.csv",
+ "documents": "build/documents.jsonl",
+ "passages": "build/passages.jsonl",
+ "corpus_dir": null,
+ "store": "build/dalil.db",
+ "open_data": {"dir": "data/open", "rules": true},
+ "review_memory": true,
+ "screener": {},
+ "licence": "Most publishers do not allow republishing; see data/README.md",
+ "attribution": "Data source: Bayanat Portal - UAE Open Data Platform (data/open/)"
+}

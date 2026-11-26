@@ -1,0 +1,145 @@
+{
+ "passed": 10,
+ "runs": [
+  {
+   "run": 1,
+   "first_cited": [
+    "uae-employment-contracts:p1:4"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:4"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim"
+   ]
+  },
+  {
+   "run": 2,
+   "first_cited": [
+    "uae-employment-contracts:p1:4"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:4"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim"
+   ]
+  },
+  {
+   "run": 3,
+   "first_cited": [
+    "uae-employment-contracts:p1:4"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:4"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim"
+   ]
+  },
+  {
+   "run": 4,
+   "first_cited": [
+    "uae-employment-contracts:p1:4"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:4"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim"
+   ]
+  },
+  {
+   "run": 5,
+   "first_cited": [
+    "uae-employment-contracts:p1:4"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:4"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim"
+   ]
+  },
+  {
+   "run": 6,
+   "first_cited": [
+    "uae-employment-contracts:p1:4"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:4"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim"
+   ]
+  },
+  {
+   "run": 7,
+   "first_cited": [
+    "uae-employment-contracts:p1:4"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:4"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim"
+   ]
+  },
+  {
+   "run": 8,
+   "first_cited": [
+    "uae-employment-contracts:p1:4"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:4"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim"
+   ]
+  },
+  {
+   "run": 9,
+   "first_cited": [
+    "uae-employment-contracts:p1:4"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:4"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim"
+   ]
+  },
+  {
+   "run": 10,
+   "first_cited": [
+    "uae-employment-contracts:p1:4"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:4"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim"
+   ]
+  }
+ ]
+}

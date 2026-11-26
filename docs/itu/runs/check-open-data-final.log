@@ -1,0 +1,14 @@
+mode=auto source=local label='Open data: local database' ready_in=0.03s
+PASS  source answers SELECT 1 (Open data: local database)
+PASS  dalil.open_icp_transactions: 100 rows, 100 in icp-service-transactions-2020-2025.csv
+PASS  dalil.open_ehs_medical_fitness: 48 rows, 48 in ehs-medical-fitness-residency-visa-2022-2025.csv
+PASS  dalil.open_tasheel_centres: 49 rows, 49 in mohre-tasheel-service-centres.csv
+PASS  dalil.open_mohre_solved_complaints: 7450 rows, 7450 in mohre-solved-complaints-private-sector-2009-2020.csv
+PASS  emirates_id_renewals: {'year': '2025', 'transactions': '5856085'} -> checker pass: In 2025, ICP renewed 5856085 Emirates ID cards, according to its open data.
+PASS  residence_renewals: {'year': '2025', 'transactions': '3763072'} -> checker pass: In 2025, ICP renewed 3763072 residence permits, according to its open data.
+PASS  tasheel_centres: {'centres': '49', 'emirates': '7'} -> checker pass: There are 49 Tasheel service centres across 7 emirates, according to MOHRE's open data.
+PASS  medical_fitness: {'year': '2025', 'exams': '1424313'} -> checker pass: In 2025, Emirates Health Services carried out 1424313 medical fitness exams for residency, according to its open data.
+PASS  labour_complaints: {'year': '2019', 'solved': '207927'} -> checker pass: In 2019, MOHRE solved 207927 private-sector labour complaints, counting each emirate once, according to its open data.
+PASS  matches Zetaris rows recorded 2026-10-22 to 2026-10-26: [{'year': '2025', 'transactions': '5856085'}] vs [{'year': '2025', 'transactions': '5856085'}]
+PASS  matches Zetaris rows recorded 2026-10-22 to 2026-10-26: [{'year': '2020', 'solved': '125483'}] vs [{'year': '2020', 'solved': '125483'}]
+summary: ALL PASS

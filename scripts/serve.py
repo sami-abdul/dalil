@@ -29,6 +29,9 @@ from dalil.hmem import HMem  # noqa: E402
 
 LOOPBACK = {"127.0.0.1", "localhost", "::1"}
 MIN_NODE = (22, 7)
+# Node 26 dropped --experimental-transform-types, and the vendored H-MEM code
+# uses TypeScript parameter properties, which plain type stripping cannot run.
+MAX_NODE_MAJOR = 25
 
 
 def node_version(node: str) -> tuple[int, int]:
@@ -52,9 +55,11 @@ def start_memory() -> subprocess.Popen | None:
     if node is None:
         print("node not found: running without review memory", file=sys.stderr)
         return None
-    if node_version(node) < MIN_NODE:
-        print(f"node {'.'.join(map(str, MIN_NODE))} or later is needed for the H-MEM bridge: "
-              "running without review memory", file=sys.stderr)
+    version = node_version(node)
+    if version < MIN_NODE or version[0] > MAX_NODE_MAJOR:
+        print(f"node {'.'.join(map(str, MIN_NODE))} to {MAX_NODE_MAJOR} is needed for the H-MEM bridge, found "
+              f"{'.'.join(map(str, version))}: running without review memory. Put Node 22 first on PATH.",
+              file=sys.stderr)
         return None
     proc = subprocess.Popen([node, "--experimental-transform-types", "--no-warnings",
                              str(ROOT / "hmem" / "bridge.ts")], cwd=ROOT)

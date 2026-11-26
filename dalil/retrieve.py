@@ -62,6 +62,13 @@ STOPWORDS = frozenset(
     so some such than that the their them then there these they this those through to too under
     until up very was we were what when where which while who whom why will with would you your
     yours don t s""".split()
+) | frozenset(
+    # Arabic function words, in the normalised form tokenize() compares:
+    # alef forms unified, final alef maqsura as ya, ta marbuta as ha.
+    _AR_MARKS.sub("", w).translate(_AR_FOLD) for w in
+    """من في على إلى عن ما ماذا هل كم كيف متى أين لماذا أن إن أو و ثم قد لا لم لن هذا هذه ذلك تلك
+    التي الذي الذين هو هي هم أنا نحن أنت لي لك له لها مع كل بعد قبل عند حتى إذا لو كان كانت يكون
+    تكون أي بين ضمن عليه عليها فيه فيها منه منها""".split()
 )
 
 
@@ -123,6 +130,9 @@ class Hit:
     text: str
     start: int
     end: int
+    # Cosine similarity to the question from the dense side, 0 when it did not run.
+    dense: float = 0.0
+    kind: str = ""  # "pdf" or "html", from the passage record
 
 
 @runtime_checkable
@@ -181,11 +191,12 @@ class Retriever:
                 out[i] += qtf * idf * norm
         return out
 
-    def hit(self, i: int, score: float) -> Hit:
+    def hit(self, i: int, score: float, dense: float = 0.0) -> Hit:
         p = self.passages[i]
         return Hit(
             passage_id=p["passage_id"], doc_id=p["doc_id"], page=int(p["page"]), score=float(score),
             heading=p.get("heading"), text=p["text"], start=int(p["start"]), end=int(p["end"]),
+            dense=float(dense), kind=p.get("kind") or "",
         )
 
     def search(self, query: str, k: int = 8) -> list[Hit]:
@@ -279,12 +290,31 @@ class HybridRetriever:
             # alone rather than fail. A wrong reply still raises.
             self.dense_failures += 1
             return [self.lexical.hit(i, s) for i, s in _top(bm25.items(), k)]
-        dense = _top(((i, sum(a * b for a, b in zip(qvec, v))) for i, v in enumerate(vectors)), self.pool)
+        cosine = {i: sum(a * b for a, b in zip(qvec, v)) for i, v in enumerate(vectors)}
+        dense = _top(cosine.items(), self.pool)
         fused: dict[int, float] = defaultdict(float)
         for ranking in (lexical, dense):
             for rank, (i, _) in enumerate(ranking, start=1):
                 fused[i] += 1.0 / (self.rrf_k + rank)
-        return [self.lexical.hit(i, bm25.get(i, 0.0)) for i, _ in _top(fused.items(), k)]
+        return [self.lexical.hit(i, bm25.get(i, 0.0), cosine[i]) for i, _ in _top(fused.items(), k)]
+
+    def similarity(self, a: str, b: str) -> float | None:
+        """Cosine similarity of two texts by the dense model, or None without one.
+        The checker uses it for a claim in one language citing a source in another."""
+        sims = self.similarities(a, [b])
+        return sims[0] if sims else None
+
+    def similarities(self, a: str, bs: Sequence[str]) -> list[float] | None:
+        """similarity(a, b) for each b, in one call to the model; None without one."""
+        if self.embedder is None or not bs:
+            return None
+        qp = getattr(self.embedder, "query_prefix", "")
+        pp = getattr(self.embedder, "passage_prefix", "")
+        try:
+            vectors = self.embedder.embed([qp + a, *(pp + b for b in bs)])
+        except (OSError, ValueError):
+            return None
+        return [_cosine(vectors[0], v) for v in vectors[1:]]
 
 
 def make_retriever(path: Path | str, embedder: Embedder | None = None) -> Searcher:

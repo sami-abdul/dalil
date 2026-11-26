@@ -1,0 +1,168 @@
+{
+ "summary": {
+  "answers": 10,
+  "seconds": 10.2,
+  "screened_seconds": -0.0,
+  "recalled_seconds": null,
+  "translated_seconds": null,
+  "retrieved_seconds": 0.08,
+  "drafted_seconds": 10.12,
+  "verified_seconds": 0.01,
+  "prompt_tokens": 598.0,
+  "prompt_per_second": 152.85,
+  "output_tokens": 231.5,
+  "output_per_second": 29.38
+ },
+ "results": [
+  {
+   "id": "c01",
+   "run": 1,
+   "seconds": 12.01,
+   "stages": {
+    "screened": -0.0,
+    "retrieved": 0.5,
+    "drafted": 11.49,
+    "verified": 0.01
+   },
+   "prompt_tokens": 1472,
+   "prompt_per_second": 299.61595422389286,
+   "output_tokens": 193,
+   "output_per_second": 29.23904472386007
+  },
+  {
+   "id": "c07",
+   "run": 1,
+   "seconds": 10.74,
+   "stages": {
+    "screened": 0.0,
+    "retrieved": 0.08,
+    "drafted": 10.65,
+    "verified": 0.01
+   },
+   "prompt_tokens": 1197,
+   "prompt_per_second": 282.2407605645758,
+   "output_tokens": 176,
+   "output_per_second": 29.030725456263472
+  },
+  {
+   "id": "c14",
+   "run": 1,
+   "seconds": 14.33,
+   "stages": {
+    "screened": 0.0,
+    "retrieved": 0.08,
+    "drafted": 14.24,
+    "verified": 0.01
+   },
+   "prompt_tokens": 1548,
+   "prompt_per_second": 281.7871567675882,
+   "output_tokens": 246,
+   "output_per_second": 29.42562972348916
+  },
+  {
+   "id": "c25",
+   "run": 1,
+   "seconds": 13.73,
+   "stages": {
+    "screened": 0.0,
+    "retrieved": 0.07,
+    "drafted": 13.65,
+    "verified": 0.01
+   },
+   "prompt_tokens": 1344,
+   "prompt_per_second": 273.39211263755044,
+   "output_tokens": 240,
+   "output_per_second": 29.421417363855777
+  },
+  {
+   "id": "c38",
+   "run": 1,
+   "seconds": 13.13,
+   "stages": {
+    "screened": -0.0,
+    "retrieved": 0.09,
+    "drafted": 13.03,
+    "verified": 0.01
+   },
+   "prompt_tokens": 1192,
+   "prompt_per_second": 247.6288293139352,
+   "output_tokens": 225,
+   "output_per_second": 29.391102945749537
+  },
+  {
+   "id": "c01",
+   "run": 2,
+   "seconds": 7.52,
+   "stages": {
+    "screened": -0.0,
+    "retrieved": 0.08,
+    "drafted": 7.43,
+    "verified": 0.01
+   },
+   "prompt_tokens": 4,
+   "prompt_per_second": 9.097401327310854,
+   "output_tokens": 193,
+   "output_per_second": 29.26848453427362
+  },
+  {
+   "id": "c07",
+   "run": 2,
+   "seconds": 6.27,
+   "stages": {
+    "screened": -0.0,
+    "retrieved": 0.08,
+    "drafted": 6.18,
+    "verified": 0.01
+   },
+   "prompt_tokens": 4,
+   "prompt_per_second": 58.06779414966974,
+   "output_tokens": 176,
+   "output_per_second": 29.368240479907254
+  },
+  {
+   "id": "c14",
+   "run": 2,
+   "seconds": 8.97,
+   "stages": {
+    "screened": 0.0,
+    "retrieved": 0.1,
+    "drafted": 8.87,
+    "verified": 0.0
+   },
+   "prompt_tokens": 4,
+   "prompt_per_second": 10.111146780990033,
+   "output_tokens": 246,
+   "output_per_second": 29.170576913048105
+  },
+  {
+   "id": "c25",
+   "run": 2,
+   "seconds": 9.65,
+   "stages": {
+    "screened": 0.0,
+    "retrieved": 0.07,
+    "drafted": 9.58,
+    "verified": 0.01
+   },
+   "prompt_tokens": 4,
+   "prompt_per_second": 55.71573830317718,
+   "output_tokens": 280,
+   "output_per_second": 29.546127011069316
+  },
+  {
+   "id": "c38",
+   "run": 2,
+   "seconds": 8.27,
+   "stages": {
+    "screened": 0.0,
+    "retrieved": 0.08,
+    "drafted": 8.19,
+    "verified": 0.01
+   },
+   "prompt_tokens": 4,
+   "prompt_per_second": 54.12719891745602,
+   "output_tokens": 238,
+   "output_per_second": 29.385657492927294
+  }
+ ]
+}

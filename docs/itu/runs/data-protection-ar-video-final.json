@@ -1,0 +1,225 @@
+{
+ "summary": {
+  "question": "هل يشمل قانون حماية البيانات في الإمارات طريقة تعامل الجهات الحكومية مع بياناتي الشخصية؟",
+  "runs": 10,
+  "cites_article_2": 10,
+  "cites_exclusion_2_2": 10,
+  "runs_with_unnamed_dubai_claim": 0,
+  "drafters": [
+   "LLMDrafter"
+  ],
+  "seconds_median": 5.8
+ },
+ "runs": [
+  {
+   "run": 1,
+   "seconds": 7.1,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 1,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 2,
+   "cited_passages": [
+    "uae-pdpl-fdl-45-2021-ar:p7:1"
+   ],
+   "claims": [
+    "قانون حماية البيانات الشخصية لدولة الإمارات العربية المتحدة، مرسوم بقانون اتحادي رقم (45) لسنة 2021 2. لا تسري أحكام هذا المرسوم بقانون على ما يأتي: ب. الجهات الحكومية المتحكمة بالبيانات الشخصية أو تلك التي تقوم بمعالجتها."
+   ]
+  },
+  {
+   "run": 2,
+   "seconds": 4.6,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 1,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 2,
+   "cited_passages": [
+    "uae-pdpl-fdl-45-2021-ar:p7:1"
+   ],
+   "claims": [
+    "لا تسري أحكام هذا المرسوم بقانون على ما يأتي: ب. الجهات الحكومية المتحكمة بالبيانات الشخصية أو تلك التي تقوم بمعالجتها."
+   ]
+  },
+  {
+   "run": 3,
+   "seconds": 4.6,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 1,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 2,
+   "cited_passages": [
+    "uae-pdpl-fdl-45-2021-ar:p7:1"
+   ],
+   "claims": [
+    "لا تسري أحكام هذا المرسوم بقانون على ما يأتي: ب. الجهات الحكومية المتحكمة بالبيانات الشخصية أو تلك التي تقوم بمعالجتها."
+   ]
+  },
+  {
+   "run": 4,
+   "seconds": 5.8,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 1,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 2,
+   "cited_passages": [
+    "uae-pdpl-fdl-45-2021-ar:p7:1"
+   ],
+   "claims": [
+    "قانون حماية البيانات الشخصية لدولة الإمارات العربية المتحدة، مرسوم بقانون اتحادي رقم (45) لسنة 2021 2. لا تسري أحكام هذا المرسوم بقانون على ما يأتي: ب. الجهات الحكومية المتحكمة بالبيانات الشخصية أو تلك التي تقوم بمعالجتها."
+   ]
+  },
+  {
+   "run": 5,
+   "seconds": 5.6,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 1,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 2,
+   "cited_passages": [
+    "uae-pdpl-fdl-45-2021-ar:p7:1"
+   ],
+   "claims": [
+    "قانون حماية البيانات الشخصية لدولة الإمارات العربية المتحدة، مرسوم بقانون اتحادي رقم (45) لسنة 2021 2. لا تسري أحكام هذا المرسوم بقانون على ما يأتي: ب. الجهات الحكومية المتحكمة بالبيانات الشخصية أو تلك التي تقوم بمعالجتها."
+   ]
+  },
+  {
+   "run": 6,
+   "seconds": 5.9,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 1,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 2,
+   "cited_passages": [
+    "uae-pdpl-fdl-45-2021-ar:p7:1"
+   ],
+   "claims": [
+    "قانون حماية البيانات الشخصية لدولة الإمارات العربية المتحدة، مرسوم بقانون اتحادي رقم (45) لسنة 2021 2. لا تسري أحكام هذا المرسوم بقانون على ما يأتي: أ. البيانات الحكومية. ب. الجهات الحكومية المتحكمة بالبيانات الشخصية أو تلك التي تقوم بمعالجتها."
+   ]
+  },
+  {
+   "run": 7,
+   "seconds": 5.7,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 1,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 2,
+   "cited_passages": [
+    "uae-pdpl-fdl-45-2021-ar:p7:1"
+   ],
+   "claims": [
+    "قانون حماية البيانات الشخصية لدولة الإمارات العربية المتحدة، مرسوم بقانون اتحادي رقم (45) لسنة 2021 2. لا تسري أحكام هذا المرسوم بقانون على ما يأتي: ب. الجهات الحكومية المتحكمة بالبيانات الشخصية أو تلك التي تقوم بمعالجتها."
+   ]
+  },
+  {
+   "run": 8,
+   "seconds": 5.8,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 1,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 2,
+   "cited_passages": [
+    "uae-pdpl-fdl-45-2021-ar:p7:1"
+   ],
+   "claims": [
+    "قانون حماية البيانات الشخصية لدولة الإمارات العربية المتحدة، مرسوم بقانون اتحادي رقم (45) لسنة 2021 2. لا تسري أحكام هذا المرسوم بقانون على ما يأتي: ب. الجهات الحكومية المتحكمة بالبيانات الشخصية أو تلك التي تقوم بمعالجتها."
+   ]
+  },
+  {
+   "run": 9,
+   "seconds": 5.4,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 1,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 2,
+   "cited_passages": [
+    "uae-pdpl-fdl-45-2021-ar:p7:1"
+   ],
+   "claims": [
+    "قانون حماية البيانات الشخصية لدولة الإمارات العربية المتحدة، مرسوم بقانون اتحادي رقم (45) لسنة 2021 2. لا تسري أحكام هذا المرسوم بقانون على ما يأتي: ب. الجهات الحكومية المتحكمة بالبيانات الشخصية أو تلك التي تقوم بمعالجتها."
+   ]
+  },
+  {
+   "run": 10,
+   "seconds": 5.8,
+   "status": "awaiting_review",
+   "check": "pass",
+   "drafter": "LLMDrafter",
+   "kept": 1,
+   "cut": 0,
+   "cut_reasons": [],
+   "cites_article_2": true,
+   "cites_exclusion_2_2": true,
+   "dubai_claims_kept": 0,
+   "dubai_claims_naming_dubai": 0,
+   "exclusion_retrieved_rank": 2,
+   "cited_passages": [
+    "uae-pdpl-fdl-45-2021-ar:p7:1"
+   ],
+   "claims": [
+    "قانون حماية البيانات الشخصية لدولة الإمارات العربية المتحدة، مرسوم بقانون اتحادي رقم (45) لسنة 2021 2. لا تسري أحكام هذا المرسوم بقانون على ما يأتي: ب. الجهات الحكومية المتحكمة بالبيانات الشخصية أو تلك التي تقوم بمعالجتها."
+   ]
+  }
+ ]
+}

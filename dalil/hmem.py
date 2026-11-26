@@ -15,7 +15,7 @@ import http.client
 import json
 import os
 from dataclasses import dataclass, field
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 from urllib.error import URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -83,11 +83,17 @@ class Guidance:
     similar: list[str] = field(default_factory=list)  # memory ids
 
 
-def guidance(question: str, memories: Iterable[dict[str, Any]], threshold: float = SIMILAR) -> Guidance:
+def guidance(question: str, memories: Iterable[dict[str, Any]], threshold: float = SIMILAR,
+             english: Callable[[str], str] | None = None) -> Guidance:
     """Passages to leave out and notes to pass on, from reviews of similar questions.
 
     A passage is left out if a rejected answer to a similar question cited it,
     unless an approved answer to a similar question also cited it.
+
+    `english` turns a question into English. Questions are matched by shared
+    words, and two Arabic phrasings of one question can share few ("كم مدة
+    الإشعار ... عند الاستقالة" and "إذا استقلت ... كم يوماً من الإشعار"), so
+    when either question is not in English they are also compared in English.
     """
     g = Guidance()
     rejected: set[str] = set()
@@ -95,7 +101,16 @@ def guidance(question: str, memories: Iterable[dict[str, Any]], threshold: float
     for m in memories:
         if m.get("kind") not in ("approved", "rejected"):
             continue
-        if similarity(question, m.get("question") or "") < threshold:
+        other = m.get("question") or ""
+        score = similarity(question, other)
+        if score < threshold and english is not None and not (question.isascii() and other.isascii()):
+            try:
+                a, b = english(question), english(other)
+                if a and b:
+                    score = max(score, similarity(a, b))
+            except Exception:  # no model: words alone decide
+                pass
+        if score < threshold:
             continue
         g.similar.append(str(m.get("id")))
         ids = {p for p in m.get("passage_ids") or [] if isinstance(p, str)}

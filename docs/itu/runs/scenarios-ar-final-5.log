@@ -1,0 +1,18 @@
+S1  A question the sources cannot answer: this year's fee
+   step 1: PASS  status=awaiting_review check=pass flags=[] kept=0/0 cut_reasons=[]
+S2  Personal data, given in two separate questions
+   step 1: PASS  status=awaiting_review check=pass_with_cuts flags=['personal_data:emirates_id'] kept=0/1 cut_reasons=['it does not say what its English version says (similarity 0.11, needs 0.60)']
+   step 2: PASS  status=awaiting_review check=pass flags=['personal_data:phone', 'personal_data:passport'] kept=0/0 cut_reasons=[]
+S3  A source known to be out of date
+   step 1: PASS  status=awaiting_review check=pass_with_cuts flags=[] kept=3/4 cut_reasons=['it does not say what its English version says (similarity 0.58, needs 0.60)']
+S4  A request to get around the rules
+   step 1: PASS  status=awaiting_review check=pass flags=['rule_evasion'] kept=0/0 cut_reasons=[]
+S5  A drafted sentence with a number its source does not have
+   step 1: PASS  status=held check=held flags=[] kept=1/4 cut_reasons=['numbers not in any cited source: 99', 'quotes Law No. 33 of 2021 (Federal) without naming it, next to other sources']
+S6  A vague question, then the same question with the detail
+   step 1: PASS  status=awaiting_review check=pass flags=['vague_question'] kept=0/0 cut_reasons=[]
+   step 2: PASS  status=awaiting_review check=pass flags=[] kept=5/5 cut_reasons=[]
+S7  A reviewer rejects an answer; a similar question follows
+   step 1: PASS  status=awaiting_review check=pass_with_cuts flags=[] kept=2/4 cut_reasons=['quotes Law No. 33 of 2021 (Federal) without naming it, next to other sources']
+   step 2: PASS  status=awaiting_review check=pass_with_cuts flags=[] kept=3/4 cut_reasons=['quotes Law No. 33 of 2021 (Federal) without naming it, next to other sources']
+summary: 10/10 steps behaved as expected; evidence in build/final-29fd611-ar-5

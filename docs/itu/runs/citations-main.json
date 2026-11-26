@@ -1,0 +1,930 @@
+{
+ "summary": {
+  "questions": 40,
+  "runs": 1,
+  "answers": 40,
+  "answered": 39,
+  "found": 39,
+  "clean": 36,
+  "claims_kept": 117,
+  "claims_right": 113,
+  "claim_precision": 0.966,
+  "seconds_median": 15.5,
+  "drafters": [
+   "LLMDrafter"
+  ]
+ },
+ "results": [
+  {
+   "id": "c01",
+   "run": 1,
+   "seconds": 10.7,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-emirates-id"
+    ],
+    [
+     "uae-emirates-id"
+    ],
+    [
+     "uae-emirates-id"
+    ],
+    [
+     "uae-emirates-id"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c02",
+   "run": 1,
+   "seconds": 6.0,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-emirates-id"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c03",
+   "run": 1,
+   "seconds": 9.0,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-green-visa"
+    ],
+    [
+     "uae-green-visa"
+    ],
+    [
+     "uae-green-visa"
+    ],
+    [
+     "uae-green-visa"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c04",
+   "run": 1,
+   "seconds": 8.7,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-jobseeker-visit-visa"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c05",
+   "run": 1,
+   "seconds": 11.2,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c06",
+   "run": 1,
+   "seconds": 6.5,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-family-residence-visa"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c07",
+   "run": 1,
+   "seconds": 11.3,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c08",
+   "run": 1,
+   "seconds": 12.4,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 2,
+   "right": 2,
+   "cited_docs": [
+    [
+     "uae-residence-visa-general-provisions"
+    ],
+    [
+     "uae-residence-visa-general-provisions"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c09",
+   "run": 1,
+   "seconds": 13.0,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-residence-visa-general-provisions"
+    ],
+    [
+     "uae-residence-visa-general-provisions"
+    ],
+    [
+     "uae-residence-visa-general-provisions"
+    ],
+    [
+     "uae-residence-visa-general-provisions"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c10",
+   "run": 1,
+   "seconds": 11.1,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 2,
+   "cited_docs": [
+    [
+     "uae-health-conditions-residence-visa"
+    ],
+    [
+     "uae-residence-visa-general-provisions"
+    ],
+    [
+     "uae-family-residence-visa"
+    ],
+    [
+     "uae-family-residence-visa"
+    ]
+   ],
+   "found": true,
+   "clean": false
+  },
+  {
+   "id": "c11",
+   "run": 1,
+   "seconds": 9.9,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 3,
+   "right": 3,
+   "cited_docs": [
+    [
+     "uae-health-insurance"
+    ],
+    [
+     "uae-health-insurance"
+    ],
+    [
+     "uae-health-insurance"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c12",
+   "run": 1,
+   "seconds": 7.7,
+   "drafter": "LLMDrafter",
+   "status": "held",
+   "check": "held",
+   "kept": 0,
+   "right": 0,
+   "cited_docs": [],
+   "found": false,
+   "clean": false
+  },
+  {
+   "id": "c13",
+   "run": 1,
+   "seconds": 13.7,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-registering-vehicles"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c14",
+   "run": 1,
+   "seconds": 19.8,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-working-hours"
+    ],
+    [
+     "uae-working-hours"
+    ],
+    [
+     "uae-working-hours"
+    ],
+    [
+     "uaelegislation-federal-decree-law-33-2021-labour-relations-en"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c15",
+   "run": 1,
+   "seconds": 28.7,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-types-of-leave"
+    ],
+    [
+     "uae-types-of-leave"
+    ],
+    [
+     "uaelegislation-federal-decree-law-33-2021-labour-relations-en"
+    ],
+    [
+     "uaelegislation-federal-decree-law-33-2021-labour-relations-en"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c16",
+   "run": 1,
+   "seconds": 13.9,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 2,
+   "right": 2,
+   "cited_docs": [
+    [
+     "uae-types-of-leave"
+    ],
+    [
+     "uae-types-of-leave"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c17",
+   "run": 1,
+   "seconds": 11.9,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-payment-of-wages"
+    ],
+    [
+     "uae-payment-of-wages"
+    ],
+    [
+     "uae-payment-of-wages",
+     "uaelegislation-federal-decree-law-33-2021-labour-relations-en"
+    ],
+    [
+     "uae-payment-of-wages"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c18",
+   "run": 1,
+   "seconds": 9.3,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-payment-of-wages"
+    ],
+    [
+     "uae-payment-of-wages"
+    ],
+    [
+     "uae-payment-of-wages"
+    ],
+    [
+     "uae-payment-of-wages"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c19",
+   "run": 1,
+   "seconds": 6.3,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-unemployment-insurance"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c20",
+   "run": 1,
+   "seconds": 15.2,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-unemployment-insurance"
+    ],
+    [
+     "uae-unemployment-insurance"
+    ],
+    [
+     "uae-unemployment-insurance"
+    ],
+    [
+     "uae-unemployment-insurance"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c21",
+   "run": 1,
+   "seconds": 15.8,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-work-permits"
+    ],
+    [
+     "uae-work-permits"
+    ],
+    [
+     "uae-work-permits"
+    ],
+    [
+     "uae-work-permits"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c22",
+   "run": 1,
+   "seconds": 21.9,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-domestic-helpers"
+    ],
+    [
+     "uae-domestic-helpers"
+    ],
+    [
+     "uae-domestic-helpers"
+    ],
+    [
+     "uae-domestic-helpers"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c23",
+   "run": 1,
+   "seconds": 24.8,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-employment-contracts"
+    ],
+    [
+     "uae-employment-contracts"
+    ],
+    [
+     "uae-employment-contracts"
+    ],
+    [
+     "uae-employment-contracts"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c24",
+   "run": 1,
+   "seconds": 28.2,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-employment-contracts"
+    ],
+    [
+     "uae-employment-contracts"
+    ],
+    [
+     "uae-employment-contracts"
+    ],
+    [
+     "uaelegislation-federal-decree-law-33-2021-labour-relations-en"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c25",
+   "run": 1,
+   "seconds": 22.6,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 3,
+   "right": 3,
+   "cited_docs": [
+    [
+     "uae-terminating-employment-contracts"
+    ],
+    [
+     "uae-terminating-employment-contracts"
+    ],
+    [
+     "uae-terminating-employment-contracts"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c26",
+   "run": 1,
+   "seconds": 20.5,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-terminating-employment-contracts"
+    ],
+    [
+     "uae-terminating-employment-contracts"
+    ],
+    [
+     "uae-terminating-employment-contracts"
+    ],
+    [
+     "uaelegislation-federal-decree-law-33-2021-labour-relations-en"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c27",
+   "run": 1,
+   "seconds": 25.2,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 2,
+   "right": 2,
+   "cited_docs": [
+    [
+     "uae-labour-dispute"
+    ],
+    [
+     "uae-labour-dispute"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c28",
+   "run": 1,
+   "seconds": 25.9,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-end-of-service-private-sector"
+    ],
+    [
+     "uae-end-of-service-private-sector"
+    ],
+    [
+     "uae-end-of-service-private-sector"
+    ],
+    [
+     "uae-end-of-service-private-sector"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c29",
+   "run": 1,
+   "seconds": 17.8,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-steps-start-business-mainland"
+    ],
+    [
+     "uae-steps-start-business-mainland"
+    ],
+    [
+     "uae-steps-start-business-mainland"
+    ],
+    [
+     "uae-steps-start-business-mainland"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c30",
+   "run": 1,
+   "seconds": 16.8,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 3,
+   "right": 3,
+   "cited_docs": [
+    [
+     "uae-start-business-free-zone"
+    ],
+    [
+     "uae-start-business-free-zone"
+    ],
+    [
+     "uae-start-business-free-zone"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c31",
+   "run": 1,
+   "seconds": 12.2,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 2,
+   "right": 2,
+   "cited_docs": [
+    [
+     "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en"
+    ],
+    [
+     "uae-data-protection-laws"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c32",
+   "run": 1,
+   "seconds": 19.8,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 3,
+   "right": 3,
+   "cited_docs": [
+    [
+     "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en"
+    ],
+    [
+     "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en"
+    ],
+    [
+     "uaelegislation-federal-decree-law-45-2021-personal-data-protection-en"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c33",
+   "run": 1,
+   "seconds": 10.2,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "dubai-tenancy-law-26-2007"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c34",
+   "run": 1,
+   "seconds": 23.3,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 3,
+   "right": 3,
+   "cited_docs": [
+    [
+     "ai-gov-uae-national-strategy-for-ai-2031-en"
+    ],
+    [
+     "ai-gov-uae-national-strategy-for-ai-2031-en"
+    ],
+    [
+     "ai-gov-uae-national-strategy-for-ai-2031-en"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c35",
+   "run": 1,
+   "seconds": 24.4,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 2,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-digital-government-strategy-2025"
+    ],
+    [
+     "uae-national-digital-accessibility-policy"
+    ]
+   ],
+   "found": true,
+   "clean": false
+  },
+  {
+   "id": "c36",
+   "run": 1,
+   "seconds": 18.9,
+   "drafter": "LLMDrafter",
+   "status": "held",
+   "check": "held",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "dubai-data-law-26-2015"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c37",
+   "run": 1,
+   "seconds": 26.4,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-national-digital-accessibility-policy"
+    ],
+    [
+     "uae-national-digital-accessibility-policy"
+    ],
+    [
+     "uae-national-digital-accessibility-policy"
+    ],
+    [
+     "uae-national-digital-accessibility-policy"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c38",
+   "run": 1,
+   "seconds": 32.6,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 3,
+   "cited_docs": [
+    [
+     "uae-data-protection-laws"
+    ],
+    [
+     "dubai-data-law-26-2015"
+    ],
+    [
+     "uae-data-protection-laws"
+    ],
+    [
+     "uae-data-protection-laws"
+    ]
+   ],
+   "found": true,
+   "clean": false
+  },
+  {
+   "id": "c39",
+   "run": 1,
+   "seconds": 25.7,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-unified-digital-platform-policy-ar"
+    ],
+    [
+     "uae-unified-digital-platform-policy-ar"
+    ],
+    [
+     "uae-unified-digital-platform-policy-ar"
+    ],
+    [
+     "uae-unified-digital-platform-policy-ar"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c40",
+   "run": 1,
+   "seconds": 19.6,
+   "drafter": "LLMDrafter",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-pdpl-fdl-45-2021-ar"
+    ]
+   ],
+   "found": true,
+   "clean": true
+  }
+ ]
+}

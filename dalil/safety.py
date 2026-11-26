@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from typing import Sequence
 
 from dalil.retrieve import tokenize
 
@@ -55,7 +56,22 @@ _EVASION = re.compile(
     r"|\bforg(?:e|ed|ing|ery)\b"
     r"|\bwithout\s+(?:getting\s+)?(?:caught|detected|noticed)\b"
     r"|\b(?:get|work)\s+around\s+(?:the\s+)?(?:rules|law|ban|system)\b"
-    r"|\b(?:evade|evading|circumvent)\b",
+    r"|\b(?:evade|evading|circumvent)\b"
+    # The same requests in Arabic: "ignore your rules", "evade", "get around",
+    # "forge", "stay or work without a fine", "without being caught".
+    r"|تجاهل\s+(?:كل\s+|جميع\s+)?(?:قواعدك|تعليماتك|القواعد|التعليمات|القوانين|الإرشادات|السياسات)"
+    r"|(?:التهرب|أتهرب|اتهرب|نتهرب|يتهرب|تهرب)\s+من"
+    r"|(?:التحايل|أتحايل|اتحايل|نتحايل|يتحايل|تحايل|الالتفاف|ألتف)\s+على"
+    # Forging needs a document: «أزور» alone is also "I visit".
+    r"|(?:تزوير|مزور|مزورة|مزيف|مزيفة)\s+(?:\S+\s+){0,2}?(?:وثيقة|مستند|شهادة|تأشيرة|هوية|جواز|عقد|ختم|راتب)"
+    # "أزور" is also "I visit": only with the document straight after it.
+    r"|(?:أزوّر|أزور|ازور|نزور|زورت)\s+(?:وثيقة|مستند|شهادة|تأشيرة|هوية|جواز|عقد|ختم|راتب)"
+    r"|(?:وثيقة|مستند|شهادة|تأشيرة|هوية|جواز|عقد|ختم)\s+(?:\S+\s+){0,2}?(?:مزور|مزورة|مزيف|مزيفة)"
+    # Staying past the visa without a fine, as "overstay without a fine" in
+    # English; "renew my residency without a fine" is a fair question.
+    r"|(?:تجاوز\s+مدة|(?:البقاء|أبقى|ابقى|أعمل|اعمل)[^.؟?!]*بعد\s+انتهاء|بعد\s+انتهاء[^.؟?!]*(?:البقاء|أبقى|ابقى|أعمل|اعمل))"
+    r"[^.؟?!]*(?:دون|بدون|من\s+غير)\s+(?:دفع\s+)?(?:أي\s+)?(?:غرام|عقوب|مخالف)"
+    r"|(?:دون|بدون|من\s+غير)\s+(?:أن\s+)?(?:يكتشف|يُكتشف|ينكشف|يلاحظ|يمسك|يُمسك|أُكشف|اكتشاف)",
     re.IGNORECASE,
 )
 
@@ -67,8 +83,18 @@ ASK_FOR_DETAIL = "Please say which service or document you mean, so I can answer
 # question whose key words are all of this kind, such as "How long can I
 # stay?" or "What does it cost?", has no subject. Stems, as tokenize() makes.
 _GENERIC = frozenset("long much mani get need can take stay go work cost time day year do make use want "
-                     "allow possibl requir happen start finish valid".split())
+                     "allow possibl requir happen start finish valid".split()) | frozenset(
+    # The same words in Arabic, as tokenize() makes them: "how long can I stay?"
+    # is «كم من الوقت يمكنني البقاء؟».
+    tokenize("وقت الوقت مده مدة طويل طويلة يمكنني يمكن أستطيع استطيع أقدر احتاج أحتاج اريد أريد يجب البقاء "
+             "أبقى ابقى بقاء ابقي تكلفه تكلفة يكلف سعر يوم يوما أيام ايام سنه سنة شهر اشهر أشهر مسموح يسمح "
+             "أعمل اعمل العمل أذهب اذهب افعل أفعل اعرف أعرف صالح صالحة سارية ساري", stem=True))
 _PLACEHOLDER = re.compile(r"\[[A-Z ]+\]")
+
+
+def subject_generic() -> frozenset[str]:
+    """Words that say what someone wants to know but not about what."""
+    return _GENERIC
 
 
 def subject_words(text: str) -> set[str]:
@@ -110,37 +136,84 @@ def _replace(match: re.Match[str], placeholder: str) -> str:
 _DIGITS = str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹", "01234567890123456789")
 
 
-def redact(text: str) -> tuple[str, list[str]]:
+Redaction = tuple[str, str, re.Pattern[str]]  # (flag name, placeholder, pattern)
+
+
+def redact(text: str, redactions: Sequence[Redaction] | None = None) -> tuple[str, list[str]]:
     """Replace personal data with placeholders; return the text and what was found.
 
     Arabic-Indic digits are read as ASCII first, so an Emirates ID typed in
     Arabic is caught too. Other numbers in the question come back in ASCII.
+    `redactions` replaces the UAE formats, for another knowledge base.
     """
     text = text.translate(_DIGITS)
     found: list[str] = []
-    for name, placeholder, pattern in _REDACTIONS:
+    for name, placeholder, pattern in (_REDACTIONS if redactions is None else redactions):
         text, n = pattern.subn(lambda m, ph=placeholder: _replace(m, ph), text)
         if n:
             found.append(f"{PERSONAL_DATA}:{name}")
     return text, found
 
 
-def find_personal_data(text: str) -> list[str]:
+def find_personal_data(text: str, redactions: Sequence[Redaction] | None = None) -> list[str]:
     """The personal-data strings in `text` that redact() would replace."""
     found = []
     text = text.translate(_DIGITS)
-    for _, _, pattern in _REDACTIONS:
+    for _, _, pattern in (_REDACTIONS if redactions is None else redactions):
         for m in pattern.finditer(text):
             pii = m.group("pii") if "pii" in pattern.groupindex and m.group("pii") else m.group(0)
             found.append(pii)
     return found
 
 
-def screen(question: str) -> ScreenResult:
+def screen(question: str, redactions: Sequence[Redaction] | None = None) -> ScreenResult:
     """Redact personal data and flag requests to get around the rules."""
-    redacted, flags = redact(question.strip())
+    redacted, flags = redact(question.strip(), redactions)
     if not subject_words(redacted):
         flags.append(VAGUE)
     if _EVASION.search(redacted):
         flags.append(RULE_EVASION)
     return ScreenResult(redacted, flags)
+
+
+@dataclass(frozen=True)
+class Screener:
+    """The screening settings of one knowledge base: the ID formats removed
+    from a question, and the fixed sentences that go out without a citation.
+    The defaults are the UAE ones above; a knowledge-base profile
+    (dalil/kb.py) can replace any of them without a code change."""
+
+    redactions: tuple[Redaction, ...] = tuple(_REDACTIONS)
+    refusal_text: str = REFUSAL_TEXT
+    refusal_follow_up: str = REFUSAL_FOLLOW_UP
+    personal_data_caveat: str = PERSONAL_DATA_CAVEAT
+    ask_for_detail: str = ASK_FOR_DETAIL
+
+    def screen(self, question: str) -> ScreenResult:
+        return screen(question, self.redactions)
+
+    def redact(self, text: str) -> tuple[str, list[str]]:
+        return redact(text, self.redactions)
+
+    def find_personal_data(self, text: str) -> list[str]:
+        return find_personal_data(text, self.redactions)
+
+    @property
+    def fixed_texts(self) -> dict[str, str]:
+        return {"REFUSAL_TEXT": self.refusal_text, "REFUSAL_FOLLOW_UP": self.refusal_follow_up,
+                "PERSONAL_DATA_CAVEAT": self.personal_data_caveat, "ASK_FOR_DETAIL": self.ask_for_detail}
+
+
+def compile_redactions(specs: Sequence[dict]) -> tuple[Redaction, ...]:
+    """Redactions from a profile: [{"name", "placeholder", "pattern", "ignore_case"}].
+    A pattern may use a named group `pii` to replace only that part."""
+    out = []
+    for spec in specs:
+        name, placeholder = str(spec["name"]), str(spec["placeholder"])
+        if not re.fullmatch(r"[a-z][a-z0-9_]*", name) or not re.fullmatch(r"\[[A-Z ]+\]", placeholder):
+            raise ValueError(f"redaction needs a lower-case name and a [PLACEHOLDER]: {name!r} {placeholder!r}")
+        out.append((name, placeholder, re.compile(spec["pattern"], re.IGNORECASE if spec.get("ignore_case") else 0)))
+    return tuple(out)
+
+
+DEFAULT_SCREENER = Screener()

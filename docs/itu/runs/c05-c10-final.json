@@ -1,0 +1,607 @@
+{
+ "summary": {
+  "questions": 2,
+  "runs": 10,
+  "answers": 20,
+  "answered": 20,
+  "found": 20,
+  "clean": 20,
+  "claims_kept": 55,
+  "claims_right": 55,
+  "data_only_claims": 0,
+  "claim_precision": 1.0,
+  "seconds_median": 10.2,
+  "prompt_tokens_median": 4.0,
+  "output_tokens_median": 264.5,
+  "drafters": [
+   "LLMDrafter"
+  ]
+ },
+ "results": [
+  {
+   "id": "c05",
+   "run": 1,
+   "seconds": 18.9,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 2103,
+   "output_tokens": 313,
+   "prompt_ms": 6799.524,
+   "output_ms": 10968.626,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c10",
+   "run": 1,
+   "seconds": 9.4,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 2033,
+   "output_tokens": 64,
+   "prompt_ms": 6657.078,
+   "output_ms": 2257.813,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-health-conditions-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c05",
+   "run": 2,
+   "seconds": 11.6,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 313,
+   "prompt_ms": 83.621,
+   "output_ms": 10927.835,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c10",
+   "run": 2,
+   "seconds": 2.7,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 70,
+   "prompt_ms": 77.777,
+   "output_ms": 2476.448,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-health-conditions-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c05",
+   "run": 3,
+   "seconds": 11.2,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 313,
+   "prompt_ms": 67.116,
+   "output_ms": 10924.879,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c10",
+   "run": 3,
+   "seconds": 2.5,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 64,
+   "prompt_ms": 53.825,
+   "output_ms": 2253.82,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-health-conditions-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c05",
+   "run": 4,
+   "seconds": 11.3,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 313,
+   "prompt_ms": 60.863,
+   "output_ms": 11094.149,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c10",
+   "run": 4,
+   "seconds": 2.6,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 64,
+   "prompt_ms": 68.974,
+   "output_ms": 2313.517,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-health-conditions-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c05",
+   "run": 5,
+   "seconds": 11.1,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 313,
+   "prompt_ms": 64.788,
+   "output_ms": 10888.339,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c10",
+   "run": 5,
+   "seconds": 2.7,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 70,
+   "prompt_ms": 59.37,
+   "output_ms": 2474.299,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-health-conditions-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c05",
+   "run": 6,
+   "seconds": 11.1,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 313,
+   "prompt_ms": 50.99,
+   "output_ms": 10979.792,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c10",
+   "run": 6,
+   "seconds": 2.4,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 64,
+   "prompt_ms": 50.449,
+   "output_ms": 2235.318,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-health-conditions-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c05",
+   "run": 7,
+   "seconds": 11.1,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 313,
+   "prompt_ms": 65.949,
+   "output_ms": 10908.482,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c10",
+   "run": 7,
+   "seconds": 4.2,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 115,
+   "prompt_ms": 52.948,
+   "output_ms": 4005.431,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 2,
+   "right": 2,
+   "cited_docs": [
+    [
+     "uae-health-conditions-residence-visa"
+    ],
+    [
+     "uae-residence-visa-general-provisions"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c05",
+   "run": 8,
+   "seconds": 11.9,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 337,
+   "prompt_ms": 70.645,
+   "output_ms": 11721.379,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c10",
+   "run": 8,
+   "seconds": 4.2,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 115,
+   "prompt_ms": 60.469,
+   "output_ms": 3962.972,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 2,
+   "right": 2,
+   "cited_docs": [
+    [
+     "uae-health-conditions-residence-visa"
+    ],
+    [
+     "uae-residence-visa-general-provisions"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c05",
+   "run": 9,
+   "seconds": 11.0,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 313,
+   "prompt_ms": 64.471,
+   "output_ms": 10786.569,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c10",
+   "run": 9,
+   "seconds": 2.6,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 70,
+   "prompt_ms": 63.832,
+   "output_ms": 2442.17,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-health-conditions-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c05",
+   "run": 10,
+   "seconds": 11.0,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 313,
+   "prompt_ms": 56.278,
+   "output_ms": 10849.811,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ],
+    [
+     "uae-retirement-residence-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c10",
+   "run": 10,
+   "seconds": 7.7,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 216,
+   "prompt_ms": 53.426,
+   "output_ms": 7487.028,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-health-conditions-residence-visa"
+    ],
+    [
+     "uae-residence-visa-general-provisions"
+    ],
+    [
+     "uae-residence-visa-general-provisions"
+    ],
+    [
+     "uae-residence-visa-general-provisions"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  }
+ ]
+}

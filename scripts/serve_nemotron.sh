@@ -11,5 +11,9 @@ set -euo pipefail
 : "${LLAMA_SERVER:?set LLAMA_SERVER to a llama.cpp llama-server binary}"
 : "${MODEL:?set MODEL to the Nemotron GGUF file}"
 PORT="${DALIL_LLM_PORT:-8790}"
-THREADS="${DALIL_LLM_THREADS:-$(( $(nproc) * 7 / 10 ))}"  # leaves room for the embedding server
-exec "$LLAMA_SERVER" -m "$MODEL" --host 127.0.0.1 --port "$PORT" -t "$THREADS" -c 16384 --jinja --alias nemotron
+CPUS="$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu)"
+THREADS="${DALIL_LLM_THREADS:-$(( CPUS * 7 / 10 ))}"  # leaves room for the embedding server
+# All layers on the GPU where there is one (Metal on a Mac); a CPU-only build ignores it.
+GPU_LAYERS="${DALIL_GPU_LAYERS:-99}"
+exec "$LLAMA_SERVER" -m "$MODEL" --host 127.0.0.1 --port "$PORT" -t "$THREADS" -ngl "$GPU_LAYERS" -c 16384 --jinja \
+    --alias nemotron

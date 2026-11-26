@@ -1,0 +1,223 @@
+{
+ "passed": 10,
+ "runs": [
+  {
+   "run": 1,
+   "first_cited": [
+    "uae-employment-contracts:p1:3",
+    "uae-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:6"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:5",
+    "uae-terminating-employment-contracts:p1:9",
+    "uaelegislation-federal-decree-law-33-2021-labour-relations-en:p10:1",
+    "uaelegislation-federal-decree-law-33-2021-labour-relations-en:p30:1"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim",
+    "claim",
+    "claim",
+    "claim",
+    "caveat"
+   ]
+  },
+  {
+   "run": 2,
+   "first_cited": [
+    "uae-employment-contracts:p1:3",
+    "uae-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:6"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:5",
+    "uaelegislation-federal-decree-law-33-2021-labour-relations-en:p10:1",
+    "uaelegislation-federal-decree-law-33-2021-labour-relations-en:p30:1"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim",
+    "claim",
+    "claim",
+    "claim",
+    "caveat"
+   ]
+  },
+  {
+   "run": 3,
+   "first_cited": [
+    "uae-employment-contracts:p1:3",
+    "uae-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:6"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:5",
+    "uaelegislation-federal-decree-law-33-2021-labour-relations-en:p10:1",
+    "uaelegislation-federal-decree-law-33-2021-labour-relations-en:p30:1"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim",
+    "claim",
+    "claim",
+    "caveat"
+   ]
+  },
+  {
+   "run": 4,
+   "first_cited": [
+    "uae-employment-contracts:p1:3",
+    "uae-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:6"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:5",
+    "uaelegislation-federal-decree-law-33-2021-labour-relations-en:p30:1"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim",
+    "claim",
+    "claim",
+    "claim",
+    "caveat"
+   ]
+  },
+  {
+   "run": 5,
+   "first_cited": [
+    "uae-employment-contracts:p1:3",
+    "uae-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:6"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:5",
+    "uae-terminating-employment-contracts:p1:9",
+    "uaelegislation-federal-decree-law-33-2021-labour-relations-en:p30:1"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim",
+    "claim",
+    "claim",
+    "claim",
+    "caveat"
+   ]
+  },
+  {
+   "run": 6,
+   "first_cited": [
+    "uae-employment-contracts:p1:3",
+    "uae-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:6"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:5"
+   ],
+   "second_status": "pass_with_cuts",
+   "pass": true,
+   "second_kinds": [
+    "claim",
+    "claim",
+    "claim",
+    "caveat"
+   ]
+  },
+  {
+   "run": 7,
+   "first_cited": [
+    "uae-employment-contracts:p1:3",
+    "uae-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:6"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:5",
+    "uaelegislation-federal-decree-law-33-2021-labour-relations-en:p30:3"
+   ],
+   "second_status": "pass_with_cuts",
+   "pass": true,
+   "second_kinds": [
+    "claim",
+    "claim",
+    "claim",
+    "caveat"
+   ]
+  },
+  {
+   "run": 8,
+   "first_cited": [
+    "uae-employment-contracts:p1:3",
+    "uae-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:6"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:5",
+    "uaelegislation-federal-decree-law-33-2021-labour-relations-en:p10:1",
+    "uaelegislation-federal-decree-law-33-2021-labour-relations-en:p30:1"
+   ],
+   "second_status": "pass",
+   "pass": true,
+   "second_kinds": [
+    "claim",
+    "claim",
+    "claim",
+    "caveat"
+   ]
+  },
+  {
+   "run": 9,
+   "first_cited": [
+    "uae-employment-contracts:p1:3",
+    "uae-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:6"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:5"
+   ],
+   "second_status": "pass_with_cuts",
+   "pass": true,
+   "second_kinds": [
+    "claim",
+    "claim",
+    "claim",
+    "caveat"
+   ]
+  },
+  {
+   "run": 10,
+   "first_cited": [
+    "uae-employment-contracts:p1:3",
+    "uae-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:4",
+    "uae-terminating-employment-contracts:p1:6"
+   ],
+   "second_cited": [
+    "uae-terminating-employment-contracts:p1:5",
+    "uaelegislation-federal-decree-law-33-2021-labour-relations-en:p30:3"
+   ],
+   "second_status": "pass_with_cuts",
+   "pass": true,
+   "second_kinds": [
+    "claim",
+    "claim",
+    "claim",
+    "caveat"
+   ]
+  }
+ ]
+}

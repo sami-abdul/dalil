@@ -2,7 +2,13 @@
  "_note": "Synthetic sample data for the Dalil reviewer screen (?mock=1). Invented text, not from the real corpus.",
  "health": {
   "ok": true,
-  "zetaris": true,
+  "zetaris": false,
+  "data_source": {
+   "connected": true,
+   "kind": "local",
+   "label": "Open data: local database",
+   "tables": ["dalil.open_ehs_medical_fitness", "dalil.open_icp_transactions", "dalil.open_mohre_solved_complaints", "dalil.open_tasheel_centres"]
+  },
   "passages": 1284
  },
  "questions": [

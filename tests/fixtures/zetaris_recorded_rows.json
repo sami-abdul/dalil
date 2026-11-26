@@ -1,0 +1,29 @@
+{
+ "about": "Rows the server's Zetaris (Lightning 2.4.3.1) returned for Dalil's fixed open-data queries, copied from the data column of stored answers in the evaluation stores of 22, 24 and 26 October 2026 (build/dalil-eval*.db and build/dalil.db in the release dalil-preservation-2026-11-19). Only the SQL and the rows are kept: they are Bayanat open data. No question text or answer is copied. The complaints query is the one in use before 25 November 2026; it is kept to compare engines on the same statement.",
+ "recorded": [
+  {
+   "sql": "SELECT year, transactions FROM dalil.open_icp_transactions WHERE service_en = 'Renewal of ID Card' ORDER BY year DESC LIMIT 1",
+   "rows": [
+    {
+     "year": "2025",
+     "transactions": "5856085"
+    }
+   ],
+   "times_recorded": 15,
+   "first": "2026-10-22T07:50:15Z",
+   "last": "2026-10-26T09:30:02Z"
+  },
+  {
+   "sql": "SELECT Year AS year, CAST(SUM(CAST(SolvedComplaints_count AS BIGINT)) AS BIGINT) AS solved FROM dalil.open_mohre_solved_complaints GROUP BY Year ORDER BY Year DESC LIMIT 1",
+   "rows": [
+    {
+     "year": "2020",
+     "solved": "125483"
+    }
+   ],
+   "times_recorded": 7,
+   "first": "2026-10-22T07:52:11Z",
+   "last": "2026-10-26T09:25:48Z"
+  }
+ ]
+}

@@ -1,0 +1,114 @@
+{
+ "name": "open-data",
+ "description": "One question for each fixed open-data rule in dalil/opendata.py, asked through the real pipeline. Each must come back with the number in a kept sentence, a data citation on the rule's table and column, and the checker's rerun returning that value. The values are what the committed files in data/open/ hold, worked out before the run. Written 25 November 2026, before the first run. D6 and D7, the same lookups asked in Arabic, were added on 25 November 2026 after the integration branch began answering in Arabic, also before their first run.",
+ "repeat": 10,
+ "scenarios": [
+  {
+   "id": "D1",
+   "title": "Emirates ID renewals, ICP",
+   "question": "How many Emirates ID cards does ICP renew in a year?",
+   "expect": "the answer states 5856085 Emirates ID card renewals (2025), cites dalil.open_icp_transactions, the checker's rerun returns the value, and the lookup ran on the local database",
+   "checks": {
+    "status": "awaiting_review",
+    "states_value": {
+     "table": "dalil.open_icp_transactions",
+     "column": "transactions",
+     "value": "5856085"
+    },
+    "source": "local"
+   }
+  },
+  {
+   "id": "D2",
+   "title": "Residence permit renewals, ICP",
+   "question": "How many residence permit renewals does ICP handle each year?",
+   "expect": "the answer states 3763072 residence permit renewals (2025), cites dalil.open_icp_transactions, the checker's rerun returns the value, and the lookup ran on the local database",
+   "checks": {
+    "status": "awaiting_review",
+    "states_value": {
+     "table": "dalil.open_icp_transactions",
+     "column": "transactions",
+     "value": "3763072"
+    },
+    "source": "local"
+   }
+  },
+  {
+   "id": "D3",
+   "title": "Tasheel service centres, MOHRE",
+   "question": "How many Tasheel service centres are there in the UAE?",
+   "expect": "the answer states 49 Tasheel centres, cites dalil.open_tasheel_centres, the checker's rerun returns the value, and the lookup ran on the local database",
+   "checks": {
+    "status": "awaiting_review",
+    "states_value": {
+     "table": "dalil.open_tasheel_centres",
+     "column": "centres",
+     "value": "49"
+    },
+    "source": "local"
+   }
+  },
+  {
+   "id": "D4",
+   "title": "Residency medical fitness exams, Emirates Health Services",
+   "question": "How many medical fitness exams for residency visas does Emirates Health Services carry out in a year?",
+   "expect": "the answer states 1424313 exams (2025), cites dalil.open_ehs_medical_fitness, the checker's rerun returns the value, and the lookup ran on the local database",
+   "checks": {
+    "status": "awaiting_review",
+    "states_value": {
+     "table": "dalil.open_ehs_medical_fitness",
+     "column": "exams",
+     "value": "1424313"
+    },
+    "source": "local"
+   }
+  },
+  {
+   "id": "D5",
+   "title": "Solved private-sector labour complaints, MOHRE",
+   "question": "How many private-sector labour complaints does MOHRE solve in a year?",
+   "expect": "the answer states 207927 solved complaints (2019, each emirate counted once), cites dalil.open_mohre_solved_complaints, the checker's rerun returns the value, and the lookup ran on the local database",
+   "checks": {
+    "status": "awaiting_review",
+    "states_value": {
+     "table": "dalil.open_mohre_solved_complaints",
+     "column": "solved",
+     "value": "207927"
+    },
+    "source": "local"
+   }
+  },
+  {
+   "id": "D6",
+   "title": "Emirates ID renewals, asked in Arabic",
+   "question": "كم عدد بطاقات الهوية الإماراتية التي تجددها الهيئة الاتحادية للهوية والجنسية في السنة؟",
+   "expect": "an answer in Arabic that states 5856085 Emirates ID card renewals (2025), cites dalil.open_icp_transactions, the checker's rerun returns the value, and the lookup ran on the local database",
+   "checks": {
+    "status": "awaiting_review",
+    "states_value": {
+     "table": "dalil.open_icp_transactions",
+     "column": "transactions",
+     "value": "5856085"
+    },
+    "source": "local",
+    "claims_language": "ar"
+   }
+  },
+  {
+   "id": "D7",
+   "title": "Tasheel service centres, asked in Arabic",
+   "question": "كم عدد مراكز خدمة تسهيل في دولة الإمارات؟",
+   "expect": "an answer in Arabic that states 49 Tasheel centres, cites dalil.open_tasheel_centres, the checker's rerun returns the value, and the lookup ran on the local database",
+   "checks": {
+    "status": "awaiting_review",
+    "states_value": {
+     "table": "dalil.open_tasheel_centres",
+     "column": "centres",
+     "value": "49"
+    },
+    "source": "local",
+    "claims_language": "ar"
+   }
+  }
+ ]
+}

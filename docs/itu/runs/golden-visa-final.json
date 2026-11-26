@@ -1,0 +1,322 @@
+{
+ "summary": {
+  "questions": 1,
+  "runs": 10,
+  "answers": 10,
+  "answered": 10,
+  "found": 10,
+  "clean": 10,
+  "claims_kept": 30,
+  "claims_right": 30,
+  "data_only_claims": 0,
+  "claim_precision": 1.0,
+  "seconds_median": 3.2,
+  "prompt_tokens_median": 4.0,
+  "output_tokens_median": 100.0,
+  "drafters": [
+   "LLMDrafter"
+  ]
+ },
+ "results": [
+  {
+   "id": "c41",
+   "run": 1,
+   "seconds": 6.3,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 1094,
+   "output_tokens": 96,
+   "prompt_ms": 2819.775,
+   "output_ms": 2915.387,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-golden-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c41",
+   "run": 2,
+   "seconds": 6.7,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 217,
+   "prompt_ms": 61.487,
+   "output_ms": 6541.676,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 3,
+   "right": 3,
+   "cited_docs": [
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c41",
+   "run": 3,
+   "seconds": 3.2,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 100,
+   "prompt_ms": 55.509,
+   "output_ms": 3023.082,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c41",
+   "run": 4,
+   "seconds": 3.1,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 96,
+   "prompt_ms": 56.626,
+   "output_ms": 2917.435,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-golden-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c41",
+   "run": 5,
+   "seconds": 3.2,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 100,
+   "prompt_ms": 56.892,
+   "output_ms": 3032.605,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c41",
+   "run": 6,
+   "seconds": 8.4,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 273,
+   "prompt_ms": 60.514,
+   "output_ms": 8169.497,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c41",
+   "run": 7,
+   "seconds": 3.2,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 100,
+   "prompt_ms": 61.109,
+   "output_ms": 3043.675,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c41",
+   "run": 8,
+   "seconds": 3.2,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 100,
+   "prompt_ms": 58.749,
+   "output_ms": 3025.045,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c41",
+   "run": 9,
+   "seconds": 3.2,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 100,
+   "prompt_ms": 59.775,
+   "output_ms": 3045.863,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass",
+   "kept": 4,
+   "right": 4,
+   "cited_docs": [
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ],
+    [
+     "uae-golden-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  },
+  {
+   "id": "c41",
+   "run": 10,
+   "seconds": 3.1,
+   "drafter": "LLMDrafter",
+   "prompt_tokens": 4,
+   "output_tokens": 96,
+   "prompt_ms": 55.883,
+   "output_ms": 2919.202,
+   "fallback_reason": "",
+   "status": "awaiting_review",
+   "check": "pass_with_cuts",
+   "kept": 1,
+   "right": 1,
+   "cited_docs": [
+    [
+     "uae-golden-visa"
+    ]
+   ],
+   "data_only": 0,
+   "said_what_sources_do_not": 0,
+   "found": true,
+   "clean": true
+  }
+ ]
+}

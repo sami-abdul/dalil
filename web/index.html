@@ -12,21 +12,24 @@
 
   <header class="topbar">
     <div class="brand">
-      <span class="brand-mark" aria-hidden="true">د</span>
-      <div>
-        <h1 class="brand-name">Dalil</h1>
-        <p class="brand-sub">Answers checked against official sources, approved by a person</p>
-      </div>
+      <h1 class="brand-name">Dalil</h1>
+      <p class="brand-sub">Reviewer screen</p>
     </div>
     <form id="ask-form" class="ask" autocomplete="off">
-      <label for="ask-input" class="ask-label">Ask about a UAE government service</label>
+      <label for="ask-input" class="ask-label" id="ask-label">Ask about a UAE government service</label>
       <div class="ask-row">
         <input id="ask-input" name="question" type="text" dir="auto" required
                placeholder="For example: How is end of service gratuity worked out?">
         <button type="submit" class="btn btn-primary" id="ask-submit">Ask Dalil</button>
       </div>
     </form>
-    <div id="health" class="health" role="status" aria-live="polite"></div>
+    <div class="topbar-side">
+      <div class="kb-picker">
+        <label for="kb-select">Knowledge base</label>
+        <select id="kb-select" disabled><option>Loading</option></select>
+      </div>
+      <div id="health" class="health" role="status" aria-live="polite"></div>
+    </div>
   </header>
 
   <div id="notice" class="notice" role="alert" hidden></div>
@@ -40,81 +43,105 @@
       <ul id="queue-list" class="queue-list"></ul>
     </nav>
 
-    <section id="answer-panel" class="answer-panel" aria-labelledby="answer-heading" tabindex="-1">
+    <section id="answer-panel" class="record" aria-label="Selected question" tabindex="-1">
       <div id="answer-empty" class="empty">
         <h2 id="answer-heading">No question selected</h2>
         <p>Pick a question from the review queue, or ask a new one above.</p>
       </div>
-      <div id="answer-body" hidden>
-        <div class="question-head">
-          <p class="eyebrow">Question <span id="q-id"></span>, asked <time id="q-time"></time></p>
+
+      <div id="answer-body" class="record-body" hidden>
+        <header class="record-head">
           <h2 id="q-text" class="question-text" dir="auto"></h2>
-          <div id="q-meta" class="q-meta"></div>
-        </div>
-        <div id="flags"></div>
-
-        <div class="tabs" role="tablist" aria-label="Answer views">
-          <button role="tab" id="tab-answer" aria-controls="view-answer" aria-selected="true" class="tab">Answer</button>
-          <button role="tab" id="tab-audit" aria-controls="view-audit" aria-selected="false" tabindex="-1" class="tab">Audit trail</button>
-        </div>
-
-        <div id="view-answer" role="tabpanel" aria-labelledby="tab-answer" class="view">
-          <div id="working" class="working" hidden>
-            <span class="spinner" aria-hidden="true"></span>
-            <span>Dalil is searching the sources and checking its draft.</span>
+          <div class="q-meta">
+            <div id="q-meta" class="q-meta-main"></div>
+            <details class="record-details">
+              <summary>Record details</summary>
+              <dl class="kv">
+                <dt>Question code</dt><dd><code id="q-id"></code></dd>
+                <dt>Asked</dt><dd><time id="q-time"></time></dd>
+                <dt>Screening flags</dt><dd><code id="q-flags"></code></dd>
+                <dt>Checker result</dt><dd><code id="q-check"></code></dd>
+              </dl>
+            </details>
           </div>
-          <section aria-labelledby="draft-heading">
-            <h3 id="draft-heading" class="section-title">Answer to send</h3>
-            <div id="draft" class="draft"></div>
-          </section>
-          <section id="cut-section" class="cut-section" aria-labelledby="cut-heading" hidden>
-            <h3 id="cut-heading" class="section-title">Cut by the checker</h3>
-            <p class="cut-intro">These sentences were in the draft, but they did not match their sources word for word, so they will not be sent.</p>
-            <ol id="cut-list" class="cut-list"></ol>
-          </section>
-        </div>
+          <div id="flags" class="flags"></div>
+        </header>
 
-        <div id="view-audit" role="tabpanel" aria-labelledby="tab-audit" class="view" hidden>
-          <ol id="audit-list" class="audit-list"></ol>
+        <section class="pipeline" aria-labelledby="stages-heading">
+          <h3 id="stages-heading" class="visually-hidden">Steps this question went through</h3>
+          <ol id="stages" class="stages"></ol>
+          <p class="stages-note">Stage names from ITU-T Y.3172. Times are measured from the audit trail, which records every step (Y.3172 SINK).</p>
+        </section>
+
+        <div class="record-grid">
+          <div class="answer-col">
+            <div class="tabs" role="tablist" aria-label="Answer views">
+              <button role="tab" id="tab-answer" aria-controls="view-answer" aria-selected="true" class="tab">Answer</button>
+              <button role="tab" id="tab-audit" aria-controls="view-audit" aria-selected="false" tabindex="-1" class="tab">Audit trail</button>
+            </div>
+
+            <div class="answer-scroll">
+              <div id="view-answer" role="tabpanel" aria-labelledby="tab-answer" class="view">
+                <div id="state-note"></div>
+                <div id="working" class="working" hidden>
+                  Dalil is answering. The steps above change as each part finishes. The answer appears here once the checker has tested every sentence.
+                </div>
+                <section aria-labelledby="draft-heading">
+                  <h3 id="draft-heading" class="section-title">Answer to send</h3>
+                  <div id="draft" class="draft"></div>
+                </section>
+                <section id="cut-section" class="cut-section" aria-labelledby="cut-heading" hidden>
+                  <h3 id="cut-heading" class="section-title">Cut by the checker</h3>
+                  <p class="cut-intro">These sentences were in the draft, but they did not pass the checker, so they will never be sent.</p>
+                  <ol id="cut-list" class="cut-list"></ol>
+                </section>
+              </div>
+
+              <div id="view-audit" role="tabpanel" aria-labelledby="tab-audit" class="view" hidden>
+                <h3 class="section-title">Audit trail</h3>
+                <p class="audit-intro">Every step is written once and never changed. Times are in UAE time.</p>
+                <ol id="audit-list" class="audit-list"></ol>
+                <details class="raw">
+                  <summary>Show the raw record</summary>
+                  <pre id="audit-raw" class="raw-json" tabindex="0" aria-label="Raw record as JSON"></pre>
+                </details>
+              </div>
+            </div>
+
+            <form id="review-form" class="review-bar" hidden aria-labelledby="review-heading">
+              <h3 id="review-heading" class="visually-hidden">Review decision</h3>
+              <div id="review-done" class="review-done" hidden></div>
+              <div id="review-fields" class="review-fields">
+                <div class="field field-name">
+                  <label for="reviewer">Your name</label>
+                  <input id="reviewer" name="reviewer" type="text" autocomplete="name" required>
+                </div>
+                <div class="field field-note">
+                  <label for="note">Note</label>
+                  <input id="note" name="note" type="text" dir="auto" placeholder="Why you rejected it, or anything worth recording">
+                </div>
+              </div>
+              <div class="review-foot">
+                <p id="review-rule" class="review-rule"></p>
+                <div class="review-actions">
+                  <button type="button" id="btn-reject" class="btn btn-reject" aria-describedby="review-rule">Reject</button>
+                  <button type="button" id="btn-approve" class="btn btn-approve" aria-describedby="review-rule">Approve and send</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <aside class="evidence" aria-labelledby="evidence-heading">
+            <h2 id="evidence-heading" class="visually-hidden">Evidence</h2>
+            <section id="source-view" class="source-view" aria-live="polite"></section>
+            <section class="searched" aria-labelledby="searched-heading">
+              <h3 id="searched-heading" class="panel-title">What Dalil searched</h3>
+              <div id="searched"></div>
+            </section>
+          </aside>
         </div>
       </div>
-
-      <form id="review-form" class="review-bar" hidden aria-labelledby="review-heading">
-        <h3 id="review-heading" class="visually-hidden">Review decision</h3>
-        <div id="review-done" class="review-done" hidden></div>
-        <div id="review-fields" class="review-fields">
-          <div class="field field-name">
-            <label for="reviewer">Your name</label>
-            <input id="reviewer" name="reviewer" type="text" autocomplete="name" required>
-          </div>
-          <div class="field field-note">
-            <label for="note">Note</label>
-            <input id="note" name="note" type="text" dir="auto" placeholder="Why you rejected it, or anything worth recording">
-          </div>
-        </div>
-        <div class="review-foot">
-          <p id="review-rule" class="review-rule"></p>
-          <div class="review-actions">
-            <button type="button" id="btn-reject" class="btn btn-reject" aria-describedby="review-rule">Reject</button>
-            <button type="button" id="btn-approve" class="btn btn-approve" aria-describedby="review-rule">Approve and send</button>
-          </div>
-        </div>
-      </form>
     </section>
-
-    <aside class="evidence" aria-labelledby="evidence-heading">
-      <h2 id="evidence-heading" class="visually-hidden">Evidence</h2>
-      <section id="source-view" class="source-view" aria-live="polite">
-        <div class="source-empty">
-          <h3 class="panel-title">Source</h3>
-          <p>Select a numbered citation in the answer to see the exact words it quotes.</p>
-        </div>
-      </section>
-      <section class="searched" aria-labelledby="searched-heading">
-        <h3 id="searched-heading" class="panel-title">What Dalil searched</h3>
-        <div id="searched"></div>
-      </section>
-    </aside>
   </main>
 
   <script src="app.js"></script>

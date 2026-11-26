@@ -1,0 +1,33 @@
+{
+ "id": "uk",
+ "name": "UK government services (GOV.UK)",
+ "country": "United Kingdom",
+ "audience": "people in the UK",
+ "ask_label": "Ask about a UK government service",
+ "example_question": "For example: How much notice do I have to give my employer?",
+ "description": "Seven GOV.UK guides on National Insurance numbers, passports, notice, holiday, sick pay and redundancy, built with Dalil's own fetch, extract and passage steps. Text under the Open Government Licence v3.0. No open data.",
+ "manifest": "kb/uk/MANIFEST.csv",
+ "documents": "kb/uk/index/documents.jsonl",
+ "passages": "kb/uk/index/passages.jsonl",
+ "corpus_dir": "build/kb/uk/corpus",
+ "store": "build/kb/uk/dalil.db",
+ "open_data": null,
+ "review_memory": false,
+ "screener": {
+  "id_formats": [
+   {"name": "email", "placeholder": "[EMAIL]", "pattern": "\\b[\\w.+-]+@[\\w-]+(?:\\.[\\w-]+)+\\b"},
+   {"name": "national_insurance", "placeholder": "[NATIONAL INSURANCE]", "ignore_case": true,
+    "pattern": "(?<![A-Za-z0-9])[A-Z]{2}[\\s-]?\\d{2}[\\s-]?\\d{2}[\\s-]?\\d{2}[\\s-]?[A-D](?![A-Za-z0-9])"},
+   {"name": "phone", "placeholder": "[PHONE]",
+    "pattern": "(?:(?<![\\w+])(?:\\+|00)44[\\s.-]?\\(?0?\\)?[\\s.-]?\\d{2,4}[\\s.-]?\\d{3,4}[\\s.-]?\\d{3,4}(?!\\d))|(?:(?<!\\d)0\\d{2,4}[\\s.-]?\\d{3,4}[\\s.-]?\\d{3,4}(?!\\d))"},
+   {"name": "nhs_number", "placeholder": "[NHS NUMBER]", "pattern": "(?<!\\d)\\d{3}[\\s-]?\\d{3}[\\s-]?\\d{4}(?!\\d)"},
+   {"name": "passport", "placeholder": "[PASSPORT]", "ignore_case": true,
+    "pattern": "\\b[A-Za-z]{1,2}\\d{6,9}\\b|\\bpassport(?:\\s+(?:number|no\\.?|#))?(?:\\s+is)?\\s*:?\\s*(?P<pii>(?=[A-Za-z]*\\d)[A-Za-z0-9]{6,9})\\b"}
+  ],
+  "refusal_text": "I can't help with getting around UK rules, fines or penalties.",
+  "refusal_follow_up": "For your real options, contact the department that runs the service through GOV.UK.",
+  "personal_data_caveat": "Don't share National Insurance, NHS or passport numbers here; check your own records through the official GOV.UK services."
+ },
+ "licence": "Open Government Licence v3.0, https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+ "attribution": "Contains public sector information licensed under the Open Government Licence v3.0."
+}

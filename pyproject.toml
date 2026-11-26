@@ -22,6 +22,9 @@ itu = [
     "ollama>=0.6.3",
     "pydantic-settings>=2.16.1",
 ]
+web-test = [
+    "playwright>=1.65.2",
+]
 
 [dependency-groups]
 dev = [
